@@ -1,0 +1,60 @@
+@import 'tailwindcss';
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
+@source '../../../../vendor/filament/**/*.blade.php';
+
+@theme {
+    --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Paneventz — editorial, warm, understated. */
+.fi-body {
+    background: #f7f4ef;
+}
+
+.fi-sidebar {
+    background: #181716;
+    border-inline-end-color: rgb(255 255 255 / 8%);
+}
+
+.fi-sidebar-header {
+    background: #181716;
+}
+
+.fi-sidebar-item-button {
+    border-radius: .75rem;
+}
+
+.fi-sidebar-item-active > .fi-sidebar-item-button {
+    background: #b98a4a;
+    color: #fff;
+}
+
+.fi-sidebar-item-active > .fi-sidebar-item-button .fi-sidebar-item-icon,
+.fi-sidebar-item-active > .fi-sidebar-item-button .fi-sidebar-item-label {
+    color: #fff;
+}
+
+.fi-topbar {
+    background: rgb(247 244 239 / 88%);
+    backdrop-filter: blur(12px);
+}
+
+.fi-header-heading {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: 400;
+    letter-spacing: -.03em;
+}
+
+.fi-section,
+.fi-ta-ctn,
+.fi-wi-stats-overview-stat {
+    border-color: #e7dfd4;
+    box-shadow: 0 8px 30px rgb(45 34 21 / 5%);
+}
+
+.fi-btn-color-primary {
+    --tw-shadow: 0 5px 15px rgb(185 138 74 / 22%);
+}

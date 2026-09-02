@@ -1,0 +1,301 @@
+/* ==========================================================================
+   PANEVENTZ CYBER-LUXURY NEON THEME
+   Tailored for High-Contrast Dark Interface with Vibrant Glowing Accents
+   ========================================================================== */
+
+:root {
+    --neon-cyan: #00f0ff;
+    --neon-cyan-glow: rgba(0, 240, 255, 0.35);
+    --neon-cyan-subtle: rgba(0, 240, 255, 0.12);
+
+    --neon-green: #00ff9d;
+    --neon-green-glow: rgba(0, 255, 157, 0.35);
+
+    --neon-amber: #ffb700;
+    --neon-amber-glow: rgba(255, 183, 0, 0.35);
+
+    --neon-purple: #b026ff;
+    --neon-purple-glow: rgba(176, 38, 255, 0.35);
+
+    --neon-pink: #ff007f;
+    --neon-pink-glow: rgba(255, 0, 127, 0.35);
+
+    --dark-bg: #070a11;
+    --dark-surface: #0e1422;
+    --dark-card: #121929;
+    --dark-input: #0a0e18;
+    --dark-border: rgba(0, 240, 255, 0.18);
+}
+
+/* Global Canvas Background */
+body.fi-body,
+.fi-main {
+    background:
+        radial-gradient(circle at 90% 5%, rgba(0, 240, 255, 0.08), transparent 30%),
+        radial-gradient(circle at 10% 85%, rgba(176, 38, 255, 0.07), transparent 30%),
+        #070a11 !important;
+    color: #e2e8f0 !important;
+}
+
+/* SIDEBAR & NAVIGATION */
+.fi-sidebar,
+.fi-sidebar-header {
+    background: linear-gradient(180deg, #0a0e1a 0%, #050811 100%) !important;
+    border-right: 1px solid rgba(0, 240, 255, 0.12) !important;
+}
+
+.fi-sidebar-header {
+    border-bottom: 1px solid rgba(0, 240, 255, 0.12) !important;
+}
+
+.fi-sidebar-header-brand-name {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 1.45rem !important;
+    color: #fff !important;
+    letter-spacing: 2px !important;
+    text-shadow: 0 0 12px var(--neon-cyan-glow) !important;
+}
+
+.fi-sidebar-item-button {
+    border-radius: 8px !important;
+    color: #94a3b8 !important;
+    transition: all 0.25s ease !important;
+}
+
+.fi-sidebar-item-button:hover {
+    background: rgba(0, 240, 255, 0.07) !important;
+    color: #fff !important;
+}
+
+.fi-sidebar-item-active > .fi-sidebar-item-button {
+    background: rgba(0, 240, 255, 0.12) !important;
+    box-shadow: inset 3px 0 0 var(--neon-cyan), 0 0 18px rgba(0, 240, 255, 0.15) !important;
+    color: var(--neon-cyan) !important;
+}
+
+.fi-sidebar-item-active > .fi-sidebar-item-button .fi-sidebar-item-icon {
+    color: var(--neon-cyan) !important;
+    filter: drop-shadow(0 0 6px var(--neon-cyan-glow)) !important;
+}
+
+/* TOPBAR */
+.fi-topbar {
+    background: rgba(10, 14, 24, 0.85) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-bottom: 1px solid rgba(0, 240, 255, 0.12) !important;
+}
+
+/* HEADINGS */
+.fi-header-heading {
+    color: #ffffff !important;
+    font-family: Georgia, 'Times New Roman', serif !important;
+    font-weight: 500 !important;
+    letter-spacing: -0.02em !important;
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.15) !important;
+}
+
+/* SECTION CARDS & CONTAINERS */
+.fi-section {
+    background: rgba(18, 25, 41, 0.85) !important;
+    border: 1px solid rgba(0, 240, 255, 0.2) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 15px rgba(0, 240, 255, 0.05) !important;
+    margin-bottom: 24px !important;
+    backdrop-filter: blur(12px) !important;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+.fi-section:hover {
+    border-color: rgba(0, 240, 255, 0.4) !important;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7), 0 0 20px rgba(0, 240, 255, 0.12) !important;
+}
+
+.fi-section-header-heading {
+    color: #ffffff !important;
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.01em !important;
+}
+
+.fi-section-header-icon {
+    color: var(--neon-cyan) !important;
+    filter: drop-shadow(0 0 8px var(--neon-cyan-glow)) !important;
+}
+
+.fi-section-header-description {
+    color: #94a3b8 !important;
+    font-size: 0.85rem !important;
+    margin-top: 3px !important;
+}
+
+/* FORM INPUTS & LABELS (ULTRA HIGH CONTRAST) */
+.fi-fo-field-wrp label,
+.fi-fo-field-wrp-label {
+    color: #f1f5f9 !important;
+    font-weight: 600 !important;
+    font-size: 0.88rem !important;
+    margin-bottom: 6px !important;
+    display: inline-block !important;
+}
+
+.fi-input-wrp,
+input.fi-input,
+textarea.fi-input {
+    background: #090d16 !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    border-radius: 8px !important;
+    color: #ffffff !important;
+    transition: all 0.25s ease !important;
+}
+
+.fi-input-wrp:focus-within,
+input.fi-input:focus,
+textarea.fi-input:focus {
+    border-color: var(--neon-cyan) !important;
+    box-shadow: 0 0 14px var(--neon-cyan-glow) !important;
+    outline: none !important;
+}
+
+/* HELPER TEXT */
+.fi-fo-field-wrp-helper-text {
+    color: #94a3b8 !important;
+    font-size: 0.82rem !important;
+    line-height: 1.5 !important;
+    margin-top: 6px !important;
+}
+
+/* TABLES & DATA GRIDS */
+.fi-ta-ctn {
+    background: rgba(18, 25, 41, 0.85) !important;
+    border: 1px solid rgba(0, 240, 255, 0.18) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(12px) !important;
+}
+
+.fi-ta-header-cell {
+    color: #cbd5e1 !important;
+    font-size: 0.8rem !important;
+    letter-spacing: 1px !important;
+    text-transform: uppercase !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.fi-ta-row {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    transition: background 0.2s ease !important;
+}
+
+.fi-ta-row:hover {
+    background: rgba(0, 240, 255, 0.04) !important;
+}
+
+.fi-ta-cell,
+.fi-ta-text-item-label {
+    color: #f1f5f9 !important;
+}
+
+/* BUTTONS & ACTIONS (NEON GLOW) */
+.fi-btn-color-primary {
+    background: linear-gradient(135deg, #0099cc, #00f0ff) !important;
+    border: none !important;
+    color: #050811 !important;
+    font-weight: 700 !important;
+    box-shadow: 0 0 18px var(--neon-cyan-glow) !important;
+    transition: all 0.25s ease !important;
+    border-radius: 8px !important;
+}
+
+.fi-btn-color-primary:hover {
+    box-shadow: 0 0 25px rgba(0, 240, 255, 0.6) !important;
+    transform: translateY(-2px) !important;
+}
+
+.fi-btn-color-danger,
+.fi-btn[color="danger"],
+button.bg-danger-600 {
+    background: rgba(255, 0, 85, 0.18) !important;
+    border: 1px solid var(--neon-pink) !important;
+    color: var(--neon-pink) !important;
+    box-shadow: 0 0 12px var(--neon-pink-glow) !important;
+    transition: all 0.25s ease !important;
+}
+
+.fi-btn-color-danger:hover {
+    background: var(--neon-pink) !important;
+    color: #fff !important;
+    box-shadow: 0 0 22px rgba(255, 0, 127, 0.6) !important;
+}
+
+/* STATS OVERVIEW WIDGETS */
+.fi-wi-stats-overview-stat {
+    background: rgba(18, 25, 41, 0.85) !important;
+    border: 1px solid rgba(0, 240, 255, 0.2) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 12px rgba(0, 240, 255, 0.04) !important;
+    transition: all 0.3s ease !important;
+}
+
+.fi-wi-stats-overview-stat:hover {
+    border-color: var(--neon-cyan) !important;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 22px var(--neon-cyan-glow) !important;
+    transform: translateY(-3px) !important;
+}
+
+.fi-wi-stats-overview-stat-value {
+    color: #ffffff !important;
+    font-size: 2rem !important;
+    font-weight: 700 !important;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.2) !important;
+}
+
+.fi-wi-stats-overview-stat-label {
+    color: #94a3b8 !important;
+    font-size: 0.85rem !important;
+    letter-spacing: 0.5px !important;
+}
+
+.fi-wi-stats-overview-stat-icon {
+    color: var(--neon-cyan) !important;
+    filter: drop-shadow(0 0 8px var(--neon-cyan-glow)) !important;
+}
+
+/* BADGES & CHIPS */
+.fi-badge-color-success {
+    background: rgba(0, 255, 157, 0.15) !important;
+    border: 1px solid var(--neon-green) !important;
+    color: var(--neon-green) !important;
+    box-shadow: 0 0 8px var(--neon-green-glow) !important;
+}
+
+.fi-badge-color-warning {
+    background: rgba(255, 183, 0, 0.15) !important;
+    border: 1px solid var(--neon-amber) !important;
+    color: var(--neon-amber) !important;
+    box-shadow: 0 0 8px var(--neon-amber-glow) !important;
+}
+
+.fi-badge-color-info {
+    background: rgba(0, 240, 255, 0.15) !important;
+    border: 1px solid var(--neon-cyan) !important;
+    color: var(--neon-cyan) !important;
+    box-shadow: 0 0 8px var(--neon-cyan-glow) !important;
+}
+
+/* QUICK ACTION CARDS ON DASHBOARD */
+.paneventz-action,
+.paneventz-stat {
+    background: rgba(18, 25, 41, 0.85) !important;
+    border: 1px solid rgba(0, 240, 255, 0.2) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+    transition: all 0.3s ease !important;
+}
+
+.paneventz-action:hover,
+.paneventz-stat:hover {
+    border-color: var(--neon-cyan) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 25px var(--neon-cyan-glow) !important;
+    transform: translateY(-3px) !important;
+}
