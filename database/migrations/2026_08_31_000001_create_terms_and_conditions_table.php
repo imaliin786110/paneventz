@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('balance_due')->default('Event Date');
             $table->boolean('advance_refundable')->default(false);
             $table->text('cancellation_policy')->nullable();
-            $table->string('estimated_delivery_period')->default('1–2 months');
+            $table->string('estimated_delivery_period')->default('1-2 months');
             $table->text('delivery_policy')->nullable();
             $table->string('extra_pendrive')->default('Chargeable');
             $table->string('extended_coverage_after')->default('12:30 AM');
