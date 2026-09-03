@@ -29,11 +29,23 @@ class StoriesTable
                     ->searchable()
                     ->sortable(),
 
-                ImageColumn::make('cover_image')
+                TextColumn::make('cover_image')
                     ->label('Media')
-                    ->disk('public')
-                    ->height(60)
-                    ->width(80),
+                    ->formatStateUsing(function ($state, Story $record) {
+                        if (!$state) {
+                            return '<span style="font-size:11px; color:#64748b; font-style:italic;">No media</span>';
+                        }
+                        $url = asset('storage/' . $state);
+                        $ext = strtolower(pathinfo($state, PATHINFO_EXTENSION));
+                        if (in_array($ext, ['mp4', 'mov', 'webm', 'ogg'])) {
+                            return '<div style="position:relative; width:80px; height:50px; border-radius:6px; overflow:hidden; background:#0c1019; display:flex; align-items:center; justify-content:center; border:1px solid rgba(245,158,11,0.3);">
+                                <video src="' . $url . '#t=0.001" preload="metadata" muted playsinline style="width:100%; height:100%; object-fit:cover; pointer-events:none;"></video>
+                                <span style="position:absolute; background:rgba(0,0,0,0.7); color:#f59e0b; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:600; display:flex; align-items:center; gap:2px;">▶ Video</span>
+                            </div>';
+                        }
+                        return '<img src="' . $url . '" style="width:80px; height:50px; object-fit:cover; border-radius:6px; border:1px solid rgba(255,255,255,0.1);">';
+                    })
+                    ->html(),
 
                 ToggleColumn::make('is_published')
                     ->label('Published')

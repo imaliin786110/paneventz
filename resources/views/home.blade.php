@@ -239,7 +239,7 @@
                 $isLarge = ($index % 2 === 0);
                 $class = $isReverse ? 'story story-reverse' : ($isLarge ? 'story story-large' : 'story');
                 $galleryData = $story->gallery ? json_encode(array_map(fn($img) => asset('storage/' . $img), $story->gallery)) : '[]';
-                $coverUrl = $story->cover_image ? asset('storage/' . $story->cover_image) : asset('images/1.png');
+                $coverUrl = $story->cover_image ? asset('storage/' . $story->cover_image) : asset('images/1.webp');
                 $ext = strtolower(pathinfo($story->cover_image ?? '', PATHINFO_EXTENSION));
                 $isVideo = in_array($ext, ['mp4', 'webm', 'mov', 'ogg']);
                 $directVideoUrl = $story->cover_image ? asset('storage/' . $story->cover_image) : $coverUrl;
@@ -256,10 +256,9 @@
                             playsinline 
                             webkit-playsinline 
                             preload="metadata"
-                            data-src="{{ $directVideoUrl }}"
                             style="width: 100%; height: 100%; object-fit: cover; background: #0c1019;"
                         >
-                            <source src="" data-src="{{ $directVideoUrl }}" type="video/{{ $ext === 'mov' ? 'mp4' : $ext }}">
+                            <source src="{{ $directVideoUrl }}#t=0.001" type="video/{{ $ext === 'mov' ? 'mp4' : $ext }}">
                             Your browser does not support HTML5 video.
                         </video>
                         <div class="story-video-badge">
