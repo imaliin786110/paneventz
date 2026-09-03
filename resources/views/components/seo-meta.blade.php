@@ -24,17 +24,22 @@
     <!-- Open Graph / WhatsApp / Facebook / LinkedIn Preview -->
     <meta property="og:type" content="{{ $seoData['og_type'] }}">
     <meta property="og:url" content="{{ $seoData['og_url'] }}">
-    <meta property="og:title" content="{{ $seoData['og_title'] }}">
-    <meta property="og:description" content="{{ $seoData['og_description'] }}">
+    <meta property="og:title" content="{!! strip_tags(html_entity_decode($seoData['og_title'], ENT_QUOTES, 'UTF-8')) !!}">
+    <meta property="og:description" content="{!! strip_tags(html_entity_decode($seoData['og_description'], ENT_QUOTES, 'UTF-8')) !!}">
     <meta property="og:image" content="{{ $seoData['og_image'] }}">
+    <meta property="og:image:secure_url" content="{{ $seoData['og_image'] }}">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="{{ strip_tags($seoData['studio_name']) }} Luxury Wedding Photography">
     <meta property="og:site_name" content="{{ $seoData['studio_name'] }}">
     <meta property="og:locale" content="en_IN">
 
     <!-- Twitter / X Cards -->
     <meta name="twitter:card" content="{{ $seoData['twitter_card'] }}">
     <meta name="twitter:url" content="{{ $seoData['og_url'] }}">
-    <meta name="twitter:title" content="{{ $seoData['twitter_title'] }}">
-    <meta name="twitter:description" content="{{ $seoData['twitter_description'] }}">
+    <meta name="twitter:title" content="{!! strip_tags(html_entity_decode($seoData['twitter_title'], ENT_QUOTES, 'UTF-8')) !!}">
+    <meta name="twitter:description" content="{!! strip_tags(html_entity_decode($seoData['twitter_description'], ENT_QUOTES, 'UTF-8')) !!}">
     <meta name="twitter:image" content="{{ $seoData['twitter_image'] }}">
 
     <!-- Structured Data (JSON-LD) for Search Engine Rich Snippets -->
