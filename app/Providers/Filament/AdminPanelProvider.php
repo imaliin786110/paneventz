@@ -40,7 +40,7 @@ class AdminPanelProvider extends PanelProvider
                 PanelsRenderHook::HEAD_END,
                 fn (): HtmlString => new HtmlString(
                     '<link rel="stylesheet" href="' . asset('css/paneventz-admin.css')
-                    . '?v=' . filemtime(public_path('css/paneventz-admin.css')) . '">'
+                    . '?v=' . (@file_exists(public_path('css/paneventz-admin.css')) ? @filemtime(public_path('css/paneventz-admin.css')) : '1.0') . '">'
                 ),
             )
 
