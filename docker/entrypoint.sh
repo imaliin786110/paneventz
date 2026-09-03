@@ -12,8 +12,9 @@ mkdir -p /var/www/html/storage/app/public /var/www/html/storage/framework/cache 
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache || true
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache || true
 
-# Link public storage
-php artisan storage:link --force || true
+# Ensure storage link is cleanly recreated
+rm -rf /var/www/html/public/storage || true
+php artisan storage:link || true
 
 # Cache configurations, routes, and views for instant sub-millisecond response
 echo "Optimizing application..."
