@@ -1,51 +1,57 @@
 import React from "react";
-import { Camera, Film, HeartHandshake } from "lucide-react";
+import { Camera, Film, Sparkles } from "lucide-react";
 
 export default function Approach({ setting }: { setting: any }) {
   const eyebrow = setting?.about_eyebrow || "THE PAN EVENTZ APPROACH";
   const heading = setting?.about_heading || "Your wedding deserves more than photographs.";
-  const description =
-    setting?.about_description ||
-    "It deserves to be remembered exactly as it felt. The laughter. The tears. The quiet glances. The people you love.";
 
   const pillars = [
     {
       num: "01",
-      title: "Natural & Candid",
-      subtitle: "Unscripted Emotion",
-      desc: "No forced smiles or awkward poses. We blend seamlessly into your celebration so you stay present with your guests while we document authentic moments as they unfold.",
+      tag: "01 — NATURAL & CANDID",
+      title: "Let the moments happen naturally.",
+      desc1: "We believe the best photographs aren't always posed.",
+      desc2: "We stay in the background, capturing genuine emotions as they unfold — without interrupting the moment.",
+      bottomTag: "Less posing. More living.",
       icon: Camera,
     },
     {
       num: "02",
-      title: "Editorial & Cinematic",
-      subtitle: "Masterclass Aesthetics",
-      desc: "Every frame is treated with delicate fine-art color grading, authentic 35mm film emulation, and rich dynamic lighting that looks magnificent today and 50 years from now.",
+      tag: "02 — TIMELESS & CINEMATIC",
+      title: "Every frame, made to be felt.",
+      desc1: "Natural skin tones, elegant colours and thoughtful storytelling come together to create photographs and films that feel as beautiful years from now as they do today.",
+      desc2: "Masterfully color-graded with authentic film warmth.",
+      bottomTag: "Beautiful today. Timeless tomorrow.",
       icon: Film,
     },
     {
       num: "03",
-      title: "Effortless Experience",
-      subtitle: "Full Peace of Mind",
-      desc: "From your initial design consultation to private VIP gallery delivery, our crew provides meticulous coordination, timeline planning, and rapid highlight previews.",
-      icon: HeartHandshake,
+      tag: "03 — MADE TO LAST",
+      title: "Memories worth passing on.",
+      desc1: "From high-resolution photographs to cinematic 4K films, we preserve the moments you'll want to relive — and share with the generations that follow.",
+      desc2: "Handcrafted heirlooms delivered in master resolution.",
+      bottomTag: "Today's moments. Tomorrow's memories.",
+      icon: Sparkles,
     },
   ];
 
   return (
-    <section className="py-28 px-6 lg:px-12 bg-[#0c0c0d] text-center relative border-y border-white/5" id="about">
-      <div className="max-w-4xl mx-auto mb-20">
-        <span className="text-xs uppercase tracking-[0.3em] text-[#c4a472] mb-4 block font-light">
+    <section className="py-28 px-6 lg:px-12 bg-[#09090b] text-center relative border-y border-white/5" id="about">
+      <div className="max-w-4xl mx-auto mb-16">
+        <span className="text-xs uppercase tracking-[0.3em] text-[#c4a472] mb-4 block font-semibold">
           {eyebrow}
         </span>
-        <h2 className="font-serif text-3xl sm:text-5xl lg:text-6xl text-[#f5f5f7] font-light leading-tight mb-6">
+        <h2 className="font-serif text-3xl sm:text-5xl lg:text-6xl text-white font-light leading-tight mb-4">
           {heading}
         </h2>
-        <div className="font-serif text-xl sm:text-2xl text-[#c4a472] italic font-normal mb-8">
+        <div className="font-serif text-xl sm:text-2xl text-[#c4a472] italic font-normal mb-6">
           It deserves to be remembered exactly as it felt.
         </div>
-        <p className="text-base sm:text-lg text-[#a1a1aa] font-light leading-relaxed max-w-2xl mx-auto">
-          {description}
+        <p className="text-sm sm:text-base text-zinc-300 font-light leading-relaxed max-w-2xl mx-auto mb-2">
+          The laughter. The tears. The quiet glances. The people you love.
+        </p>
+        <p className="text-xs sm:text-sm text-zinc-400 font-light leading-relaxed max-w-2xl mx-auto">
+          At <strong className="text-white font-semibold">Pan Eventz</strong>, we turn these fleeting moments into photographs and films you'll want to relive for years to come.
         </p>
       </div>
 
@@ -55,24 +61,32 @@ export default function Approach({ setting }: { setting: any }) {
           return (
             <div
               key={idx}
-              className="bg-[#121214]/80 border border-white/5 rounded-3xl p-8 lg:p-10 flex flex-col justify-between hover:border-[#c4a472]/30 transition-all duration-300 shadow-xl"
+              className="bg-[#121214] border border-white/10 rounded-3xl p-8 lg:p-10 flex flex-col justify-between hover:border-[#c4a472]/40 transition-all duration-300 shadow-xl"
             >
               <div>
-                <div className="flex items-center justify-between mb-8">
-                  <span className="font-serif text-4xl text-[#c4a472]/40 font-light">{p.num}</span>
-                  <div className="w-12 h-12 rounded-2xl bg-[#c4a472]/10 text-[#c4a472] flex items-center justify-center border border-[#c4a472]/20">
-                    <Icon size={20} />
+                <div className="flex items-center justify-between mb-6 pb-4 border-b border-[#c4a472]/20">
+                  <span className="text-xs uppercase tracking-widest text-[#c4a472] font-semibold">
+                    {p.tag}
+                  </span>
+                  <div className="w-10 h-10 rounded-xl bg-[#c4a472]/10 text-[#c4a472] flex items-center justify-center border border-[#c4a472]/20">
+                    <Icon size={18} />
                   </div>
                 </div>
-                <h3 className="font-serif text-2xl sm:text-3xl text-[#f5f5f7] font-light mb-1">
+
+                <h3 className="font-serif text-2xl text-white font-light mb-4 leading-snug">
                   {p.title}
                 </h3>
-                <span className="text-xs uppercase tracking-widest text-[#c4a472] font-semibold block mb-4">
-                  {p.subtitle}
-                </span>
-                <p className="text-xs sm:text-sm text-[#a1a1aa] font-light leading-relaxed">
-                  {p.desc}
+
+                <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed mb-3">
+                  {p.desc1}
                 </p>
+                <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed mb-6">
+                  {p.desc2}
+                </p>
+              </div>
+
+              <div className="pt-4 border-t border-white/5 text-xs font-semibold text-[#c4a472] tracking-wider">
+                {p.bottomTag}
               </div>
             </div>
           );
