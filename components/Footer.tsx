@@ -40,23 +40,10 @@ export default function Footer({ setting }: { setting: any }) {
         </h2>
 
         {/* SUBTITLE */}
-        <p className="max-w-xl mx-auto text-sm sm:text-base text-[#cbd5e1] font-light leading-relaxed mb-8">
+        <p className="max-w-xl mx-auto text-sm sm:text-base text-[#cbd5e1] font-light leading-relaxed mb-12">
           {setting?.footer_description ||
             "Now reserving select dates for wedding celebrations across India and destinations worldwide."}
         </p>
-
-        {/* LIVE STATUS & LOCATION PILL */}
-        <div className="inline-flex flex-wrap items-center justify-center gap-3 bg-white/[0.03] backdrop-blur-md border border-white/[0.1] px-6 py-2.5 rounded-full mb-14 text-xs tracking-[1.5px] uppercase text-[#e2e8f0] shadow-xl">
-          <span className="flex items-center gap-1.5 text-emerald-400 font-medium text-[11px]">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            Dates Reserving 2026/2027
-          </span>
-          <span className="text-white/20 hidden sm:inline">|</span>
-          <span className="flex items-center gap-1.5 text-[#c4a472]">
-            <span>📍</span>
-            <span>{setting?.footer_address || "Based in Mumbai · Available Pan-India & Worldwide"}</span>
-          </span>
-        </div>
 
         {/* DIRECT STUDIO LINES LUXURY HUB (SINGLE FOCUSED CENTER) */}
         <div className="max-w-xl mx-auto mb-14">
