@@ -1,31 +1,31 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Camera, Plus, Edit, Trash2, CheckCircle2, X } from "lucide-react";
+import { Plus, Edit, Trash2, CheckCircle2, X, Sparkles, IndianRupee } from "lucide-react";
 
-export default function AdminStoriesPage() {
-  const [stories, setStories] = useState<any[]>([]);
+export default function AdminServicesPage() {
+  const [services, setServices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
 
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [coupleName, setCoupleName] = useState("");
-  const [location, setLocation] = useState("");
-  const [coverImage, setCoverImage] = useState("/images/1.jpg");
+  const [name, setName] = useState("");
+  const [shortDescription, setShortDescription] = useState("");
   const [description, setDescription] = useState("");
+  const [priceFrom, setPriceFrom] = useState("");
 
   useEffect(() => {
-    fetchStories();
+    fetchServices();
   }, []);
 
-  const fetchStories = async () => {
+  const fetchServices = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/admin/content/stories");
+      const res = await fetch("/api/admin/content/services");
       const data = await res.json();
-      if (res.ok) setStories(data.data || []);
+      if (res.ok) setServices(data.data || []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -35,19 +35,19 @@ export default function AdminStoriesPage() {
 
   const openCreateModal = () => {
     setEditingId(null);
-    setCoupleName("");
-    setLocation("");
-    setCoverImage("/images/1.jpg");
+    setName("");
+    setShortDescription("");
     setDescription("");
+    setPriceFrom("");
     setModalOpen(true);
   };
 
-  const openEditModal = (story: any) => {
-    setEditingId(String(story.id));
-    setCoupleName(story.couple_name || "");
-    setLocation(story.location || "");
-    setCoverImage(story.cover_image || "/images/1.jpg");
-    setDescription(story.description || "");
+  const openEditModal = (service: any) => {
+    setEditingId(String(service.id));
+    setName(service.name || "");
+    setShortDescription(service.short_description || "");
+    setDescription(service.description || "");
+    setPriceFrom(service.price_from ? String(service.price_from) : "");
     setModalOpen(true);
   };
 
@@ -55,39 +55,39 @@ export default function AdminStoriesPage() {
     e.preventDefault();
     setSaving(true);
     try {
-      const res = await fetch("/api/admin/content/stories", {
+      const res = await fetch("/api/admin/content/services", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id: editingId,
-          couple_name: coupleName,
-          location,
-          cover_image: coverImage,
+          name,
+          short_description: shortDescription,
           description,
+          price_from: priceFrom,
         }),
       });
 
       if (res.ok) {
-        setNotification(editingId ? "Story updated!" : "New Wedding Story created!");
+        setNotification(editingId ? "Package updated successfully!" : "New Service Package created!");
         setTimeout(() => setNotification(null), 3000);
         setModalOpen(false);
-        fetchStories();
+        fetchServices();
       }
     } catch (err) {
-      console.error("Save story error:", err);
+      console.error("Save service error:", err);
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this story?")) return;
+    if (!confirm("Are you sure you want to delete this service?")) return;
     try {
-      const res = await fetch(`/api/admin/content/stories?id=${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/content/services?id=${id}`, { method: "DELETE" });
       if (res.ok) {
-        setNotification("Story deleted.");
+        setNotification("Service package deleted.");
         setTimeout(() => setNotification(null), 3000);
-        fetchStories();
+        fetchServices();
       }
     } catch (err) {
       console.error("Delete error:", err);
@@ -99,18 +99,18 @@ export default function AdminStoriesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <span className="text-xs uppercase tracking-[0.3em] text-[#c4a472] font-semibold block mb-1">
-            FEATURED STORIES CMS
+            INVESTMENT & COLLECTIONS CMS
           </span>
-          <h1 className="font-serif text-3xl text-white font-light">Wedding Stories & Photo Media</h1>
+          <h1 className="font-serif text-3xl text-white font-light">Services & Pricing Packages</h1>
           <p className="text-xs text-zinc-400 mt-1">
-            Manage your featured couple stories, cover images, location tags, and narrative copy.
+            Manage your photography collections, pricing rates, and package details.
           </p>
         </div>
         <button
           onClick={openCreateModal}
           className="bg-[#c4a472] hover:bg-[#b09060] text-black text-xs font-semibold uppercase tracking-wider py-3 px-5 rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-[#c4a472]/20 shrink-0 self-start sm:self-auto"
         >
-          <Plus size={16} /> Add New Story
+          <Plus size={16} /> Add New Package
         </button>
       </div>
 
@@ -121,45 +121,40 @@ export default function AdminStoriesPage() {
       )}
 
       {loading ? (
-        <div className="p-12 text-center text-zinc-500 text-sm">Loading stories...</div>
+        <div className="p-12 text-center text-zinc-500 text-sm">Loading service packages...</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {stories.map((story) => (
+          {services.map((service) => (
             <div
-              key={story.id}
-              className="bg-[#121214] border border-white/5 rounded-3xl overflow-hidden flex flex-col justify-between hover:border-white/10 transition-all"
+              key={service.id}
+              className="bg-[#121214] border border-white/5 rounded-3xl p-6 sm:p-8 flex flex-col justify-between hover:border-white/10 transition-all"
             >
-              <div className="relative aspect-[4/3] bg-zinc-900">
-                <img
-                  src={story.cover_image || "/images/1.jpg"}
-                  alt={story.couple_name}
-                  className="w-full h-full object-cover"
-                />
+              <div>
+                <span className="text-[10px] uppercase tracking-widest text-[#c4a472] font-bold block mb-2">
+                  Collection Package
+                </span>
+                <h3 className="font-serif text-2xl text-white font-light mb-2">{service.name}</h3>
+                <p className="text-xs text-zinc-400 mb-4">{service.short_description || service.description}</p>
+                {service.price_from && (
+                  <div className="text-sm font-semibold text-white mb-6">
+                    Starting from ₹{Number(service.price_from).toLocaleString("en-IN")}
+                  </div>
+                )}
               </div>
 
-              <div className="p-6">
-                <span className="text-xs uppercase text-[#c4a472] font-semibold tracking-wider block mb-1">
-                  📍 {story.location || "Destination Wedding"}
-                </span>
-                <h3 className="font-serif text-2xl text-white font-light mb-2">{story.couple_name}</h3>
-                <p className="text-xs text-zinc-400 line-clamp-2 mb-6">
-                  {story.description || "A breathtaking celebration of timeless love."}
-                </p>
-
-                <div className="pt-4 border-t border-white/5 flex items-center justify-between">
-                  <button
-                    onClick={() => openEditModal(story)}
-                    className="text-xs text-zinc-300 hover:text-white flex items-center gap-1"
-                  >
-                    <Edit size={14} /> Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(String(story.id))}
-                    className="text-xs text-red-400 hover:text-red-300 flex items-center gap-1"
-                  >
-                    <Trash2 size={14} /> Delete
-                  </button>
-                </div>
+              <div className="pt-4 border-t border-white/5 flex items-center justify-between">
+                <button
+                  onClick={() => openEditModal(service)}
+                  className="text-xs text-zinc-300 hover:text-white flex items-center gap-1"
+                >
+                  <Edit size={14} /> Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(String(service.id))}
+                  className="text-xs text-red-400 hover:text-red-300 flex items-center gap-1"
+                >
+                  <Trash2 size={14} /> Delete
+                </button>
               </div>
             </div>
           ))}
@@ -177,59 +172,59 @@ export default function AdminStoriesPage() {
             </button>
 
             <h2 className="font-serif text-2xl text-white font-light mb-4">
-              {editingId ? "Edit Story" : "Create New Story"}
+              {editingId ? "Edit Service Package" : "Create New Service Package"}
             </h2>
 
             <form onSubmit={handleSave} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1">
-                  Couple Name *
+                  Service Name *
                 </label>
                 <input
                   type="text"
-                  value={coupleName}
-                  onChange={(e) => setCoupleName(e.target.value)}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   required
-                  placeholder="e.g. Aditi & Kabir"
+                  placeholder="e.g. The Royal Heirloom Collection"
                   className="w-full bg-[#18181b] border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-[#c4a472]"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1">
-                  Location / Venue
+                  Starting Price (₹ INR)
+                </label>
+                <input
+                  type="number"
+                  value={priceFrom}
+                  onChange={(e) => setPriceFrom(e.target.value)}
+                  placeholder="250000"
+                  className="w-full bg-[#18181b] border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-[#c4a472]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1">
+                  Short Description
                 </label>
                 <input
                   type="text"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  placeholder="The Oberoi Udaivilas, Udaipur"
+                  value={shortDescription}
+                  onChange={(e) => setShortDescription(e.target.value)}
+                  placeholder="Full wedding coverage, 4K film, and heirloom album."
                   className="w-full bg-[#18181b] border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-[#c4a472]"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1">
-                  Cover Image URL
-                </label>
-                <input
-                  type="text"
-                  value={coverImage}
-                  onChange={(e) => setCoverImage(e.target.value)}
-                  placeholder="/images/1.jpg or image URL"
-                  className="w-full bg-[#18181b] border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-[#c4a472]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1">
-                  Story Narrative Description
+                  Full Details & Inclusions
                 </label>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows={4}
-                  placeholder="A magical royal celebration set against the shimmering waters of Lake Pichola..."
+                  placeholder="Detailed breakdown of photography & cinematography inclusions..."
                   className="w-full bg-[#18181b] border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-[#c4a472]"
                 />
               </div>
@@ -247,7 +242,7 @@ export default function AdminStoriesPage() {
                   disabled={saving}
                   className="px-6 py-2.5 bg-[#c4a472] hover:bg-[#b09060] text-black font-semibold text-xs uppercase tracking-wider rounded-xl transition-all"
                 >
-                  {saving ? "Saving..." : "Save Story"}
+                  {saving ? "Saving..." : "Save Package"}
                 </button>
               </div>
             </form>

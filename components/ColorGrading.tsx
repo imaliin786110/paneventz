@@ -26,7 +26,7 @@ export default function ColorGrading({ setting }: { setting: any }) {
       <div className="max-w-4xl mx-auto relative aspect-[16/10] rounded-2xl overflow-hidden border border-white/10 shadow-2xl select-none">
         {/* After / Graded Image */}
         <img
-          src="https://paneventz.in/images/signature-color-grade.webp"
+          src={setting?.color_grade_after_image || "/images/signature-color-grade.webp"}
           alt="Signature Color Grade"
           className="absolute inset-0 w-full h-full object-cover"
         />
@@ -37,7 +37,7 @@ export default function ColorGrading({ setting }: { setting: any }) {
           style={{ clipPath: `inset(0 ${100 - sliderPos}% 0 0)` }}
         >
           <img
-            src="https://paneventz.in/images/signature-color-grade.jpg.orig"
+            src={setting?.color_grade_before_image || "/images/signature-color-grade.jpg.orig"}
             alt="Raw Camera Capture"
             className="absolute inset-0 w-full h-full object-cover filter contrast-75 brightness-90 saturate-50"
           />
