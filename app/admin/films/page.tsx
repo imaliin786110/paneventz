@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { Film, Plus, Edit, Trash2, CheckCircle2, X, Play } from "lucide-react";
+import MediaUploader from "@/components/admin/MediaUploader";
+
 
 export default function AdminFilmsPage() {
   const [films, setFilms] = useState<any[]>([]);
@@ -247,32 +249,22 @@ export default function AdminFilmsPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1">
-                  Video URL (MP4, YouTube, or Vimeo) *
-                </label>
-                <input
-                  type="text"
-                  value={videoUrl}
-                  onChange={(e) => setVideoUrl(e.target.value)}
-                  required
-                  placeholder="/storage/stories/01M0Z2H4038Y6XPC4KQHA2VN63.mp4 or YouTube link"
-                  className="w-full bg-[#18181b] border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-[#c4a472]"
-                />
-              </div>
+              <MediaUploader
+                label="Film Video URL (Upload MP4 or paste link)"
+                value={videoUrl}
+                onChange={(url) => setVideoUrl(url)}
+                accept="video/*"
+                isVideo={true}
+                placeholder="/storage/stories/... or paste YouTube/Vimeo"
+                helperText="Upload an MP4 video or paste any video link."
+              />
 
-              <div>
-                <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1">
-                  Thumbnail Image URL
-                </label>
-                <input
-                  type="text"
-                  value={thumbnail}
-                  onChange={(e) => setThumbnail(e.target.value)}
-                  placeholder="/images/hero.jpg"
-                  className="w-full bg-[#18181b] border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-[#c4a472]"
-                />
-              </div>
+              <MediaUploader
+                label="Thumbnail Cover Image"
+                value={thumbnail}
+                onChange={(url) => setThumbnail(url)}
+                helperText="Upload a high-res cover frame for the video teaser."
+              />
 
               <div>
                 <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1">

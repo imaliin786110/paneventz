@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { Camera, Plus, Edit, Trash2, CheckCircle2, X } from "lucide-react";
+import MediaUploader from "@/components/admin/MediaUploader";
+
 
 export default function AdminStoriesPage() {
   const [stories, setStories] = useState<any[]>([]);
@@ -208,18 +210,12 @@ export default function AdminStoriesPage() {
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1">
-                  Cover Image URL
-                </label>
-                <input
-                  type="text"
-                  value={coverImage}
-                  onChange={(e) => setCoverImage(e.target.value)}
-                  placeholder="/images/1.jpg or image URL"
-                  className="w-full bg-[#18181b] border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-[#c4a472]"
-                />
-              </div>
+              <MediaUploader
+                label="Cover Image"
+                value={coverImage}
+                onChange={(url) => setCoverImage(url)}
+                helperText="Upload a high-res wedding cover photo from your device, or paste a URL."
+              />
 
               <div>
                 <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1">

@@ -12,6 +12,7 @@ import {
   Image as ImageIcon,
   Video,
 } from "lucide-react";
+import MediaUploader from "@/components/admin/MediaUploader";
 
 export default function AdminSettingsPage() {
   const [activeTab, setActiveTab] = useState<"hero" | "stats" | "colorgrade" | "contact">("hero");
@@ -77,6 +78,10 @@ export default function AdminSettingsPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleMediaChange = (fieldName: string, url: string) => {
+    setFormData((prev: any) => ({ ...prev, [fieldName]: url }));
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -88,7 +93,7 @@ export default function AdminSettingsPage() {
       });
 
       if (res.ok) {
-        setNotification("Website settings & media updated successfully!");
+        setNotification("Website content & media updated successfully!");
         setTimeout(() => setNotification(null), 3500);
       }
     } catch (err) {
@@ -112,7 +117,7 @@ export default function AdminSettingsPage() {
           </span>
           <h1 className="font-serif text-3xl text-white font-light">Website Content & Media Manager</h1>
           <p className="text-xs text-zinc-400 mt-1">
-            Edit and customize every headline, banner, counter stat, and media file across the entire site.
+            Upload images, videos, and customize every headline and stat counter directly from your device.
           </p>
         </div>
 
@@ -180,9 +185,9 @@ export default function AdminSettingsPage() {
       <form onSubmit={handleSave} className="bg-[#121214] border border-white/5 rounded-3xl p-6 sm:p-8 space-y-6">
         {/* 1. Hero Tab */}
         {activeTab === "hero" && (
-          <div className="space-y-4">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-[#c4a472] mb-4">
-              Homepage Hero Section
+          <div className="space-y-6">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-[#c4a472]">
+              Homepage Hero Section & Media
             </h2>
 
             <div>
@@ -251,31 +256,23 @@ export default function AdminSettingsPage() {
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1 flex items-center gap-1.5">
-                <ImageIcon size={14} className="text-[#00f0ff]" /> Hero Background Image URL
-              </label>
-              <input
-                type="text"
-                name="hero_background_image"
+            {/* Media Uploaders for Hero */}
+            <div className="pt-4 border-t border-white/5 space-y-6">
+              <MediaUploader
+                label="Hero Background Image"
                 value={formData.hero_background_image || ""}
-                onChange={handleChange}
-                placeholder="https://paneventz.in/images/hero.webp"
-                className="w-full bg-[#18181b] border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-[#00f0ff]"
+                onChange={(url) => handleMediaChange("hero_background_image", url)}
+                helperText="Upload any high-res JPG, PNG, or WebP photo from your device, or paste a URL."
               />
-            </div>
 
-            <div>
-              <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1 flex items-center gap-1.5">
-                <Video size={14} className="text-[#c4a472]" /> Hero Background Video URL (Optional MP4)
-              </label>
-              <input
-                type="text"
-                name="hero_background_video"
+              <MediaUploader
+                label="Hero Background Video (Optional 4K MP4)"
                 value={formData.hero_background_video || ""}
-                onChange={handleChange}
-                placeholder="/storage/stories/01M0Z2H4038Y6XPC4KQHA2VN63.mp4"
-                className="w-full bg-[#18181b] border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-[#c4a472]"
+                onChange={(url) => handleMediaChange("hero_background_video", url)}
+                accept="video/*"
+                isVideo={true}
+                placeholder="/storage/stories/... or upload MP4"
+                helperText="Upload an MP4 cinematic video loop to play in the background of the hero section."
               />
             </div>
           </div>
@@ -418,8 +415,8 @@ export default function AdminSettingsPage() {
 
         {/* 3. Color Grade Tab */}
         {activeTab === "colorgrade" && (
-          <div className="space-y-4">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-[#c4a472] mb-4">
+          <div className="space-y-6">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-[#c4a472]">
               Interactive Color Grading Showcase
             </h2>
 
@@ -450,33 +447,21 @@ export default function AdminSettingsPage() {
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1">
-                  Before Image (RAW Footage URL)
-                </label>
-                <input
-                  type="text"
-                  name="color_grade_before_image"
-                  value={formData.color_grade_before_image || ""}
-                  onChange={handleChange}
-                  placeholder="/images/signature-color-grade.webp"
-                  className="w-full bg-[#18181b] border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-[#c4a472]"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1">
-                  After Image (Cinematic Master Grade URL)
-                </label>
-                <input
-                  type="text"
-                  name="color_grade_after_image"
-                  value={formData.color_grade_after_image || ""}
-                  onChange={handleChange}
-                  placeholder="/images/signature-color-grade.webp"
-                  className="w-full bg-[#18181b] border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-[#c4a472]"
-                />
-              </div>
+            {/* Media Uploaders for Color Grade */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-white/5">
+              <MediaUploader
+                label="Before RAW Image (Camera Log)"
+                value={formData.color_grade_before_image || ""}
+                onChange={(url) => handleMediaChange("color_grade_before_image", url)}
+                helperText="Upload the un-graded / raw photograph."
+              />
+
+              <MediaUploader
+                label="After Master Image (Graded)"
+                value={formData.color_grade_after_image || ""}
+                onChange={(url) => handleMediaChange("color_grade_after_image", url)}
+                helperText="Upload the final cinematic film graded photograph."
+              />
             </div>
           </div>
         )}

@@ -15,6 +15,8 @@ import {
   X,
   Lock,
 } from "lucide-react";
+import MediaUploader from "@/components/admin/MediaUploader";
+
 
 export default function AdminAlbumsPage() {
   const [albums, setAlbums] = useState<any[]>([]);
@@ -336,6 +338,14 @@ export default function AdminAlbumsPage() {
                   Photos here are scanned by AI. Guests can only view and download their own matched images.
                 </p>
               </div>
+
+              {/* Cover Image Uploader */}
+              <MediaUploader
+                label="Album Cover Photo"
+                value={coverImage}
+                onChange={(url) => setCoverImage(url)}
+                helperText="Upload a high-res cover photo for the wedding heirloom portal."
+              />
 
               {/* Toggles */}
               <div className="pt-2 flex items-center justify-between border-t border-white/5 text-xs">

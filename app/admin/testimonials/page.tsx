@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { Plus, Edit, Trash2, CheckCircle2, X, Star } from "lucide-react";
+import MediaUploader from "@/components/admin/MediaUploader";
+
 
 export default function AdminTestimonialsPage() {
   const [testimonials, setTestimonials] = useState<any[]>([]);
@@ -243,18 +245,12 @@ export default function AdminTestimonialsPage() {
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1">
-                  Couple Photo URL
-                </label>
-                <input
-                  type="text"
-                  value={photo}
-                  onChange={(e) => setPhoto(e.target.value)}
-                  placeholder="/images/1.jpg"
-                  className="w-full bg-[#18181b] border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-[#c4a472]"
-                />
-              </div>
+              <MediaUploader
+                label="Couple Portrait Photo"
+                value={photo}
+                onChange={(url) => setPhoto(url)}
+                helperText="Upload couple portrait from your device, or paste a URL."
+              />
 
               <div className="pt-4 flex items-center justify-end gap-3">
                 <button
