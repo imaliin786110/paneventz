@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { extractDriveId, getDirectDriveDownloadUrl } from "@/lib/drive";
 
 export async function GET(
-  req: NextRequest,
+  req: Request,
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
@@ -45,7 +45,7 @@ export async function GET(
         const driveRes = await fetch(targetUrl);
 
         if (driveRes.ok && driveRes.body) {
-          return new NextResponse(driveRes.body as any, {
+          return new Response(driveRes.body, {
             headers: {
               "Content-Disposition": `attachment; filename="${filename}"`,
               "Content-Type": driveRes.headers.get("content-type") || "application/zip",
@@ -54,7 +54,7 @@ export async function GET(
         }
       }
 
-      // If no Drive ID or Drive fetch failed, deliver first available media archive or sample file
+      // If no Drive ID or Drive fetch failed, deliver first available media archive or confirmation
       return NextResponse.json(
         {
           message: "Master download initiated.",
@@ -79,7 +79,7 @@ export async function GET(
       if (photo.photo_url.startsWith("http")) {
         const photoRes = await fetch(photo.photo_url);
         if (photoRes.ok && photoRes.body) {
-          return new NextResponse(photoRes.body as any, {
+          return new Response(photoRes.body, {
             headers: {
               "Content-Disposition": `attachment; filename="${cleanName}"`,
               "Content-Type": photoRes.headers.get("content-type") || "image/jpeg",
