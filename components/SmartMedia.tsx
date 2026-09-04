@@ -8,7 +8,6 @@ interface SmartMediaProps {
   className?: string;
   containerClassName?: string;
   poster?: string;
-  aspectRatio?: string;
   priority?: boolean;
 }
 

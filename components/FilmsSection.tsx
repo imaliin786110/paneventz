@@ -29,7 +29,6 @@ export default function FilmsSection({ films }: { films: any[] }) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {films.map((film, idx) => {
-            const hasDirectVideo = isVideoSource(film.video_url) || isVideoSource(film.thumbnail);
             const mediaSource = isVideoSource(film.video_url)
               ? film.video_url
               : film.thumbnail || "https://paneventz.in/images/1.jpg";
@@ -64,23 +63,24 @@ export default function FilmsSection({ films }: { films: any[] }) {
                   </div>
                 </div>
 
-              <div className="p-8 flex flex-col justify-between flex-1">
-                <div>
-                  <span className="text-[11px] uppercase tracking-widest text-[#c4a472] font-semibold block mb-1">
-                    {film.location || "Destination Wedding"}
-                  </span>
-                  <h3 className="font-serif text-3xl text-[#f5f5f7] font-light mb-2">
-                    {film.title}
-                  </h3>
-                  {film.description && (
-                    <p className="text-xs text-[#a1a1aa] font-light leading-relaxed line-clamp-2">
-                      {film.description}
-                    </p>
-                  )}
+                <div className="p-8 flex flex-col justify-between flex-1">
+                  <div>
+                    <span className="text-[11px] uppercase tracking-widest text-[#c4a472] font-semibold block mb-1">
+                      {film.location || "Destination Wedding"}
+                    </span>
+                    <h3 className="font-serif text-3xl text-[#f5f5f7] font-light mb-2">
+                      {film.title}
+                    </h3>
+                    {film.description && (
+                      <p className="text-xs text-[#a1a1aa] font-light leading-relaxed line-clamp-2">
+                        {film.description}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -94,7 +94,8 @@ export default function FilmsSection({ films }: { films: any[] }) {
             <X size={32} />
           </button>
           <div className="w-full max-w-5xl aspect-video rounded-3xl overflow-hidden bg-black shadow-2xl">
-            {activeFilm.video_url.includes("youtube.com") || activeFilm.video_url.includes("youtu.be") ? (
+            {activeFilm.video_url &&
+            (activeFilm.video_url.includes("youtube.com") || activeFilm.video_url.includes("youtu.be")) ? (
               <iframe
                 src={`https://www.youtube-nocookie.com/embed/${activeFilm.video_url.split("v=")[1]?.split("&")[0] || activeFilm.video_url.split("/").pop()}?autoplay=1&rel=0`}
                 className="w-full h-full border-0"
@@ -102,7 +103,7 @@ export default function FilmsSection({ films }: { films: any[] }) {
                 allowFullScreen
               />
             ) : (
-              <video src={activeFilm.video_url} controls autoPlay className="w-full h-full" />
+              <video src={activeFilm.video_url || activeFilm.thumbnail} controls autoPlay className="w-full h-full" />
             )}
           </div>
         </div>
