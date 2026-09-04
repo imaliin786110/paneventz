@@ -5,8 +5,14 @@ import { Phone, MessageSquare, Mail, Sparkles, MapPin, ArrowRight } from "lucide
 export default function Footer({ setting }: { setting: any }) {
   const year = new Date().getFullYear();
 
-  const phone1 = setting?.phone || "+91 80820 24787";
-  const phone2 = "+91 98213 37523";
+  const rawPhones = setting?.phone
+    ? setting.phone.split(/[,/|]+/).map((p: string) => p.trim()).filter(Boolean)
+    : [];
+  const phoneList = rawPhones.length > 0 ? rawPhones : ["+91 80820 24787", "+91 98213 37523"];
+  if (phoneList.length === 1 && !phoneList[0].includes("98213")) {
+    phoneList.push("+91 98213 37523");
+  }
+
   const whatsappNumber = setting?.whatsapp ? setting.whatsapp.replace(/[^0-9]/g, "") : "918082024787";
   const email = setting?.email || "imaliinmirza@gmail.com";
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=Hello%20Paneventz!%20I%20would%20like%20to%20inquire%20about%20your%20wedding%20photography%20%26%20films.`;
@@ -45,24 +51,18 @@ export default function Footer({ setting }: { setting: any }) {
                 <span>📞</span> Direct Studio Lines
               </div>
               <div className="flex flex-col gap-2.5">
-                <a
-                  href={`tel:${phone1.replace(/\s+/g, "")}`}
-                  className="text-white hover:text-[#fce7b2] text-base font-semibold tracking-wider flex items-center gap-3 py-1 transition-colors"
-                >
-                  <span className="w-8 h-8 rounded-full bg-[#c4a472]/15 border border-[#c4a472]/40 flex items-center justify-center text-[#c4a472] text-xs flex-shrink-0">
-                    ✦
-                  </span>
-                  <span>{phone1}</span>
-                </a>
-                <a
-                  href={`tel:${phone2.replace(/\s+/g, "")}`}
-                  className="text-white hover:text-[#fce7b2] text-base font-semibold tracking-wider flex items-center gap-3 py-1 transition-colors"
-                >
-                  <span className="w-8 h-8 rounded-full bg-[#c4a472]/15 border border-[#c4a472]/40 flex items-center justify-center text-[#c4a472] text-xs flex-shrink-0">
-                    ✦
-                  </span>
-                  <span>{phone2}</span>
-                </a>
+                {phoneList.map((phoneNum: string, idx: number) => (
+                  <a
+                    key={idx}
+                    href={`tel:${phoneNum.replace(/[^0-9+]/g, "")}`}
+                    className="text-white hover:text-[#fce7b2] text-base font-semibold tracking-wider flex items-center gap-3 py-1 transition-colors"
+                  >
+                    <span className="w-8 h-8 rounded-full bg-[#c4a472]/15 border border-[#c4a472]/40 flex items-center justify-center text-[#c4a472] text-xs flex-shrink-0">
+                      ✦
+                    </span>
+                    <span>{phoneNum}</span>
+                  </a>
+                ))}
               </div>
             </div>
             <div className="text-[11.5px] tracking-wide text-[#94a3b8] mt-5 pt-3.5 border-t border-white/5">
