@@ -40,6 +40,12 @@ export default function ColorGrading({ setting }: { setting: any }) {
     } catch {}
   };
 
+  const afterSrc = setting?.color_grade_after_image || "/images/signature-color-grade.webp";
+  const beforeSrc = setting?.color_grade_before_image || "/images/signature-color-grade.jpg.orig";
+
+  const isAfterVideo = ["mp4", "webm", "mov"].some((ext) => afterSrc.toLowerCase().endsWith(ext));
+  const isBeforeVideo = ["mp4", "webm", "mov"].some((ext) => beforeSrc.toLowerCase().endsWith(ext));
+
   return (
     <section className="py-28 px-6 lg:px-12 bg-[#09090b] border-y border-white/5 select-none">
       <div className="max-w-6xl mx-auto text-center mb-16">
@@ -62,23 +68,45 @@ export default function ColorGrading({ setting }: { setting: any }) {
         onPointerCancel={handlePointerUp}
         className="max-w-4xl mx-auto relative aspect-[16/10] rounded-3xl overflow-hidden border border-white/10 shadow-2xl cursor-ew-resize touch-none bg-black"
       >
-        {/* Right / Paneventz Signature Graded Image (Underneath) */}
-        <img
-          src={setting?.color_grade_after_image || "/images/signature-color-grade.webp"}
-          alt="Paneventz Signature Grade"
-          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-        />
+        {/* Right / Paneventz Signature Graded Media (Underneath) */}
+        {isAfterVideo ? (
+          <video
+            src={afterSrc}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+          />
+        ) : (
+          <img
+            src={afterSrc}
+            alt="Paneventz Signature Grade"
+            className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+          />
+        )}
 
-        {/* Left / RAW Camera Capture Image (Clipped) */}
+        {/* Left / RAW Camera Capture Media (Clipped) */}
         <div
           className="absolute inset-0 overflow-hidden pointer-events-none"
           style={{ clipPath: `inset(0 ${100 - sliderPos}% 0 0)` }}
         >
-          <img
-            src={setting?.color_grade_before_image || "/images/signature-color-grade.jpg.orig"}
-            alt="Raw Camera Capture"
-            className="absolute inset-0 w-full h-full object-cover filter contrast-75 brightness-90 saturate-50"
-          />
+          {isBeforeVideo ? (
+            <video
+              src={beforeSrc}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="absolute inset-0 w-full h-full object-cover filter contrast-75 brightness-90 saturate-50"
+            />
+          ) : (
+            <img
+              src={beforeSrc}
+              alt="Raw Camera Capture"
+              className="absolute inset-0 w-full h-full object-cover filter contrast-75 brightness-90 saturate-50"
+            />
+          )}
         </div>
 
         {/* Divider Bar & Handle */}

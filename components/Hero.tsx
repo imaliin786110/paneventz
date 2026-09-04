@@ -11,15 +11,44 @@ export default function Hero({ setting }: { setting: any }) {
   const buttonLabel = setting?.hero_button_label || "Explore Our Stories";
   const buttonUrl = setting?.hero_button_url || "#stories";
 
+  const videoBg = setting?.hero_background_video
+    ? setting.hero_background_video.startsWith("http") || setting.hero_background_video.startsWith("/")
+      ? setting.hero_background_video
+      : `/storage/${setting.hero_background_video}`
+    : null;
+
+  const imageBg = setting?.hero_background_image
+    ? setting.hero_background_image.startsWith("http") || setting.hero_background_image.startsWith("/")
+      ? setting.hero_background_image
+      : `/storage/${setting.hero_background_image}`
+    : "https://paneventz.in/images/hero.webp";
+
   return (
     <section className="relative min-h-screen flex items-center justify-center text-center px-6 overflow-hidden pt-20">
-      {/* Background Image / Gradient */}
-      <div
-        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat transition-all duration-700"
-        style={{
-          backgroundImage: `linear-gradient(rgba(12,12,13,0.5), rgba(12,12,13,0.85)), url('https://paneventz.in/images/hero.webp')`,
-        }}
-      />
+      {/* Dynamic Autoplay Background Video / Image */}
+      {videoBg ? (
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            className="w-full h-full object-cover scale-105"
+            poster={imageBg}
+          >
+            <source src={videoBg} type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0c0c0d]/70 via-[#0c0c0d]/60 to-[#0c0c0d]/95" />
+        </div>
+      ) : (
+        <div
+          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat transition-all duration-700"
+          style={{
+            backgroundImage: `linear-gradient(rgba(12,12,13,0.5), rgba(12,12,13,0.85)), url('${imageBg}')`,
+          }}
+        />
+      )}
 
       <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center">
         <span className="text-xs lg:text-sm tracking-[0.3em] uppercase text-[#c4a472] mb-6 font-light">

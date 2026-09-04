@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { Play, X } from "lucide-react";
 
+import SmartMedia, { isVideoSource } from "@/components/SmartMedia";
+
 export default function FilmsSection({ films }: { films: any[] }) {
   const [activeFilm, setActiveFilm] = useState<any | null>(null);
 
@@ -26,29 +28,41 @@ export default function FilmsSection({ films }: { films: any[] }) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {films.map((film, idx) => (
-            <div
-              key={film.id || idx}
-              className="group bg-[#121214] border border-white/5 rounded-3xl overflow-hidden flex flex-col hover:border-[#c4a472]/40 transition-all duration-500 shadow-2xl"
-            >
+          {films.map((film, idx) => {
+            const hasDirectVideo = isVideoSource(film.video_url) || isVideoSource(film.thumbnail);
+            const mediaSource = isVideoSource(film.video_url)
+              ? film.video_url
+              : film.thumbnail || "https://paneventz.in/images/1.jpg";
+
+            return (
               <div
-                className="relative aspect-video w-full overflow-hidden bg-black cursor-pointer"
-                onClick={() => setActiveFilm(film)}
+                key={film.id || idx}
+                className="group bg-[#121214] border border-white/5 rounded-3xl overflow-hidden flex flex-col hover:border-[#c4a472]/40 transition-all duration-500 shadow-2xl"
               >
-                <img
-                  src={film.thumbnail || "https://paneventz.in/images/1.jpg"}
-                  alt={film.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/20 transition-colors">
-                  <div className="w-16 h-16 rounded-full bg-[#c4a472] text-[#0c0c0d] flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
-                    <Play size={24} className="fill-current ml-1" />
+                <div
+                  className="relative aspect-video w-full overflow-hidden bg-black cursor-pointer"
+                  onClick={() => setActiveFilm(film)}
+                >
+                  <SmartMedia
+                    src={mediaSource}
+                    poster={film.thumbnail}
+                    alt={film.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    containerClassName="relative w-full h-full overflow-hidden bg-black"
+                  />
+
+                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors pointer-events-none" />
+
+                  <span className="absolute top-4 left-4 bg-black/70 backdrop-blur-sm text-[#c4a472] px-3 py-1 rounded-full text-[10px] uppercase tracking-wider font-semibold border border-[#c4a472]/20 z-10 flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#c4a472] animate-pulse" />
+                    4K Master Cinema
+                  </span>
+
+                  <div className="absolute bottom-4 right-4 bg-black/70 backdrop-blur-md text-white/90 text-[10px] uppercase tracking-wider px-3 py-1.5 rounded-full border border-white/10 opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all flex items-center gap-2 z-10">
+                    <Play size={12} className="fill-current text-[#c4a472]" />
+                    <span>Watch Full Film</span>
                   </div>
                 </div>
-                <span className="absolute top-4 left-4 bg-black/70 backdrop-blur-sm text-[#c4a472] px-3 py-1 rounded-full text-[10px] uppercase tracking-wider font-semibold border border-[#c4a472]/20">
-                  4K Master Cinema
-                </span>
-              </div>
 
               <div className="p-8 flex flex-col justify-between flex-1">
                 <div>

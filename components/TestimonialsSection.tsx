@@ -34,6 +34,15 @@ export default function TestimonialsSection({ testimonials }: { testimonials: an
               </div>
 
               <div className="flex items-center gap-4 pt-6 border-t border-white/5">
+                {t.avatar && (
+                  <img
+                    src={t.avatar.startsWith("http") || t.avatar.startsWith("/") ? t.avatar : `/storage/${t.avatar}`}
+                    alt={t.couple_name}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-12 h-12 rounded-full object-cover border border-[#c4a472]/30"
+                  />
+                )}
                 <div>
                   <h4 className="font-serif text-xl text-[#f5f5f7] font-normal">
                     {t.couple_name}

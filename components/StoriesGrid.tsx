@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { Play, X } from "lucide-react";
 
+import SmartMedia, { isVideoSource, formatMediaUrl } from "@/components/SmartMedia";
+
 export default function StoriesGrid({ stories }: { stories: any[] }) {
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
 
@@ -23,54 +25,42 @@ export default function StoriesGrid({ stories }: { stories: any[] }) {
             The smiles. The tears. The stolen glances. Every feeling, beautifully preserved.
           </div>
           <p className="text-xs sm:text-sm text-zinc-400 font-light">
-            Stories we've had the honour of telling.
+            Stories we&apos;ve had the honour of telling.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {stories.map((story, idx) => {
-            const isVideo =
-              story.cover_image &&
-              ["mp4", "mov", "webm"].some((ext) => story.cover_image.toLowerCase().endsWith(ext));
-            const mediaUrl = story.cover_image
-              ? story.cover_image.startsWith("http") || story.cover_image.startsWith("/")
-                ? story.cover_image
-                : `/storage/${story.cover_image}`
-              : `/images/1.webp`;
+            const isVideo = isVideoSource(story.cover_image);
+            const mediaUrl = formatMediaUrl(story.cover_image, "/images/1.webp");
 
             return (
               <div
                 key={story.id || idx}
                 className="group relative rounded-3xl overflow-hidden bg-[#121214] border border-white/5 flex flex-col hover:border-[#c4a472]/40 transition-all duration-500 shadow-xl"
               >
-                <div className="relative aspect-[4/3] w-full overflow-hidden bg-black">
-                  {isVideo ? (
-                    <div
-                      className="w-full h-full cursor-pointer relative"
-                      onClick={() => setActiveVideo(mediaUrl)}
-                    >
-                      <video
-                        src={`${mediaUrl}#t=0.001`}
-                        preload="metadata"
-                        muted
-                        playsInline
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                      />
-                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/20 transition-colors">
-                        <div className="w-14 h-14 rounded-full bg-[#c4a472] text-[#0c0c0d] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                          <Play size={20} className="fill-current ml-1" />
-                        </div>
-                      </div>
-                      <span className="absolute top-4 left-4 bg-black/80 text-[#c4a472] text-[9px] uppercase tracking-wider font-bold px-3 py-1 rounded-full border border-[#c4a472]/30">
-                        Cinema Highlight
+                <div
+                  className="relative aspect-[4/3] w-full overflow-hidden bg-black cursor-pointer"
+                  onClick={() => isVideo && setActiveVideo(mediaUrl)}
+                >
+                  <SmartMedia
+                    src={story.cover_image}
+                    alt={story.couple_name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    containerClassName="relative w-full h-full overflow-hidden bg-black"
+                  />
+
+                  {isVideo && (
+                    <>
+                      <span className="absolute top-4 left-4 bg-black/80 backdrop-blur-md text-[#c4a472] text-[9px] uppercase tracking-wider font-bold px-3 py-1 rounded-full border border-[#c4a472]/30 z-10 flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#c4a472] animate-pulse" />
+                        Live Cinema Highlight
                       </span>
-                    </div>
-                  ) : (
-                    <img
-                      src={mediaUrl}
-                      alt={story.couple_name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                    />
+                      <div className="absolute bottom-4 right-4 bg-black/70 backdrop-blur-md text-white/90 text-[10px] uppercase tracking-wider px-3 py-1 rounded-full border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1.5 z-10">
+                        <Play size={10} className="fill-current" />
+                        <span>Watch with Sound</span>
+                      </div>
+                    </>
                   )}
                 </div>
 

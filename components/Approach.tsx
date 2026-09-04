@@ -51,7 +51,7 @@ export default function Approach({ setting }: { setting: any }) {
           The laughter. The tears. The quiet glances. The people you love.
         </p>
         <p className="text-xs sm:text-sm text-zinc-400 font-light leading-relaxed max-w-2xl mx-auto">
-          At <strong className="text-white font-semibold">Pan Eventz</strong>, we turn these fleeting moments into photographs and films you'll want to relive for years to come.
+          At <strong className="text-white font-semibold">Pan Eventz</strong>, we turn these fleeting moments into photographs and films you&apos;ll want to relive for years to come.
         </p>
       </div>
 
