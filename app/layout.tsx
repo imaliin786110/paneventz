@@ -61,6 +61,8 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+import WhatsAppButton from "@/components/WhatsAppButton";
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -70,6 +72,7 @@ export default async function RootLayout({
     <html lang="en" className={`${cormorant.variable} ${manrope.variable}`}>
       <body className="bg-[#0c0c0d] text-[#d6d6d8] antialiased selection:bg-[#c4a472] selection:text-[#0c0c0d]">
         {children}
+        <WhatsAppButton />
       </body>
     </html>
   );
