@@ -1,60 +1,42 @@
-FROM php:8.3-fpm-alpine
+FROM node:22-alpine AS base
 
-# Set working directory
-WORKDIR /var/www/html
+FROM base AS deps
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
 
-# Install system dependencies & libraries for PHP extensions
-RUN apk update && apk add --no-cache \
-    nginx \
-    supervisor \
-    curl \
-    git \
-    unzip \
-    libzip-dev \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
-    libwebp-dev \
-    postgresql-dev \
-    icu-dev \
-    oniguruma-dev \
-    linux-headers
+COPY package.json ./
+RUN npm install --legacy-peer-deps --ignore-scripts
 
-# Configure and install PHP extensions
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
-    && docker-php-ext-install -j$(nproc) \
-        pdo \
-        pdo_pgsql \
-        pgsql \
-        pdo_mysql \
-        gd \
-        zip \
-        intl \
-        exif \
-        bcmath \
-        opcache
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
 
-# Install Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
+ENV DATABASE_URL="postgresql://neondb_owner:npg_OkM6bBY9cUtp@ep-broad-queen-axttn4de.c-4.us-east-2.aws.neon.tech/neondb?sslmode=require"
 
-# Copy application files
-COPY . /var/www/html
+RUN npx prisma generate
+RUN npm run build
 
-# Install Composer dependencies (production mode)
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+FROM base AS runner
+WORKDIR /app
 
-# Copy Nginx & Supervisor configuration
-COPY docker/nginx.conf /etc/nginx/http.d/default.conf
-COPY docker/supervisord.conf /etc/supervisord.conf
-COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=10000
+ENV HOSTNAME="0.0.0.0"
 
-# Set permissions for Laravel
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
-    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
 
-# Expose HTTP port
-EXPOSE 80 10000
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 
-# Entrypoint script
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+USER nextjs
+
+EXPOSE 10000
+
+CMD ["node", "server.js"]

@@ -1,0 +1,330 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                BigInt    @id @default(autoincrement())
+  name              String
+  email             String    @unique
+  email_verified_at DateTime?
+  password          String
+  remember_token    String?
+  created_at        DateTime?
+  updated_at        DateTime?
+
+  @@map("users")
+}
+
+model WebsiteSetting {
+  id                       BigInt    @id @default(autoincrement())
+  studio_name              String?   @default("Paneventz")
+  tagline                  String?
+  email                    String?
+  phone                    String?
+  whatsapp                 String?
+  instagram_url            String?
+  facebook_url             String?
+  youtube_url              String?
+  hero_eyebrow             String?
+  hero_heading             String?
+  hero_description         String?
+  hero_button_label        String?
+  hero_button_url          String?
+  about_eyebrow            String?
+  about_heading            String?
+  about_description        String?
+  meta_title               String?
+  meta_description         String?
+  created_at               DateTime?
+  updated_at               DateTime?
+  logo                     String?
+  favicon                  String?
+  hero_background_image    String?
+  hero_background_video    String?
+  analytics_code           String?
+  brochure_pdf             String?
+  google_drive_api_key     String?
+  footer_heading           String?
+  footer_description       String?
+  footer_address           String?
+  footer_copyright         String?
+  color_grade_heading      String?
+  color_grade_description  String?
+  color_grade_before_image String?
+  color_grade_after_image  String?
+  stat_1_number            Int?      @default(250)
+  stat_1_suffix            String?   @default("+")
+  stat_1_label             String?
+  stat_2_number            Int?      @default(10)
+  stat_2_suffix            String?   @default("+")
+  stat_2_label             String?
+  stat_3_number            Int?      @default(35)
+  stat_3_suffix            String?   @default("+")
+  stat_3_label             String?
+  stat_4_number            Int?      @default(100)
+  stat_4_suffix            String?   @default("%")
+  stat_4_label             String?
+
+  @@map("website_settings")
+}
+
+model Story {
+  id           BigInt    @id @default(autoincrement())
+  couple_name  String
+  location     String?
+  cover_image  String?
+  description  String?
+  gallery      Json?
+  is_published Boolean   @default(true)
+  sort_order   Int       @default(0)
+  created_at   DateTime?
+  updated_at   DateTime?
+
+  @@map("stories")
+}
+
+model Film {
+  id           BigInt    @id @default(autoincrement())
+  title        String
+  couple_name  String?
+  location     String?
+  wedding_date DateTime?
+  thumbnail    String?
+  video_url    String
+  description  String?
+  is_featured  Boolean   @default(false)
+  is_published Boolean   @default(true)
+  sort_order   Int       @default(0)
+  created_at   DateTime?
+  updated_at   DateTime?
+
+  @@map("films")
+}
+
+model Service {
+  id                BigInt    @id @default(autoincrement())
+  name              String
+  short_description String?
+  description       String?
+  price_from        Decimal?  @db.Decimal(10, 2)
+  is_published      Boolean   @default(true)
+  sort_order        Int       @default(0)
+  created_at        DateTime?
+  updated_at        DateTime?
+
+  @@map("services")
+}
+
+model Testimonial {
+  id           BigInt    @id @default(autoincrement())
+  couple_name  String
+  location     String?
+  rating       Int       @default(5)
+  review       String
+  photo        String?
+  is_published Boolean   @default(true)
+  sort_order   Int       @default(0)
+  created_at   DateTime?
+  updated_at   DateTime?
+
+  @@map("testimonials")
+}
+
+model Faq {
+  id           BigInt    @id @default(autoincrement())
+  question     String
+  answer       String
+  is_published Boolean   @default(true)
+  sort_order   Int       @default(0)
+  created_at   DateTime?
+  updated_at   DateTime?
+
+  @@map("faqs")
+}
+
+model TermsAndCondition {
+  id                        BigInt    @id @default(autoincrement())
+  version                   Int       @default(1)
+  advance_percentage        Int       @default(40)
+  balance_percentage        Int       @default(60)
+  balance_due               String?
+  advance_refundable        Boolean   @default(false)
+  cancellation_policy       String?
+  estimated_delivery_period String?
+  delivery_policy           String?
+  extra_pendrive            String?
+  extended_coverage_after   String?
+  late_night_transportation String?
+  hotel_coverage            String?
+  home_coverage             String?
+  extra_hours               String?
+  content                   String?
+  created_at                DateTime?
+  updated_at                DateTime?
+
+  @@map("terms_and_conditions")
+}
+
+model Location {
+  id             BigInt    @id @default(autoincrement())
+  name           String
+  slug           String    @unique
+  state          String?
+  country        String?   @default("India")
+  headline       String?
+  intro          String?
+  content        String?
+  hero_image     String?
+  popular_venues Json?
+  faqs           Json?
+  is_published   Boolean   @default(true)
+  sort_order     Int       @default(0)
+  created_at     DateTime?
+  updated_at     DateTime?
+
+  @@map("locations")
+}
+
+model BlogPost {
+  id                      BigInt    @id @default(autoincrement())
+  title                   String
+  slug                    String    @unique
+  category                String?
+  excerpt                 String?
+  content                 String
+  featured_image          String?
+  author_name             String?   @default("Paneventz Studio")
+  read_time_minutes       Int?      @default(5)
+  is_published            Boolean   @default(false)
+  published_at            DateTime?
+  created_at              DateTime?
+  updated_at              DateTime?
+  status                  String?   @default("draft")
+  focus_keyword           String?
+  secondary_keywords      Json?
+  ai_generation_meta      Json?
+  quality_score           Int?
+  quality_warnings        Json?
+  source_story_id         BigInt?
+  source_wedding_album_id BigInt?
+
+  @@map("blog_posts")
+}
+
+model WeddingAlbum {
+  id                           BigInt       @id @default(autoincrement())
+  title                        String
+  slug                         String       @unique
+  couple_names                 String?
+  cover_image                  String?
+  event_date                   DateTime?
+  location                     String?
+  pin_code                     String?
+  google_drive_folder_id       String?
+  is_public                    Boolean      @default(false)
+  allow_downloads              Boolean      @default(true)
+  created_at                   DateTime?
+  updated_at                   DateTime?
+  enable_face_ai               Boolean      @default(false)
+  guest_google_drive_folder_id String?
+  photos                       AlbumPhoto[]
+
+  @@map("wedding_albums")
+}
+
+model AlbumPhoto {
+  id               BigInt       @id @default(autoincrement())
+  wedding_album_id BigInt
+  photo_url        String
+  thumbnail_url    String?
+  file_name        String?
+  face_descriptors Json?
+  faces_count      Int?         @default(0)
+  created_at       DateTime?
+  updated_at       DateTime?
+  is_video         Boolean      @default(false)
+  file_size        String?
+  album            WeddingAlbum @relation(fields: [wedding_album_id], references: [id], onDelete: Cascade)
+
+  @@map("album_photos")
+}
+
+model Enquiry {
+  id               BigInt    @id @default(autoincrement())
+  name             String
+  phone            String?
+  email            String?
+  wedding_date     DateTime?
+  wedding_location String?
+  service          String?
+  message          String?
+  status           String?   @default("new")
+  admin_notes      String?
+  created_at       DateTime?
+  updated_at       DateTime?
+
+  @@map("enquiries")
+}
+
+model SeoMetadata {
+  id                  BigInt    @id @default(autoincrement())
+  seoable_type        String?
+  seoable_id          BigInt?
+  route_name          String?
+  title               String?
+  meta_description    String?
+  keywords            String?
+  canonical_url       String?
+  robots              String?   @default("index, follow")
+  og_title            String?
+  og_description      String?
+  og_image            String?
+  og_type             String?   @default("website")
+  twitter_card        String?   @default("summary_large_image")
+  twitter_title       String?
+  twitter_description String?
+  twitter_image       String?
+  schema_type         String?   @default("PhotographyBusiness")
+  custom_json_ld      Json?
+  change_frequency    String?   @default("weekly")
+  priority            Decimal?  @default(0.8) @db.Decimal(3, 1)
+  is_indexed          Boolean   @default(true)
+  created_at          DateTime?
+  updated_at          DateTime?
+
+  @@map("seo_metadatas")
+}
+
+model UrlRedirect {
+  id               BigInt    @id @default(autoincrement())
+  source_path      String    @unique
+  target_path      String
+  status_code      Int       @default(301)
+  hits             BigInt    @default(0)
+  last_accessed_at DateTime?
+  created_at       DateTime?
+  updated_at       DateTime?
+
+  @@map("url_redirects")
+}
+
+model ContentCalendar {
+  id             BigInt    @id @default(autoincrement())
+  topic          String
+  target_keyword String?
+  category       String?
+  author_name    String?
+  scheduled_for  DateTime?
+  status         String?   @default("planned")
+  blog_post_id   BigInt?
+  notes          String?
+  created_at     DateTime?
+  updated_at     DateTime?
+
+  @@map("content_calendars")
+}
