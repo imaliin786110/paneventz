@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { Phone, MessageSquare, Mail, Sparkles, MapPin, ArrowRight } from "lucide-react";
+import { Phone, MessageSquare, Mail, Sparkles, MapPin, ArrowUpRight, ArrowRight, ShieldCheck, Camera } from "lucide-react";
 
 export default function Footer({ setting }: { setting: any }) {
   const year = new Date().getFullYear();
@@ -18,207 +18,321 @@ export default function Footer({ setting }: { setting: any }) {
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=Hello%20Paneventz!%20I%20would%20like%20to%20inquire%20about%20your%20wedding%20photography%20%26%20films.`;
 
   return (
-    <footer id="contact" className="bg-[#080809] border-t border-white/10 pt-28 pb-16 px-6 lg:px-12 text-center text-[#8e8e93]">
-      <div className="max-w-6xl mx-auto">
-        {/* EYEBROW */}
-        <span className="text-xs uppercase tracking-[4px] text-[#c4a472] font-semibold block mb-4">
-          LET&apos;S CONNECT
-        </span>
+    <footer id="contact" className="relative bg-[#060608] border-t border-white/[0.08] pt-32 pb-16 px-6 lg:px-12 text-center text-[#94a3b8] overflow-hidden">
+      {/* AMBIENT LUXURY GLOW BACKDROP */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(196,164,114,0.12),transparent_70%)] pointer-events-none" />
 
-        {/* HEADING */}
-        <h2 className="font-serif text-4xl sm:text-5xl md:text-7xl font-light text-white tracking-tight leading-tight mb-6">
-          {setting?.footer_heading || "Let's create something timeless."}
+      <div className="relative max-w-6xl mx-auto">
+        {/* EYEBROW WITH BESPOKE FLANKING HAIRLINES */}
+        <div className="flex items-center justify-center gap-4 mb-5">
+          <span className="h-[1px] w-10 bg-gradient-to-r from-transparent to-[#c4a472]/60" />
+          <span className="text-[11px] uppercase tracking-[0.35em] text-[#c4a472] font-semibold">
+            LET&apos;S CONNECT
+          </span>
+          <span className="h-[1px] w-10 bg-gradient-to-l from-transparent to-[#c4a472]/60" />
+        </div>
+
+        {/* EDITORIAL HEADING */}
+        <h2 className="font-serif text-4xl sm:text-6xl md:text-7xl font-light text-white tracking-tight leading-[1.08] mb-6 max-w-4xl mx-auto">
+          {setting?.footer_heading ? (
+            setting.footer_heading
+          ) : (
+            <>
+              Let&apos;s create something <span className="italic font-serif font-normal text-[#f5ebd7]">timeless.</span>
+            </>
+          )}
         </h2>
 
         {/* SUBTITLE */}
-        <p className="max-w-2xl mx-auto text-sm sm:text-base text-[#cbd5e1] font-light leading-relaxed mb-8">
+        <p className="max-w-xl mx-auto text-sm sm:text-base text-[#cbd5e1] font-light leading-relaxed mb-8">
           {setting?.footer_description ||
             "Now reserving select dates for wedding celebrations across India and destinations worldwide."}
         </p>
 
-        {/* PAN-INDIA & MUMBAI LOCATION BADGE */}
-        <div className="inline-flex items-center gap-2 bg-[#c4a472]/10 border border-[#c4a472]/30 px-6 py-2 rounded-full mb-12 text-[11px] sm:text-xs tracking-[2px] uppercase text-[#c4a472] font-medium shadow-sm">
-          <span>📍</span>
-          <span>{setting?.footer_address || "Based in Mumbai · Services Available Pan-India & Worldwide"}</span>
+        {/* LIVE STATUS & LOCATION PILL */}
+        <div className="inline-flex flex-wrap items-center justify-center gap-3 bg-white/[0.03] backdrop-blur-md border border-white/[0.1] px-6 py-2.5 rounded-full mb-14 text-xs tracking-[1.5px] uppercase text-[#e2e8f0] shadow-xl">
+          <span className="flex items-center gap-1.5 text-emerald-400 font-medium text-[11px]">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            Dates Reserving 2026/2027
+          </span>
+          <span className="text-white/20 hidden sm:inline">|</span>
+          <span className="flex items-center gap-1.5 text-[#c4a472]">
+            <span>📍</span>
+            <span>{setting?.footer_address || "Based in Mumbai · Available Pan-India & Worldwide"}</span>
+          </span>
         </div>
 
-        {/* LUXURY CONTACT CARDS HUB (3 COLUMNS) */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left mb-12">
-          {/* CARD 1: DIRECT CALLS */}
-          <div className="bg-gradient-to-b from-[#101622]/90 to-[#0a0e16]/95 border border-[#c4a472]/25 hover:border-[#c4a472]/60 rounded-xl p-7 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#c4a472]/10">
+        {/* LUXURY CONTACT CARDS HUB (3 BESPOKE COLUMNS) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left mb-14">
+          {/* CARD 1: DIRECT STUDIO LINES */}
+          <div className="group relative bg-gradient-to-b from-[#0e121a]/90 via-[#0a0d14]/95 to-[#06080d]/98 border border-white/[0.08] hover:border-[#c4a472]/50 rounded-2xl p-8 flex flex-col justify-between transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_20px_40px_rgba(0,0,0,0.8),0_0_30px_rgba(196,164,114,0.12)]">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[radial-gradient(circle_at_top_right,rgba(196,164,114,0.08),transparent_70%)] pointer-events-none rounded-tr-2xl" />
             <div>
-              <div className="text-[11px] tracking-[2.5px] uppercase text-[#c4a472] font-bold flex items-center gap-2 mb-4">
-                <span>📞</span> Direct Studio Lines
+              <div className="flex items-center justify-between mb-5">
+                <div className="text-[11px] tracking-[2.5px] uppercase text-[#c4a472] font-bold flex items-center gap-2">
+                  <Phone size={14} className="text-[#c4a472]" />
+                  <span>Direct Studio Lines</span>
+                </div>
+                <span className="text-[10px] uppercase tracking-wider text-[#c4a472]/80 bg-[#c4a472]/10 px-2 py-0.5 rounded border border-[#c4a472]/20">
+                  Direct Line
+                </span>
               </div>
-              <div className="flex flex-col gap-2.5">
+              <div className="flex flex-col gap-3">
                 {phoneList.map((phoneNum: string, idx: number) => (
                   <a
                     key={idx}
                     href={`tel:${phoneNum.replace(/[^0-9+]/g, "")}`}
-                    className="text-white hover:text-[#fce7b2] text-base font-semibold tracking-wider flex items-center gap-3 py-1 transition-colors"
+                    className="text-white hover:text-[#fce7b2] text-base font-semibold tracking-wider flex items-center justify-between group/link py-1.5 px-3 rounded-lg bg-white/[0.02] hover:bg-white/[0.06] border border-transparent hover:border-white/10 transition-all duration-300"
                   >
-                    <span className="w-8 h-8 rounded-full bg-[#c4a472]/15 border border-[#c4a472]/40 flex items-center justify-center text-[#c4a472] text-xs flex-shrink-0">
-                      ✦
-                    </span>
-                    <span>{phoneNum}</span>
+                    <div className="flex items-center gap-3">
+                      <span className="w-7 h-7 rounded-full bg-[#c4a472]/15 border border-[#c4a472]/40 flex items-center justify-center text-[#c4a472] text-xs group-hover/link:bg-[#c4a472] group-hover/link:text-[#060608] transition-colors">
+                        ✦
+                      </span>
+                      <span>{phoneNum}</span>
+                    </div>
+                    <ArrowUpRight size={14} className="text-white/40 group-hover/link:text-[#c4a472] group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-all" />
                   </a>
                 ))}
               </div>
             </div>
-            <div className="text-[11.5px] tracking-wide text-[#94a3b8] mt-5 pt-3.5 border-t border-white/5">
-              Available 9:00 AM – 9:00 PM IST · Direct Concierge
+            <div className="text-[11.5px] tracking-wide text-[#94a3b8] mt-6 pt-4 border-t border-white/[0.06] flex items-center justify-between">
+              <span>9:00 AM – 9:00 PM IST</span>
+              <span className="text-white/40">Studio Concierge</span>
             </div>
           </div>
 
-          {/* CARD 2: WHATSAPP */}
-          <div className="bg-gradient-to-b from-[#101622]/90 to-[#0a0e16]/95 border border-[#25D366]/25 hover:border-[#25D366]/60 rounded-xl p-7 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#25D366]/10">
+          {/* CARD 2: WHATSAPP CONCIERGE */}
+          <div className="group relative bg-gradient-to-b from-[#0e121a]/90 via-[#0a0d14]/95 to-[#06080d]/98 border border-white/[0.08] hover:border-[#25D366]/50 rounded-2xl p-8 flex flex-col justify-between transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_20px_40px_rgba(0,0,0,0.8),0_0_30px_rgba(37,211,102,0.12)]">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[radial-gradient(circle_at_top_right,rgba(37,211,102,0.08),transparent_70%)] pointer-events-none rounded-tr-2xl" />
             <div>
-              <div className="text-[11px] tracking-[2.5px] uppercase text-[#25D366] font-bold flex items-center gap-2 mb-4">
-                <span>💬</span> WhatsApp Concierge
+              <div className="flex items-center justify-between mb-5">
+                <div className="text-[11px] tracking-[2.5px] uppercase text-[#25D366] font-bold flex items-center gap-2">
+                  <MessageSquare size={14} className="text-[#25D366]" />
+                  <span>WhatsApp Concierge</span>
+                </div>
+                <span className="text-[10px] uppercase tracking-wider text-[#25D366] bg-[#25D366]/10 px-2 py-0.5 rounded border border-[#25D366]/20">
+                  Instant Reply
+                </span>
               </div>
-              <div className="mt-2">
+              <div className="mt-1">
                 <a
                   href={whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2.5 bg-[#25D366]/15 hover:bg-[#25D366]/25 border border-[#25D366]/40 text-[#25D366] px-5 py-3 rounded-lg font-semibold text-sm tracking-wide transition-all duration-300"
+                  className="w-full inline-flex items-center justify-center gap-3 bg-[#25D366]/15 hover:bg-[#25D366] text-[#25D366] hover:text-[#06080d] border border-[#25D366]/40 hover:border-[#25D366] px-5 py-4 rounded-xl font-semibold text-sm tracking-wide transition-all duration-300 shadow-lg shadow-[#25D366]/10 hover:shadow-[#25D366]/30 group/btn"
                 >
-                  <MessageSquare size={16} />
-                  <span>Chat On WhatsApp ↗</span>
+                  <MessageSquare size={18} />
+                  <span>Chat On WhatsApp</span>
+                  <ArrowUpRight size={16} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
                 </a>
               </div>
             </div>
-            <div className="text-[11.5px] tracking-wide text-[#94a3b8] mt-5 pt-3.5 border-t border-white/5">
-              Fastest Response · Dates &amp; Brochure Inquiries
+            <div className="text-[11.5px] tracking-wide text-[#94a3b8] mt-6 pt-4 border-t border-white/[0.06] flex items-center justify-between">
+              <span>Fastest Response</span>
+              <span className="text-white/40">Dates &amp; Brochure</span>
             </div>
           </div>
 
-          {/* CARD 3: STUDIO CORRESPONDENCE / EMAIL */}
-          <div className="bg-gradient-to-b from-[#101622]/90 to-[#0a0e16]/95 border border-[#38bdf8]/25 hover:border-[#38bdf8]/60 rounded-xl p-7 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#38bdf8]/10">
+          {/* CARD 3: STUDIO CORRESPONDENCE */}
+          <div className="group relative bg-gradient-to-b from-[#0e121a]/90 via-[#0a0d14]/95 to-[#06080d]/98 border border-white/[0.08] hover:border-[#38bdf8]/50 rounded-2xl p-8 flex flex-col justify-between transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_20px_40px_rgba(0,0,0,0.8),0_0_30px_rgba(56,189,248,0.12)]">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.08),transparent_70%)] pointer-events-none rounded-tr-2xl" />
             <div>
-              <div className="text-[11px] tracking-[2.5px] uppercase text-[#38bdf8] font-bold flex items-center gap-2 mb-4">
-                <span>✉</span> Studio Correspondence
+              <div className="flex items-center justify-between mb-5">
+                <div className="text-[11px] tracking-[2.5px] uppercase text-[#38bdf8] font-bold flex items-center gap-2">
+                  <Mail size={14} className="text-[#38bdf8]" />
+                  <span>Studio Correspondence</span>
+                </div>
+                <span className="text-[10px] uppercase tracking-wider text-[#38bdf8] bg-[#38bdf8]/10 px-2 py-0.5 rounded border border-[#38bdf8]/20">
+                  Proposals
+                </span>
               </div>
-              <div className="mt-2">
+              <div className="mt-1">
                 <a
                   href={`mailto:${email}`}
-                  className="text-white hover:text-[#c4a472] text-sm sm:text-base font-semibold tracking-wide inline-flex items-center gap-3 py-1 transition-colors"
+                  className="w-full inline-flex items-center justify-between text-white hover:text-[#c4a472] text-sm font-semibold tracking-wide py-3.5 px-4 rounded-xl bg-white/[0.02] hover:bg-white/[0.06] border border-transparent hover:border-white/10 transition-all duration-300 group/mail"
                 >
-                  <span className="w-8 h-8 rounded-full bg-[#38bdf8]/15 border border-[#38bdf8]/40 flex items-center justify-center text-[#38bdf8] text-xs flex-shrink-0">
-                    <Mail size={14} />
-                  </span>
-                  <span className="break-all">{email}</span>
+                  <div className="flex items-center gap-3 overflow-hidden">
+                    <span className="w-8 h-8 rounded-full bg-[#38bdf8]/15 border border-[#38bdf8]/40 flex items-center justify-center text-[#38bdf8] text-xs flex-shrink-0 group-hover/mail:bg-[#38bdf8] group-hover/mail:text-[#06080d] transition-colors">
+                      <Mail size={14} />
+                    </span>
+                    <span className="truncate">{email}</span>
+                  </div>
+                  <ArrowUpRight size={14} className="text-white/40 group-hover/mail:text-[#38bdf8] group-hover/mail:translate-x-0.5 group-hover/mail:-translate-y-0.5 transition-all flex-shrink-0 ml-2" />
                 </a>
               </div>
             </div>
-            <div className="text-[11.5px] tracking-wide text-[#94a3b8] mt-5 pt-3.5 border-t border-white/5">
-              Formal Wedding Proposals &amp; Commissions
+            <div className="text-[11.5px] tracking-wide text-[#94a3b8] mt-6 pt-4 border-t border-white/[0.06] flex items-center justify-between">
+              <span>Wedding Proposals</span>
+              <span className="text-white/40">Private Commissions</span>
             </div>
           </div>
         </div>
 
-        {/* CORPORATE & PRIVATE EVENTS NOTICE */}
-        <div className="mb-12">
+        {/* CORPORATE & COMMERCIAL EVENTS VIP BANNER */}
+        <div className="mb-14">
           <a
             href="https://www.paneventz.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-[#00f0ff] hover:text-white bg-[#00f0ff]/10 hover:bg-[#00f0ff]/20 border border-[#00f0ff]/30 px-6 py-2.5 rounded-full text-xs sm:text-sm tracking-wider uppercase transition-all duration-300 shadow-sm"
+            className="group inline-flex items-center gap-3 text-white bg-gradient-to-r from-[#00f0ff]/10 via-[#00f0ff]/5 to-[#00f0ff]/10 hover:from-[#00f0ff]/20 hover:to-[#00f0ff]/20 border border-[#00f0ff]/30 hover:border-[#00f0ff]/60 px-7 py-3.5 rounded-full text-xs sm:text-sm tracking-wider uppercase transition-all duration-300 shadow-lg shadow-[#00f0ff]/5 hover:shadow-[#00f0ff]/20"
           >
-            <span>✨</span>
+            <Sparkles size={16} className="text-[#00f0ff] animate-pulse" />
             <span>
-              For Corporate Events, Concerts &amp; Event Management Visit:{" "}
-              <strong className="underline decoration-[#00f0ff] underline-offset-4">www.paneventz.com ↗</strong>
+              For Corporate Galas, Concerts &amp; Event Management Visit:{" "}
+              <strong className="text-[#00f0ff] underline underline-offset-4 font-semibold">www.paneventz.com</strong>
             </span>
+            <ArrowUpRight size={16} className="text-[#00f0ff] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </a>
         </div>
 
-        {/* ACTION BUTTONS */}
-        <div className="flex flex-wrap items-center justify-center gap-4 mb-16">
+        {/* PRIMARY CALL TO ACTION BUTTONS */}
+        <div className="flex flex-wrap items-center justify-center gap-5 mb-20">
           <a
             href="#enquire"
-            className="inline-flex items-center gap-2 bg-[#c4a472] hover:bg-[#d8b886] text-[#080809] px-8 py-4 text-xs tracking-[3px] uppercase font-bold transition-all duration-300 shadow-lg hover:shadow-[#c4a472]/20"
+            className="group inline-flex items-center gap-3 bg-[#c4a472] hover:bg-[#d8b886] text-[#080809] px-9 py-4 text-xs tracking-[3px] uppercase font-bold transition-all duration-300 shadow-[0_10px_30px_rgba(196,164,114,0.2)] hover:shadow-[0_15px_40px_rgba(196,164,114,0.35)] hover:-translate-y-0.5"
           >
             <span>Start A Wedding Conversation</span>
-            <ArrowRight size={14} />
+            <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
           </a>
           <a
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 border border-[#c4a472]/50 hover:border-[#c4a472] text-[#c4a472] hover:bg-[#c4a472]/10 px-8 py-4 text-xs tracking-[3px] uppercase font-bold transition-all duration-300"
+            className="inline-flex items-center gap-3 border border-white/20 hover:border-[#c4a472] text-[#f5f5f7] hover:text-[#c4a472] bg-white/[0.02] hover:bg-[#c4a472]/10 px-9 py-4 text-xs tracking-[3px] uppercase font-bold transition-all duration-300 hover:-translate-y-0.5"
           >
-            <span>WhatsApp ↗</span>
+            <MessageSquare size={14} />
+            <span>WhatsApp Direct</span>
+            <ArrowUpRight size={14} />
           </a>
         </div>
 
-        {/* FOOTER NAVIGATION LINKS */}
-        <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 pb-10 mb-10 border-b border-white/10 text-xs uppercase tracking-[2px] text-[#888]">
-          <Link href="#stories" className="hover:text-white transition-colors">
-            Stories
-          </Link>
-          <Link href="#films" className="hover:text-white transition-colors">
-            Films
-          </Link>
-          <Link href="/services" className="hover:text-white transition-colors">
-            Services
-          </Link>
-          <Link href="/terms" className="hover:text-white transition-colors">
-            Terms &amp; Conditions
-          </Link>
-          <Link
-            href="/client-portal"
-            className="text-[#00f0ff] hover:text-white font-semibold transition-colors flex items-center gap-1"
-          >
-            <span>Download Story</span> 🔒
-          </Link>
-          <Link
-            href="/galleries"
-            className="text-[#c4a472] hover:text-white font-semibold transition-colors flex items-center gap-1"
-          >
-            <span>Guest Photos AI</span> 📸
-          </Link>
-          <Link href="#about" className="hover:text-white transition-colors">
-            About
-          </Link>
-          <Link href="/blog" className="hover:text-white transition-colors">
-            Journal
-          </Link>
-          <Link href="#testimonials" className="hover:text-white transition-colors">
-            Reviews
-          </Link>
-          <Link href="#faqs" className="hover:text-white transition-colors">
-            FAQs
-          </Link>
-        </div>
+        {/* FOOTER DIRECTORY & DESTINATIONS */}
+        <div className="pt-12 border-t border-white/[0.08]">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 text-left mb-12">
+            <div>
+              <h4 className="font-serif text-sm tracking-[2px] uppercase text-white font-medium mb-4">
+                Portfolios
+              </h4>
+              <ul className="space-y-2.5 text-xs uppercase tracking-wider text-[#94a3b8]">
+                <li>
+                  <Link href="#stories" className="hover:text-[#c4a472] transition-colors">
+                    Wedding Stories
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#films" className="hover:text-[#c4a472] transition-colors">
+                    Cinematic Films (4K)
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/services" className="hover:text-[#c4a472] transition-colors">
+                    Investment &amp; Packages
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/blog" className="hover:text-[#c4a472] transition-colors">
+                    The Journal
+                  </Link>
+                </li>
+              </ul>
+            </div>
 
-        {/* DESTINATIONS LINKS */}
-        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mb-8 text-[11px] tracking-[1.5px] uppercase text-[#71717a]">
-          <Link href="/wedding-photographer-mumbai" className="hover:text-[#c4a472] transition-colors">
-            Mumbai Weddings
-          </Link>
-          <span>·</span>
-          <Link href="/wedding-photographer-udaipur" className="hover:text-[#c4a472] transition-colors">
-            Udaipur Royal Palaces
-          </Link>
-          <span>·</span>
-          <Link href="/wedding-photographer-goa" className="hover:text-[#c4a472] transition-colors">
-            Goa Beach Celebrations
-          </Link>
-          <span>·</span>
-          <Link href="/wedding-photographer-delhi" className="hover:text-[#c4a472] transition-colors">
-            Delhi Grand Weddings
-          </Link>
-          <span>·</span>
-          <Link href="/wedding-photographer-jaipur" className="hover:text-[#c4a472] transition-colors">
-            Jaipur Heritage
-          </Link>
-        </div>
+            <div>
+              <h4 className="font-serif text-sm tracking-[2px] uppercase text-white font-medium mb-4">
+                Client Portal
+              </h4>
+              <ul className="space-y-2.5 text-xs uppercase tracking-wider text-[#94a3b8]">
+                <li>
+                  <Link href="/client-portal" className="text-[#00f0ff] hover:text-white font-semibold transition-colors flex items-center gap-1.5">
+                    <ShieldCheck size={13} />
+                    <span>Download Story 🔒</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/galleries" className="text-[#c4a472] hover:text-white font-semibold transition-colors flex items-center gap-1.5">
+                    <Camera size={13} />
+                    <span>Guest Photos AI 📸</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/terms" className="hover:text-[#c4a472] transition-colors">
+                    Terms &amp; Policies
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#faqs" className="hover:text-[#c4a472] transition-colors">
+                    Client FAQs
+                  </Link>
+                </li>
+              </ul>
+            </div>
 
-        {/* COPYRIGHT */}
-        <div className="text-[11px] tracking-[1.5px] text-[#555] uppercase font-light">
-          {setting?.footer_copyright ||
-            `© ${year} Paneventz Studio. Mumbai · Pan-India & Worldwide Destination Celebrations.`}
+            <div>
+              <h4 className="font-serif text-sm tracking-[2px] uppercase text-white font-medium mb-4">
+                Destinations
+              </h4>
+              <ul className="space-y-2.5 text-xs uppercase tracking-wider text-[#94a3b8]">
+                <li>
+                  <Link href="/wedding-photographer-mumbai" className="hover:text-[#c4a472] transition-colors">
+                    Mumbai Luxury
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/wedding-photographer-udaipur" className="hover:text-[#c4a472] transition-colors">
+                    Udaipur Palaces
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/wedding-photographer-goa" className="hover:text-[#c4a472] transition-colors">
+                    Goa Beachfront
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/wedding-photographer-delhi" className="hover:text-[#c4a472] transition-colors">
+                    Delhi Grand
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-serif text-sm tracking-[2px] uppercase text-white font-medium mb-4">
+                Studio
+              </h4>
+              <ul className="space-y-2.5 text-xs uppercase tracking-wider text-[#94a3b8]">
+                <li>
+                  <Link href="#about" className="hover:text-[#c4a472] transition-colors">
+                    The Approach
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#testimonials" className="hover:text-[#c4a472] transition-colors">
+                    Client Trust
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/admin" className="text-white/40 hover:text-white transition-colors">
+                    Executive Suite ↗
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* COPYRIGHT & BRANDING BAR */}
+          <div className="pt-8 border-t border-white/[0.05] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#71717a] font-light">
+            <p>
+              {setting?.footer_copyright ||
+                `© ${year} Paneventz Studio. Handcrafted for unforgettable love stories.`}
+            </p>
+            <p className="flex items-center gap-2">
+              <span>Mumbai</span>
+              <span>·</span>
+              <span>Pan-India</span>
+              <span>·</span>
+              <span>Worldwide</span>
+            </p>
+          </div>
         </div>
       </div>
     </footer>
