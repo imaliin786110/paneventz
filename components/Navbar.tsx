@@ -65,7 +65,7 @@ export default function Navbar({ studioName = "Paneventz" }: { studioName?: stri
             href="/#enquire"
             className="px-6 py-2.5 rounded-full text-xs uppercase tracking-widest bg-[#c4a472] hover:bg-[#b09060] text-black font-bold hover:scale-105 transition-all shadow-lg shadow-[#c4a472]/30 flex items-center gap-1.5"
           >
-            <span>Check Availability</span>
+            <span>Contact Us</span>
             <ArrowRight size={14} />
           </Link>
         </div>
@@ -138,7 +138,7 @@ export default function Navbar({ studioName = "Paneventz" }: { studioName?: stri
             onClick={() => setMobileMenuOpen(false)}
             className="w-full py-3.5 rounded-2xl text-xs uppercase tracking-widest bg-[#c4a472] text-black font-bold flex items-center justify-center gap-2 shadow-xl shadow-[#c4a472]/20 mt-2"
           >
-            <span>Check Availability & Pricing</span>
+            <span>Contact Us</span>
             <ArrowRight size={16} />
           </Link>
         </div>
