@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { Phone, MessageSquare, Mail, Sparkles, MapPin, ArrowUpRight, ArrowRight, ShieldCheck, Camera } from "lucide-react";
+import { Phone, Sparkles, ArrowUpRight, ArrowRight, ShieldCheck, Camera } from "lucide-react";
 
 export default function Footer({ setting }: { setting: any }) {
   const year = new Date().getFullYear();
@@ -12,10 +12,6 @@ export default function Footer({ setting }: { setting: any }) {
   if (phoneList.length === 1 && !phoneList[0].includes("98213")) {
     phoneList.push("+91 98213 37523");
   }
-
-  const whatsappNumber = setting?.whatsapp ? setting.whatsapp.replace(/[^0-9]/g, "") : "918082024787";
-  const email = setting?.email || "imaliinmirza@gmail.com";
-  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=Hello%20Paneventz!%20I%20would%20like%20to%20inquire%20about%20your%20wedding%20photography%20%26%20films.`;
 
   return (
     <footer id="contact" className="relative bg-[#060608] border-t border-white/[0.08] pt-32 pb-16 px-6 lg:px-12 text-center text-[#94a3b8] overflow-hidden">
@@ -62,108 +58,41 @@ export default function Footer({ setting }: { setting: any }) {
           </span>
         </div>
 
-        {/* LUXURY CONTACT CARDS HUB (3 BESPOKE COLUMNS) */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left mb-14">
-          {/* CARD 1: DIRECT STUDIO LINES */}
-          <div className="group relative bg-gradient-to-b from-[#0e121a]/90 via-[#0a0d14]/95 to-[#06080d]/98 border border-white/[0.08] hover:border-[#c4a472]/50 rounded-2xl p-8 flex flex-col justify-between transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_20px_40px_rgba(0,0,0,0.8),0_0_30px_rgba(196,164,114,0.12)]">
+        {/* DIRECT STUDIO LINES LUXURY HUB (SINGLE FOCUSED CENTER) */}
+        <div className="max-w-xl mx-auto mb-14">
+          <div className="group relative bg-gradient-to-b from-[#0e121a]/90 via-[#0a0d14]/95 to-[#06080d]/98 border border-white/[0.08] hover:border-[#c4a472]/50 rounded-2xl p-8 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.8),0_0_30px_rgba(196,164,114,0.12)] text-left">
             <div className="absolute top-0 right-0 w-32 h-32 bg-[radial-gradient(circle_at_top_right,rgba(196,164,114,0.08),transparent_70%)] pointer-events-none rounded-tr-2xl" />
-            <div>
-              <div className="flex items-center justify-between mb-5">
-                <div className="text-[11px] tracking-[2.5px] uppercase text-[#c4a472] font-bold flex items-center gap-2">
-                  <Phone size={14} className="text-[#c4a472]" />
-                  <span>Direct Studio Lines</span>
-                </div>
-                <span className="text-[10px] uppercase tracking-wider text-[#c4a472]/80 bg-[#c4a472]/10 px-2 py-0.5 rounded border border-[#c4a472]/20">
-                  Direct Line
-                </span>
+            <div className="flex items-center justify-between mb-5">
+              <div className="text-[11px] tracking-[2.5px] uppercase text-[#c4a472] font-bold flex items-center gap-2">
+                <Phone size={14} className="text-[#c4a472]" />
+                <span>Direct Studio Lines</span>
               </div>
-              <div className="flex flex-col gap-3">
-                {phoneList.map((phoneNum: string, idx: number) => (
-                  <a
-                    key={idx}
-                    href={`tel:${phoneNum.replace(/[^0-9+]/g, "")}`}
-                    className="text-white hover:text-[#fce7b2] text-base font-semibold tracking-wider flex items-center justify-between group/link py-1.5 px-3 rounded-lg bg-white/[0.02] hover:bg-white/[0.06] border border-transparent hover:border-white/10 transition-all duration-300"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="w-7 h-7 rounded-full bg-[#c4a472]/15 border border-[#c4a472]/40 flex items-center justify-center text-[#c4a472] text-xs group-hover/link:bg-[#c4a472] group-hover/link:text-[#060608] transition-colors">
-                        ✦
-                      </span>
-                      <span>{phoneNum}</span>
-                    </div>
-                    <ArrowUpRight size={14} className="text-white/40 group-hover/link:text-[#c4a472] group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-all" />
-                  </a>
-                ))}
-              </div>
+              <span className="text-[10px] uppercase tracking-wider text-[#c4a472]/90 bg-[#c4a472]/10 px-2.5 py-0.5 rounded border border-[#c4a472]/20">
+                Direct Studio Concierge
+              </span>
             </div>
-            <div className="text-[11.5px] tracking-wide text-[#94a3b8] mt-6 pt-4 border-t border-white/[0.06] flex items-center justify-between">
-              <span>9:00 AM – 9:00 PM IST</span>
-              <span className="text-white/40">Studio Concierge</span>
-            </div>
-          </div>
 
-          {/* CARD 2: WHATSAPP CONCIERGE */}
-          <div className="group relative bg-gradient-to-b from-[#0e121a]/90 via-[#0a0d14]/95 to-[#06080d]/98 border border-white/[0.08] hover:border-[#25D366]/50 rounded-2xl p-8 flex flex-col justify-between transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_20px_40px_rgba(0,0,0,0.8),0_0_30px_rgba(37,211,102,0.12)]">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[radial-gradient(circle_at_top_right,rgba(37,211,102,0.08),transparent_70%)] pointer-events-none rounded-tr-2xl" />
-            <div>
-              <div className="flex items-center justify-between mb-5">
-                <div className="text-[11px] tracking-[2.5px] uppercase text-[#25D366] font-bold flex items-center gap-2">
-                  <MessageSquare size={14} className="text-[#25D366]" />
-                  <span>WhatsApp Concierge</span>
-                </div>
-                <span className="text-[10px] uppercase tracking-wider text-[#25D366] bg-[#25D366]/10 px-2 py-0.5 rounded border border-[#25D366]/20">
-                  Instant Reply
-                </span>
-              </div>
-              <div className="mt-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+              {phoneList.map((phoneNum: string, idx: number) => (
                 <a
-                  href={whatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full inline-flex items-center justify-center gap-3 bg-[#25D366]/15 hover:bg-[#25D366] text-[#25D366] hover:text-[#06080d] border border-[#25D366]/40 hover:border-[#25D366] px-5 py-4 rounded-xl font-semibold text-sm tracking-wide transition-all duration-300 shadow-lg shadow-[#25D366]/10 hover:shadow-[#25D366]/30 group/btn"
+                  key={idx}
+                  href={`tel:${phoneNum.replace(/[^0-9+]/g, "")}`}
+                  className="text-white hover:text-[#fce7b2] text-base font-semibold tracking-wider flex items-center justify-between group/link py-3 px-4 rounded-xl bg-white/[0.02] hover:bg-white/[0.06] border border-white/[0.05] hover:border-[#c4a472]/30 transition-all duration-300"
                 >
-                  <MessageSquare size={18} />
-                  <span>Chat On WhatsApp</span>
-                  <ArrowUpRight size={16} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
-                </a>
-              </div>
-            </div>
-            <div className="text-[11.5px] tracking-wide text-[#94a3b8] mt-6 pt-4 border-t border-white/[0.06] flex items-center justify-between">
-              <span>Fastest Response</span>
-              <span className="text-white/40">Dates &amp; Brochure</span>
-            </div>
-          </div>
-
-          {/* CARD 3: STUDIO CORRESPONDENCE */}
-          <div className="group relative bg-gradient-to-b from-[#0e121a]/90 via-[#0a0d14]/95 to-[#06080d]/98 border border-white/[0.08] hover:border-[#38bdf8]/50 rounded-2xl p-8 flex flex-col justify-between transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_20px_40px_rgba(0,0,0,0.8),0_0_30px_rgba(56,189,248,0.12)]">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.08),transparent_70%)] pointer-events-none rounded-tr-2xl" />
-            <div>
-              <div className="flex items-center justify-between mb-5">
-                <div className="text-[11px] tracking-[2.5px] uppercase text-[#38bdf8] font-bold flex items-center gap-2">
-                  <Mail size={14} className="text-[#38bdf8]" />
-                  <span>Studio Correspondence</span>
-                </div>
-                <span className="text-[10px] uppercase tracking-wider text-[#38bdf8] bg-[#38bdf8]/10 px-2 py-0.5 rounded border border-[#38bdf8]/20">
-                  Proposals
-                </span>
-              </div>
-              <div className="mt-1">
-                <a
-                  href={`mailto:${email}`}
-                  className="w-full inline-flex items-center justify-between text-white hover:text-[#c4a472] text-sm font-semibold tracking-wide py-3.5 px-4 rounded-xl bg-white/[0.02] hover:bg-white/[0.06] border border-transparent hover:border-white/10 transition-all duration-300 group/mail"
-                >
-                  <div className="flex items-center gap-3 overflow-hidden">
-                    <span className="w-8 h-8 rounded-full bg-[#38bdf8]/15 border border-[#38bdf8]/40 flex items-center justify-center text-[#38bdf8] text-xs flex-shrink-0 group-hover/mail:bg-[#38bdf8] group-hover/mail:text-[#06080d] transition-colors">
-                      <Mail size={14} />
+                  <div className="flex items-center gap-3">
+                    <span className="w-7 h-7 rounded-full bg-[#c4a472]/15 border border-[#c4a472]/40 flex items-center justify-center text-[#c4a472] text-xs group-hover/link:bg-[#c4a472] group-hover/link:text-[#060608] transition-colors">
+                      ✦
                     </span>
-                    <span className="truncate">{email}</span>
+                    <span>{phoneNum}</span>
                   </div>
-                  <ArrowUpRight size={14} className="text-white/40 group-hover/mail:text-[#38bdf8] group-hover/mail:translate-x-0.5 group-hover/mail:-translate-y-0.5 transition-all flex-shrink-0 ml-2" />
+                  <ArrowUpRight size={14} className="text-white/40 group-hover/link:text-[#c4a472] group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-all" />
                 </a>
-              </div>
+              ))}
             </div>
-            <div className="text-[11.5px] tracking-wide text-[#94a3b8] mt-6 pt-4 border-t border-white/[0.06] flex items-center justify-between">
-              <span>Wedding Proposals</span>
-              <span className="text-white/40">Private Commissions</span>
+
+            <div className="text-[11.5px] tracking-wide text-[#94a3b8] pt-4 border-t border-white/[0.06] flex items-center justify-between">
+              <span>Available 9:00 AM – 9:00 PM IST</span>
+              <span className="text-white/40">Instant Call Inquiries</span>
             </div>
           </div>
         </div>
@@ -185,24 +114,14 @@ export default function Footer({ setting }: { setting: any }) {
           </a>
         </div>
 
-        {/* PRIMARY CALL TO ACTION BUTTONS */}
-        <div className="flex flex-wrap items-center justify-center gap-5 mb-20">
+        {/* PRIMARY CALL TO ACTION BUTTON */}
+        <div className="flex items-center justify-center mb-20">
           <a
             href="#enquire"
-            className="group inline-flex items-center gap-3 bg-[#c4a472] hover:bg-[#d8b886] text-[#080809] px-9 py-4 text-xs tracking-[3px] uppercase font-bold transition-all duration-300 shadow-[0_10px_30px_rgba(196,164,114,0.2)] hover:shadow-[0_15px_40px_rgba(196,164,114,0.35)] hover:-translate-y-0.5"
+            className="group inline-flex items-center gap-3 bg-[#c4a472] hover:bg-[#d8b886] text-[#080809] px-10 py-4 text-xs tracking-[3px] uppercase font-bold transition-all duration-300 shadow-[0_10px_30px_rgba(196,164,114,0.2)] hover:shadow-[0_15px_40px_rgba(196,164,114,0.35)] hover:-translate-y-0.5"
           >
             <span>Start A Wedding Conversation</span>
             <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-          </a>
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-3 border border-white/20 hover:border-[#c4a472] text-[#f5f5f7] hover:text-[#c4a472] bg-white/[0.02] hover:bg-[#c4a472]/10 px-9 py-4 text-xs tracking-[3px] uppercase font-bold transition-all duration-300 hover:-translate-y-0.5"
-          >
-            <MessageSquare size={14} />
-            <span>WhatsApp Direct</span>
-            <ArrowUpRight size={14} />
           </a>
         </div>
 
