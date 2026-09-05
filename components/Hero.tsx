@@ -42,12 +42,17 @@ export default function Hero({ setting }: { setting: any }) {
           <div className="absolute inset-0 bg-gradient-to-b from-[#0c0c0d]/70 via-[#0c0c0d]/60 to-[#0c0c0d]/95" />
         </div>
       ) : (
-        <div
-          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat transition-all duration-700"
-          style={{
-            backgroundImage: `linear-gradient(rgba(12,12,13,0.5), rgba(12,12,13,0.85)), url('${imageBg}')`,
-          }}
-        />
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <img
+            src={imageBg}
+            alt={heading}
+            // @ts-ignore
+            fetchPriority="high"
+            decoding="async"
+            className="w-full h-full object-cover object-center scale-105 transition-all duration-700"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0c0c0d]/50 via-[#0c0c0d]/60 to-[#0c0c0d]/85" />
+        </div>
       )}
 
       <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center">

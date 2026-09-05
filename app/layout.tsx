@@ -8,12 +8,16 @@ const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600"],
   variable: "--font-cormorant",
+  display: "swap",
+  preload: true,
 });
 
 const manrope = Manrope({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600"],
   variable: "--font-manrope",
+  display: "swap",
+  preload: true,
 });
 
 export async function generateMetadata(): Promise<Metadata> {

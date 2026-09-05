@@ -76,12 +76,15 @@ export default function ColorGrading({ setting }: { setting: any }) {
             loop
             muted
             playsInline
+            preload="metadata"
             className="absolute inset-0 w-full h-full object-cover pointer-events-none"
           />
         ) : (
           <img
             src={afterSrc}
             alt="Paneventz Signature Grade"
+            loading="lazy"
+            decoding="async"
             className="absolute inset-0 w-full h-full object-cover pointer-events-none"
           />
         )}
@@ -98,12 +101,15 @@ export default function ColorGrading({ setting }: { setting: any }) {
               loop
               muted
               playsInline
+              preload="metadata"
               className="absolute inset-0 w-full h-full object-cover filter contrast-75 brightness-90 saturate-50"
             />
           ) : (
             <img
               src={beforeSrc}
               alt="Raw Camera Capture"
+              loading="lazy"
+              decoding="async"
               className="absolute inset-0 w-full h-full object-cover filter contrast-75 brightness-90 saturate-50"
             />
           )}
