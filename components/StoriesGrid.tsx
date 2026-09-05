@@ -54,7 +54,7 @@ export default function StoriesGrid({ stories }: { stories: any[] }) {
                 >
                   <SmartMedia
                     src={story.cover_image}
-                    alt={story.couple_name}
+                    alt={`${story.couple_name} luxury wedding photography in ${story.location || "India"}`}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     containerClassName="relative w-full h-full overflow-hidden bg-black"
                   />

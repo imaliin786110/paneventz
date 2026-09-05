@@ -45,7 +45,7 @@ export default function Hero({ setting }: { setting: any }) {
         <div className="absolute inset-0 z-0 overflow-hidden">
           <img
             src={imageBg}
-            alt={heading}
+            alt={`${heading || "Paneventz"} - Luxury Wedding Photography & Cinematic Films in India`}
             // @ts-ignore
             fetchPriority="high"
             decoding="async"

@@ -116,9 +116,9 @@ export default function Footer({ setting }: { setting: any }) {
         <div className="pt-12 border-t border-white/[0.08]">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 text-left mb-12">
             <div>
-              <h4 className="font-serif text-sm tracking-[2px] uppercase text-white font-medium mb-4">
+              <h3 className="font-serif text-sm tracking-[2px] uppercase text-white font-medium mb-4">
                 Portfolios
-              </h4>
+              </h3>
               <ul className="space-y-2.5 text-xs uppercase tracking-wider text-[#94a3b8]">
                 <li>
                   <Link href="#stories" className="hover:text-[#c4a472] transition-colors">
@@ -144,9 +144,9 @@ export default function Footer({ setting }: { setting: any }) {
             </div>
 
             <div>
-              <h4 className="font-serif text-sm tracking-[2px] uppercase text-white font-medium mb-4">
+              <h3 className="font-serif text-sm tracking-[2px] uppercase text-white font-medium mb-4">
                 Client Portal
-              </h4>
+              </h3>
               <ul className="space-y-2.5 text-xs uppercase tracking-wider text-[#94a3b8]">
                 <li>
                   <Link href="/client-portal" className="text-[#00f0ff] hover:text-white font-semibold transition-colors flex items-center gap-1.5">
@@ -174,9 +174,9 @@ export default function Footer({ setting }: { setting: any }) {
             </div>
 
             <div>
-              <h4 className="font-serif text-sm tracking-[2px] uppercase text-white font-medium mb-4">
+              <h3 className="font-serif text-sm tracking-[2px] uppercase text-white font-medium mb-4">
                 Destinations
-              </h4>
+              </h3>
               <ul className="space-y-2.5 text-xs uppercase tracking-wider text-[#94a3b8]">
                 <li>
                   <Link href="/wedding-photographer-mumbai" className="hover:text-[#c4a472] transition-colors">
@@ -202,9 +202,9 @@ export default function Footer({ setting }: { setting: any }) {
             </div>
 
             <div>
-              <h4 className="font-serif text-sm tracking-[2px] uppercase text-white font-medium mb-4">
+              <h3 className="font-serif text-sm tracking-[2px] uppercase text-white font-medium mb-4">
                 Studio
-              </h4>
+              </h3>
               <ul className="space-y-2.5 text-xs uppercase tracking-wider text-[#94a3b8]">
                 <li>
                   <Link href="#about" className="hover:text-[#c4a472] transition-colors">

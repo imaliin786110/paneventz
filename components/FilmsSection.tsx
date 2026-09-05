@@ -45,7 +45,7 @@ export default function FilmsSection({ films }: { films: any[] }) {
                   <SmartMedia
                     src={mediaSource}
                     poster={film.thumbnail}
-                    alt={film.title}
+                    alt={`${film.title} - 4K luxury wedding film in ${film.location || "India"}`}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     containerClassName="relative w-full h-full overflow-hidden bg-black"
                   />

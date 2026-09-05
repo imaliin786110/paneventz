@@ -82,7 +82,7 @@ export default function ColorGrading({ setting }: { setting: any }) {
         ) : (
           <img
             src={afterSrc}
-            alt="Paneventz Signature Grade"
+            alt="Paneventz Signature Color Grading for Indian Wedding Photography"
             loading="lazy"
             decoding="async"
             className="absolute inset-0 w-full h-full object-cover pointer-events-none"
@@ -107,7 +107,7 @@ export default function ColorGrading({ setting }: { setting: any }) {
           ) : (
             <img
               src={beforeSrc}
-              alt="Raw Camera Capture"
+              alt="Unprocessed RAW Camera Capture before Color Grading"
               loading="lazy"
               decoding="async"
               className="absolute inset-0 w-full h-full object-cover filter contrast-75 brightness-90 saturate-50"

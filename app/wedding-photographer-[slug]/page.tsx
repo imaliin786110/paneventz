@@ -34,13 +34,37 @@ export async function generateMetadata({
   const loc = await db.location.findFirst({ where: { slug } });
   if (!loc) return {};
 
+  const title = loc.headline || `Luxury Wedding Photographer in ${loc.name} | Paneventz`;
+  const description =
+    loc.intro ||
+    `Award-winning luxury wedding photography and cinematic films in ${loc.name}, capturing timeless love stories.`;
+  const canonicalUrl = `https://paneventz.in/wedding-photographer-${slug}`;
+  const imageUrl = loc.hero_image || "https://paneventz.in/images/hero.webp";
+
   return {
-    title: loc.headline || `Best Luxury Wedding Photographer in ${loc.name} | Paneventz`,
-    description: loc.intro || undefined,
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
-      title: loc.headline || `Wedding Photographer in ${loc.name}`,
-      description: loc.intro || undefined,
-      images: [loc.hero_image || "https://paneventz.in/images/1.jpg"],
+      title,
+      description,
+      url: canonicalUrl,
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [imageUrl],
     },
   };
 }
@@ -63,8 +87,72 @@ export default async function LocationPage({
   const venues = Array.isArray(loc.popular_venues) ? loc.popular_venues : [];
   const faqs = Array.isArray(loc.faqs) ? loc.faqs : [];
 
+  const locationServiceSchema = {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    "name": `Paneventz Luxury Wedding Photography - ${loc.name}`,
+    "url": `https://paneventz.in/wedding-photographer-${slug}`,
+    "image": loc.hero_image || "https://paneventz.in/images/hero.webp",
+    "description": loc.intro || `Luxury wedding photography & cinematic films in ${loc.name}`,
+    "areaServed": {
+      "@type": "City",
+      "name": loc.name,
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "Paneventz",
+      "url": "https://paneventz.in",
+    },
+  };
+
+  const breadcrumbsSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://paneventz.in",
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": `${loc.name} Wedding Photography`,
+        "item": `https://paneventz.in/wedding-photographer-${slug}`,
+      },
+    ],
+  };
+
+  const locationFaqSchema = faqs.length > 0 ? {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map((f: any) => ({
+      "@type": "Question",
+      "name": f.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": f.answer,
+      },
+    })),
+  } : null;
+
   return (
     <main className="min-h-screen bg-[#0c0c0d] text-[#d6d6d8]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(locationServiceSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsSchema) }}
+      />
+      {locationFaqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(locationFaqSchema) }}
+        />
+      )}
       <Navbar studioName={setting?.studio_name || "Paneventz"} />
 
       {/* Hero Section */}

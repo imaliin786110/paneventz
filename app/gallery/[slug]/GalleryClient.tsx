@@ -449,7 +449,7 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
         </div>
       )}
 
-      <Footer studioName="Paneventz" />
+      <Footer setting={{ studio_name: "Paneventz" }} />
     </main>
   );
 }

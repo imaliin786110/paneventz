@@ -6,7 +6,26 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Clock, User } from "lucide-react";
 
+import type { Metadata } from "next";
+
 export const revalidate = 60;
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: "Wedding Stories, Guides & Editorial Journal | Paneventz",
+    description:
+      "Read luxury destination wedding planning guides, royal palace photography insights, and cinematic love stories from Paneventz.",
+    alternates: {
+      canonical: "https://paneventz.in/blog",
+    },
+    openGraph: {
+      title: "Wedding Stories, Guides & Editorial Journal | Paneventz",
+      description:
+        "Read luxury destination wedding planning guides, royal palace photography insights, and cinematic love stories from Paneventz.",
+      url: "https://paneventz.in/blog",
+    },
+  };
+}
 
 export default async function BlogIndexPage() {
   const [setting, posts] = await Promise.all([
@@ -17,8 +36,31 @@ export default async function BlogIndexPage() {
     }).then(serializeData),
   ]);
 
+  const breadcrumbsSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://paneventz.in",
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Wedding Journal",
+        "item": "https://paneventz.in/blog",
+      },
+    ],
+  };
+
   return (
     <main className="min-h-screen bg-[#0c0c0d] text-[#d6d6d8]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsSchema) }}
+      />
       <Navbar studioName={setting?.studio_name || "Paneventz"} />
 
       <section className="pt-40 pb-20 px-6 lg:px-12 text-center max-w-4xl mx-auto">

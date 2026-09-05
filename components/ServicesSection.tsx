@@ -73,6 +73,16 @@ export default function ServicesSection({ services }: { services: any[] }) {
             </div>
           ))}
         </div>
+
+        <div className="text-center mt-12">
+          <Link
+            href="/services"
+            className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-[#c4a472] hover:text-white transition-colors border-b border-[#c4a472]/40 pb-1"
+          >
+            <span>Explore Detailed Investment Collections &amp; Deliverables</span>
+            <span>→</span>
+          </Link>
+        </div>
       </div>
     </section>
   );

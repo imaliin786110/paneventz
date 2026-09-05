@@ -29,13 +29,38 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const post = await db.blogPost.findFirst({ where: { slug } });
   if (!post) return {};
 
+  const title = `${post.title} | Paneventz Journal`;
+  const description = post.excerpt || "Timeless insights on luxury wedding photography and destination celebrations.";
+  const canonicalUrl = `https://paneventz.in/blog/${post.slug}`;
+  const imageUrl = post.featured_image || "https://paneventz.in/images/1.jpg";
+
   return {
-    title: `${post.title} | Paneventz Journal`,
-    description: post.excerpt || undefined,
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       title: post.title,
-      description: post.excerpt || undefined,
-      images: [post.featured_image || "https://paneventz.in/images/1.jpg"],
+      description,
+      url: canonicalUrl,
+      type: "article",
+      publishedTime: post.published_at?.toISOString() || undefined,
+      authors: [post.author_name || "Paneventz Studio"],
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: post.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description,
+      images: [imageUrl],
     },
   };
 }
@@ -51,8 +76,68 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
   if (!post) notFound();
 
+  const blogPostSchema = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": `https://paneventz.in/blog/${post.slug}`,
+    },
+    "headline": post.title,
+    "description": post.excerpt || undefined,
+    "image": [post.featured_image || "https://paneventz.in/images/1.jpg"],
+    "datePublished": post.published_at || post.created_at,
+    "dateModified": post.updated_at || post.published_at || post.created_at,
+    "author": {
+      "@type": "Person",
+      "name": post.author_name || "Paneventz Studio",
+      "url": "https://paneventz.in",
+    },
+    "publisher": {
+      "@type": "ProfessionalService",
+      "name": "Paneventz",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://paneventz.in/images/1.jpg",
+      },
+    },
+  };
+
+  const breadcrumbsSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://paneventz.in",
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Wedding Journal",
+        "item": "https://paneventz.in/blog",
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": post.title,
+        "item": `https://paneventz.in/blog/${post.slug}`,
+      },
+    ],
+  };
+
   return (
     <main className="min-h-screen bg-[#0c0c0d] text-[#d6d6d8]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(blogPostSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsSchema) }}
+      />
       <Navbar studioName={setting?.studio_name || "Paneventz"} />
 
       <article className="pt-40 pb-28 px-6 lg:px-12 max-w-4xl mx-auto">

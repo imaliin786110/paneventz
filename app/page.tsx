@@ -14,7 +14,47 @@ import FaqSection from "@/components/FaqSection";
 import EnquiryForm from "@/components/EnquiryForm";
 import Footer from "@/components/Footer";
 
+import type { Metadata } from "next";
+
 export const revalidate = 60;
+
+export async function generateMetadata(): Promise<Metadata> {
+  let setting = null;
+  try {
+    setting = await db.websiteSetting.findFirst();
+  } catch (e) {
+    console.error("Error fetching homepage settings:", e);
+  }
+
+  const title = setting?.meta_title || "Paneventz | Luxury Wedding Photography & Films in India";
+  const description =
+    setting?.meta_description ||
+    "Timeless luxury wedding photography and cinematic love stories documented across Mumbai, Udaipur, Goa, and worldwide destinations.";
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: "https://paneventz.in",
+    },
+    openGraph: {
+      title,
+      description,
+      url: "https://paneventz.in",
+      siteName: setting?.studio_name || "Paneventz",
+      locale: "en_IN",
+      type: "website",
+      images: [
+        {
+          url: "https://paneventz.in/images/1.jpg",
+          width: 1200,
+          height: 630,
+          alt: "Paneventz Luxury Wedding Photography and Cinematic Films",
+        },
+      ],
+    },
+  };
+}
 
 export default async function HomePage() {
   let setting = null;
@@ -59,8 +99,27 @@ export default async function HomePage() {
     console.error("Database connection error on Homepage:", error);
   }
 
+  const faqSchema = faqs.length > 0 ? {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map((f: any) => ({
+      "@type": "Question",
+      "name": f.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": f.answer,
+      },
+    })),
+  } : null;
+
   return (
     <main className="min-h-screen bg-[#0c0c0d] text-[#d6d6d8]">
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
       <Navbar studioName={setting?.studio_name || "Paneventz"} />
       <Hero setting={setting} />
       <CounterStats setting={setting} />

@@ -6,7 +6,26 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Lock, Camera, MapPin, Calendar, Search } from "lucide-react";
 
+import type { Metadata } from "next";
+
 export const revalidate = 60;
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: "Guest Photos AI & Celebration Galleries | Paneventz",
+    description:
+      "Access your couple's wedding celebration gallery. Use our 1-second selfie AI finder to discover and download every photo you appear in.",
+    alternates: {
+      canonical: "https://paneventz.in/galleries",
+    },
+    openGraph: {
+      title: "Guest Photos AI & Celebration Galleries | Paneventz",
+      description:
+        "Access your couple's wedding celebration gallery. Use our 1-second selfie AI finder to discover and download every photo you appear in.",
+      url: "https://paneventz.in/galleries",
+    },
+  };
+}
 
 export default async function GalleriesIndexPage({
   searchParams,
@@ -33,8 +52,31 @@ export default async function GalleriesIndexPage({
     }).then(serializeData),
   ]);
 
+  const breadcrumbsSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://paneventz.in",
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Guest Photos & Galleries",
+        "item": "https://paneventz.in/galleries",
+      },
+    ],
+  };
+
   return (
     <main className="min-h-screen bg-[#0c0c0d] text-[#d6d6d8]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsSchema) }}
+      />
       <Navbar studioName={setting?.studio_name || "Paneventz"} />
 
       <section className="pt-40 pb-20 px-6 lg:px-12 text-center max-w-4xl mx-auto">

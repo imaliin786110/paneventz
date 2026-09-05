@@ -4,7 +4,26 @@ import { serializeData } from "@/lib/utils";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
+import type { Metadata } from "next";
+
 export const revalidate = 60;
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: "Client Agreement & Booking Terms | Paneventz",
+    description:
+      "Review our transparent wedding photography reservation, payment schedule, delivery timeline, and master copyright policies.",
+    alternates: {
+      canonical: "https://paneventz.in/terms",
+    },
+    openGraph: {
+      title: "Client Agreement & Booking Terms | Paneventz",
+      description:
+        "Review our transparent wedding photography reservation, payment schedule, delivery timeline, and master copyright policies.",
+      url: "https://paneventz.in/terms",
+    },
+  };
+}
 
 export default async function TermsPage() {
   const [setting, terms] = await Promise.all([
@@ -12,8 +31,31 @@ export default async function TermsPage() {
     db.termsAndCondition.findFirst({ orderBy: { version: "desc" } }).then(serializeData),
   ]);
 
+  const breadcrumbsSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://paneventz.in",
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Terms & Conditions",
+        "item": "https://paneventz.in/terms",
+      },
+    ],
+  };
+
   return (
     <main className="min-h-screen bg-[#0c0c0d] text-[#d6d6d8]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsSchema) }}
+      />
       <Navbar studioName={setting?.studio_name || "Paneventz"} />
 
       <section className="pt-40 pb-20 px-6 lg:px-12 text-center max-w-4xl mx-auto">

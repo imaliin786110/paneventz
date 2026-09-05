@@ -37,16 +37,16 @@ export default function TestimonialsSection({ testimonials }: { testimonials: an
                 {t.avatar && (
                   <img
                     src={t.avatar.startsWith("http") || t.avatar.startsWith("/") ? t.avatar : `/storage/${t.avatar}`}
-                    alt={t.couple_name}
+                    alt={`${t.couple_name} - Paneventz Wedding Review`}
                     loading="lazy"
                     decoding="async"
                     className="w-12 h-12 rounded-full object-cover border border-[#c4a472]/30"
                   />
                 )}
                 <div>
-                  <h4 className="font-serif text-xl text-[#f5f5f7] font-normal">
+                  <h3 className="font-serif text-xl text-[#f5f5f7] font-normal">
                     {t.couple_name}
-                  </h4>
+                  </h3>
                   <span className="text-[11px] uppercase tracking-widest text-[#c4a472] font-light">
                     {t.location || "Destination Wedding"}
                   </span>

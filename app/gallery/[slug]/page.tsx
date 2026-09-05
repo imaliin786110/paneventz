@@ -37,10 +37,21 @@ export async function generateMetadata({
     return {
       title: `${album.title} | Luxury Wedding Gallery | Paneventz`,
       description: `View the luxury wedding heirloom collection for ${album.couple_names || album.title} in ${album.location || "India"}.`,
+      alternates: {
+        canonical: `https://paneventz.in/gallery/${slug}`,
+      },
+      openGraph: {
+        title: `${album.title} | Luxury Wedding Gallery | Paneventz`,
+        description: `View the luxury wedding heirloom collection for ${album.couple_names || album.title} in ${album.location || "India"}.`,
+        url: `https://paneventz.in/gallery/${slug}`,
+      },
     };
   } catch {
     return {
       title: "Wedding Gallery | Paneventz Studio",
+      alternates: {
+        canonical: `https://paneventz.in/gallery/${slug}`,
+      },
     };
   }
 }
