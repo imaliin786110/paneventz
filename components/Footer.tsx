@@ -49,14 +49,14 @@ export default function Footer({ setting }: { setting: any }) {
         <div className="max-w-xl mx-auto mb-14">
           <div className="group relative bg-gradient-to-b from-[#0e121a]/90 via-[#0a0d14]/95 to-[#06080d]/98 border border-white/[0.08] hover:border-[#c4a472]/50 rounded-2xl p-8 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.8),0_0_30px_rgba(196,164,114,0.12)] text-left">
             <div className="absolute top-0 right-0 w-32 h-32 bg-[radial-gradient(circle_at_top_right,rgba(196,164,114,0.08),transparent_70%)] pointer-events-none rounded-tr-2xl" />
-            <div className="flex items-center justify-between mb-5">
-              <div className="text-[11px] tracking-[2.5px] uppercase text-[#c4a472] font-bold flex items-center gap-2">
+            <div className="mb-5">
+              <div className="text-[11px] tracking-[2.5px] uppercase text-[#c4a472] font-bold flex items-center gap-2 mb-2">
                 <Phone size={14} className="text-[#c4a472]" />
                 <span>Direct Studio Lines</span>
               </div>
-              <span className="text-[10px] uppercase tracking-wider text-[#c4a472]/90 bg-[#c4a472]/10 px-2.5 py-0.5 rounded border border-[#c4a472]/20">
-                Direct Studio Concierge
-              </span>
+              <h3 className="font-serif text-xl sm:text-2xl text-white font-light tracking-wide">
+                Let&apos;s talk about your wedding
+              </h3>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">

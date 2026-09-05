@@ -7,7 +7,6 @@ import CounterStats from "@/components/CounterStats";
 import Approach from "@/components/Approach";
 import StoriesGrid from "@/components/StoriesGrid";
 import FilmsSection from "@/components/FilmsSection";
-import AiFaceFinderSection from "@/components/AiFaceFinderSection";
 import ColorGrading from "@/components/ColorGrading";
 import ServicesSection from "@/components/ServicesSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
@@ -68,7 +67,6 @@ export default async function HomePage() {
       <Approach setting={setting} />
       <StoriesGrid stories={stories} />
       <FilmsSection films={films} />
-      <AiFaceFinderSection />
       <ColorGrading setting={setting} />
       <ServicesSection services={services} />
       <TestimonialsSection testimonials={testimonials} />

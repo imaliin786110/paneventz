@@ -29,7 +29,7 @@
             <a href="#films">Films</a>
             <a href="#services">Services</a>
             <a href="/client-portal" style="color: #00f0ff; font-weight: 600; text-shadow: 0 0 10px rgba(0,240,255,0.35);">Download Story 🔒</a>
-            <a href="/galleries" style="color: #c4a472; font-weight: bold;">Guest Photos AI 📸</a>
+            <a href="/galleries" style="color: #c4a472; font-weight: bold;">Guest Photos 📸</a>
             <a href="#about">About</a>
             <a href="javascript:void(0)" onclick="openEnquiryModal()" class="enquire">
                 Enquire
@@ -783,9 +783,9 @@
         <div class="modal-card">
             <button type="button" class="modal-close" onclick="closeEnquiryModal()">&times;</button>
             <div style="text-align: center; margin-bottom: 30px;">
-                <span class="intro-small" style="color: #c4a472;">RESERVE YOUR DATE</span>
-                <h2 style="font-family: Georgia, serif; font-size: 30px; font-weight: normal; margin-top: 8px; color: #fff;">Let's Tell Your Story</h2>
-                <p style="color: #888; font-size: 13px; margin-top: 8px;">Fill out the form below and we will be in touch to discuss capturing your wedding.</p>
+                <span class="intro-small" style="color: #c4a472; letter-spacing: 3px; font-size: 11px;">YOUR STORY BEGINS HERE</span>
+                <h2 style="font-family: Georgia, serif; font-size: 28px; font-weight: normal; margin-top: 8px; color: #fff;">Let's Create Something <span style="font-style: italic; color: #f5ebd7;">Timeless.</span></h2>
+                <p style="color: #cbd5e1; font-size: 13px; margin-top: 8px; line-height: 1.6;">Tell us a little about your celebration, and let's begin planning how your story should be captured.</p>
             </div>
 
             <form id="enquiryForm" onsubmit="submitEnquiry(event)">
@@ -794,19 +794,19 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Your Name(s) *</label>
+                        <label>Couple Names *</label>
                         <input type="text" name="name" class="form-control" placeholder="e.g. Aditi & Kabir" required>
                     </div>
                     <div class="form-group">
-                        <label>Phone / WhatsApp *</label>
+                        <label>Phone / WhatsApp Number *</label>
                         <input type="tel" name="phone" class="form-control" placeholder="+91 98765 43210" required>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Email Address</label>
-                        <input type="email" name="email" class="form-control" placeholder="aditi@example.com">
+                        <label>Email Address *</label>
+                        <input type="email" name="email" class="form-control" placeholder="you@domain.com" required>
                     </div>
                     <div class="form-group">
                         <label>Wedding Date</label>
@@ -815,16 +815,19 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Wedding Venue / City</label>
-                    <input type="text" name="wedding_location" class="form-control" placeholder="e.g. Udaipur, Rajasthan">
+                    <label>Wedding Location / Venue *</label>
+                    <input type="text" name="wedding_location" class="form-control" placeholder="e.g. The Taj Mahal Palace, Mumbai / Jagmandir Palace, Udaipur" required>
                 </div>
 
                 <div class="form-group">
-                    <label>Tell Us About Your Celebration</label>
-                    <textarea name="message" class="form-control" rows="3" placeholder="Ceremonies planned, guest count, your vision..."></textarea>
+                    <label>Tell Us About Your Vision & Events</label>
+                    <textarea name="message" class="form-control" rows="3" placeholder="Tell us about your celebration, guest count, aesthetic, and how you envision your memories..."></textarea>
                 </div>
 
-                <button type="submit" id="submitBtn" class="btn-submit">Submit Inquiry</button>
+                <button type="submit" id="submitBtn" class="btn-submit" style="background: linear-gradient(135deg, #d8b886, #c4a472, #b38a4c); color: #09090b; font-weight: 700; letter-spacing: 2px;">Submit Wedding Inquiry</button>
+                <div style="font-size: 11.5px; color: #94a3b8; text-align: center; margin-top: 14px;">
+                    🛡️ Your details are kept private and used only to plan your consultation.
+                </div>
             </form>
         </div>
     </div>

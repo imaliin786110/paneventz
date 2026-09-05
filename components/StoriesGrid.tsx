@@ -8,7 +8,16 @@ import SmartMedia, { isVideoSource, formatMediaUrl } from "@/components/SmartMed
 export default function StoriesGrid({ stories }: { stories: any[] }) {
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
 
-  if (!stories || stories.length === 0) return null;
+  // Filter out any blank/empty stories or Natasha & Dev
+  const validStories = (stories || []).filter((story) => {
+    if (!story) return false;
+    const name = (story.couple_name || "").toLowerCase();
+    if (name.includes("natasha") || name.includes("dev")) return false;
+    if (!story.cover_image || story.cover_image.trim() === "") return false;
+    return true;
+  });
+
+  if (validStories.length === 0) return null;
 
   return (
     <section id="stories" className="py-28 px-6 lg:px-12 bg-[#09090b] scroll-mt-20">
@@ -30,7 +39,7 @@ export default function StoriesGrid({ stories }: { stories: any[] }) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {stories.map((story, idx) => {
+          {validStories.map((story, idx) => {
             const isVideo = isVideoSource(story.cover_image);
             const mediaUrl = formatMediaUrl(story.cover_image, "/images/1.webp");
 
