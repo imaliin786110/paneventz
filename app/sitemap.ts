@@ -37,9 +37,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  const locationRoutes: MetadataRoute.Sitemap = locations.map((loc) => ({
-    url: `${baseUrl}/wedding-photographer-${loc.slug}`,
-    lastModified: loc.updated_at || new Date(),
+  const defaultLocationSlugs = ["mumbai", "udaipur", "goa", "jaipur", "delhi"];
+  const allLocSlugs = Array.from(new Set([...defaultLocationSlugs, ...locations.map((l: any) => l.slug)]));
+
+  const locationRoutes: MetadataRoute.Sitemap = allLocSlugs.map((slug) => ({
+    url: `${baseUrl}/wedding-photographer-${slug}`,
+    lastModified: new Date(),
     changeFrequency: "weekly",
     priority: 0.8,
   }));

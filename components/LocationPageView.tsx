@@ -9,30 +9,13 @@ import EnquiryForm from "@/components/EnquiryForm";
 import Link from "next/link";
 import { MapPin, Sparkles } from "lucide-react";
 
-export const revalidate = 60;
-
-export async function generateStaticParams() {
-  try {
-    const locations = await db.location.findMany({
-      where: { is_published: true },
-      select: { slug: true },
-    });
-    return locations.map((loc) => ({ slug: loc.slug }));
-  } catch {
-    return [];
-  }
-}
-
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
-  const { slug } = await params;
-  if (!slug) return {};
-
+export async function getLocationMetadata(slug: string): Promise<Metadata> {
   const loc = await db.location.findFirst({ where: { slug } });
-  if (!loc) return {};
+  if (!loc) {
+    return {
+      title: "Luxury Wedding Photography & Films | Paneventz",
+    };
+  }
 
   const title = loc.headline || `Luxury Wedding Photographer in ${loc.name} | Paneventz`;
   const description =
@@ -69,20 +52,28 @@ export async function generateMetadata({
   };
 }
 
-export default async function LocationPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const { slug } = await params;
-  if (!slug) notFound();
-
-  const [setting, loc] = await Promise.all([
+export default async function LocationPageView({ slug }: { slug: string }) {
+  const [setting, dbLoc] = await Promise.all([
     db.websiteSetting.findFirst().then(serializeData),
     db.location.findFirst({ where: { slug } }).then(serializeData),
   ]);
 
-  if (!loc) notFound();
+  const loc: any = dbLoc || {
+    name: slug.charAt(0).toUpperCase() + slug.slice(1),
+    state: "India",
+    headline: `Luxury Wedding Photography & Films in ${slug.charAt(0).toUpperCase() + slug.slice(1)}`,
+    intro: `Documenting unforgettable luxury weddings and royal celebrations across ${slug.charAt(0).toUpperCase() + slug.slice(1)} with bespoke cinematography and timeless portraits.`,
+    hero_image: "https://paneventz.in/images/hero.webp",
+    content: null,
+    popular_venues: [
+      { name: "Iconic Heritage Palaces & Luxury Resorts", description: "Bespoke destination coverage for royal ceremonies and grand receptions." },
+      { name: "Grand Ballrooms & Waterfront Pavilions", description: "Cinematic lighting and fine-art editorial documentation." }
+    ],
+    faqs: [
+      { question: `Do you travel to ${slug.charAt(0).toUpperCase() + slug.slice(1)} for wedding assignments?`, answer: `Yes, Paneventz regularly covers luxury destination weddings across ${slug.charAt(0).toUpperCase() + slug.slice(1)}, Pan-India, and internationally.` },
+      { question: "How early should we book our wedding dates?", answer: "We recommend reserving your dates 6 to 12 months in advance as we accept a limited number of commissions per season to ensure bespoke attention." }
+    ]
+  };
 
   const venues = Array.isArray(loc.popular_venues) ? loc.popular_venues : [];
   const faqs = Array.isArray(loc.faqs) ? loc.faqs : [];
