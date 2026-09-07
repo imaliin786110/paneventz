@@ -2341,7 +2341,7 @@ html, body {
             <a href="/#stories" onclick="toggleMobileNav()">Stories</a>
             <a href="/#films" onclick="toggleMobileNav()">Films</a>
             <a href="/services" onclick="toggleMobileNav()">Services & Packages</a>
-            <a href="/galleries" onclick="toggleMobileNav()" style="color: #c4a472; font-weight: bold;">Guest Photos AI 📸</a>
+            <a href="/galleries" onclick="toggleMobileNav()" style="color: #c4a472; font-weight: bold;">Guest Photos 📸</a>
             <a href="/#about" onclick="toggleMobileNav()">About Paneventz</a>
         </div>
         <div>

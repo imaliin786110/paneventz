@@ -30,6 +30,21 @@ export default function Navbar({ studioName = "Paneventz" }: { studioName?: stri
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [mobileMenuOpen]);
 
+  const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href.startsWith("/#") || href.startsWith("#")) {
+      const targetId = href.replace(/^\/?#/, "");
+      if (typeof window !== "undefined" && (window.location.pathname === "/" || window.location.pathname === "")) {
+        const el = document.getElementById(targetId);
+        if (el) {
+          e.preventDefault();
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+          window.history.pushState(null, "", `#${targetId}`);
+          setMobileMenuOpen(false);
+        }
+      }
+    }
+  };
+
   const navLinks = [
     { label: "Stories", href: "/#stories" },
     { label: "Cinematic Films", href: "/#films" },
@@ -54,12 +69,14 @@ export default function Navbar({ studioName = "Paneventz" }: { studioName?: stri
           <nav className="hidden lg:flex items-center gap-5 xl:gap-7 text-xs uppercase tracking-widest font-semibold">
             <Link
               href="/#stories"
+              onClick={(e) => handleAnchorClick(e, "/#stories")}
               className="text-white hover:text-[#c4a472] transition-colors py-1.5 border-b-2 border-transparent hover:border-[#c4a472]"
             >
               Stories
             </Link>
             <Link
               href="/#films"
+              onClick={(e) => handleAnchorClick(e, "/#films")}
               className="text-white hover:text-[#c4a472] transition-colors py-1.5 border-b-2 border-transparent hover:border-[#c4a472]"
             >
               Films
@@ -96,6 +113,7 @@ export default function Navbar({ studioName = "Paneventz" }: { studioName?: stri
           <div className="hidden md:flex items-center gap-4 shrink-0">
             <Link
               href="/#enquire"
+              onClick={(e) => handleAnchorClick(e, "/#enquire")}
               className="px-6 py-2.5 rounded-full text-xs uppercase tracking-widest bg-[#c4a472] hover:bg-[#b09060] text-black font-bold hover:scale-105 transition-all shadow-lg shadow-[#c4a472]/30 flex items-center gap-1.5"
             >
               <span>Contact Us</span>
@@ -163,7 +181,10 @@ export default function Navbar({ studioName = "Paneventz" }: { studioName?: stri
               <Link
                 key={idx}
                 href={item.href}
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={(e) => {
+                  handleAnchorClick(e, item.href);
+                  setMobileMenuOpen(false);
+                }}
                 className="group flex items-center justify-between py-3 px-3 rounded-xl hover:bg-white/[0.03] transition-all duration-300"
               >
                 <div className="flex items-baseline gap-3">
@@ -198,7 +219,10 @@ export default function Navbar({ studioName = "Paneventz" }: { studioName?: stri
           <div className="pt-6 border-t border-white/[0.08] space-y-4">
             <Link
               href="/#enquire"
-              onClick={() => setMobileMenuOpen(false)}
+              onClick={(e) => {
+                handleAnchorClick(e, "/#enquire");
+                setMobileMenuOpen(false);
+              }}
               className="group w-full py-4 rounded-full text-xs uppercase tracking-[0.25em] bg-gradient-to-r from-[#d8b886] via-[#c4a472] to-[#b38a4c] hover:from-[#e2c79b] hover:via-[#d8b886] hover:to-[#c4a472] text-[#09090b] font-bold flex items-center justify-center gap-2 shadow-[0_10px_30px_rgba(196,164,114,0.3)] hover:shadow-[0_15px_40px_rgba(196,164,114,0.45)] transition-all duration-300"
             >
               <span>Book Consultation</span>

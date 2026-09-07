@@ -23,7 +23,7 @@
             <a href="/#stories">Stories</a>
             <a href="/#films">Films</a>
             <a href="/services">Services</a>
-            <a href="/galleries" style="color: #c4a472;">Guest Photos AI 📸</a>
+            <a href="/galleries" style="color: #c4a472;">Guest Photos 📸</a>
             <a href="/blog">Journal</a>
             <a href="javascript:void(0)" onclick="openEnquiryModal()" class="enquire">
                 Enquire

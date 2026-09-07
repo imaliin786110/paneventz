@@ -114,7 +114,7 @@ export default function Footer({ setting }: { setting: any }) {
 
         {/* FOOTER DIRECTORY & DESTINATIONS */}
         <div className="pt-12 border-t border-white/[0.08]">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 text-left mb-12">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 md:gap-12 text-left mb-12">
             <div>
               <h3 className="font-serif text-sm tracking-[2px] uppercase text-white font-medium mb-4">
                 Portfolios
@@ -157,7 +157,7 @@ export default function Footer({ setting }: { setting: any }) {
                 <li>
                   <Link href="/galleries" className="text-[#c4a472] hover:text-white font-semibold transition-colors flex items-center gap-1.5">
                     <Camera size={13} />
-                    <span>Guest Photos AI 📸</span>
+                    <span>Guest Photos 📸</span>
                   </Link>
                 </li>
                 <li>
@@ -168,34 +168,6 @@ export default function Footer({ setting }: { setting: any }) {
                 <li>
                   <Link href="#faqs" className="hover:text-[#c4a472] transition-colors">
                     Client FAQs
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-serif text-sm tracking-[2px] uppercase text-white font-medium mb-4">
-                Destinations
-              </h3>
-              <ul className="space-y-2.5 text-xs uppercase tracking-wider text-[#94a3b8]">
-                <li>
-                  <Link href="/wedding-photographer-mumbai" className="hover:text-[#c4a472] transition-colors">
-                    Mumbai Luxury
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/wedding-photographer-udaipur" className="hover:text-[#c4a472] transition-colors">
-                    Udaipur Palaces
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/wedding-photographer-goa" className="hover:text-[#c4a472] transition-colors">
-                    Goa Beachfront
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/wedding-photographer-delhi" className="hover:text-[#c4a472] transition-colors">
-                    Delhi Grand
                   </Link>
                 </li>
               </ul>

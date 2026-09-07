@@ -12,14 +12,14 @@ export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: "Guest Photos AI & Celebration Galleries | Paneventz",
+    title: "Guest Photos & Celebration Galleries | Paneventz",
     description:
       "Access your couple's wedding celebration gallery. Use our 1-second selfie AI finder to discover and download every photo you appear in.",
     alternates: {
       canonical: "https://paneventz.in/galleries",
     },
     openGraph: {
-      title: "Guest Photos AI & Celebration Galleries | Paneventz",
+      title: "Guest Photos & Celebration Galleries | Paneventz",
       description:
         "Access your couple's wedding celebration gallery. Use our 1-second selfie AI finder to discover and download every photo you appear in.",
       url: "https://paneventz.in/galleries",

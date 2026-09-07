@@ -65,7 +65,7 @@ export default function AiFaceFinderSection() {
               href="/galleries"
               className="px-8 py-4 rounded-full text-xs uppercase tracking-widest bg-gradient-to-r from-[#0099cc] to-[#00f0ff] text-[#070a12] font-bold hover:opacity-90 transition-all shadow-xl shadow-[#00f0ff]/10"
             >
-              Try Guest Photos AI 📸
+              Try Guest Photos 📸
             </Link>
             <Link
               href="/client-portal"

@@ -33,7 +33,7 @@
             <a href="/#stories">Stories</a>
             <a href="/#films">Films</a>
             <a href="/services">Services</a>
-            <a href="/galleries" style="color: #c4a472;">Guest Photos AI 📸</a>
+            <a href="/galleries" style="color: #c4a472;">Guest Photos 📸</a>
             <a href="/blog" style="color: #c4a472;">Journal</a>
             <a href="javascript:void(0)" onclick="openEnquiryModal()" class="enquire">
                 Enquire
@@ -234,7 +234,7 @@
             <a href="/services" style="color: #888; text-decoration: none; font-size: 11px; letter-spacing: 2px; text-transform: uppercase;">Services</a>
             <a href="/terms" style="color: #888; text-decoration: none; font-size: 11px; letter-spacing: 2px; text-transform: uppercase;">Terms & Conditions</a>
             <a href="/client-portal" style="color: #00f0ff; text-decoration: none; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; font-weight: 600;">Download Story 🔒</a>
-            <a href="/galleries" style="color: #c4a472; text-decoration: none; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; font-weight: 600;">Guest Photos AI 📸</a>
+            <a href="/galleries" style="color: #c4a472; text-decoration: none; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; font-weight: 600;">Guest Photos 📸</a>
             <a href="/blog" style="color: #c4a472; text-decoration: none; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; font-weight: 600;">Journal</a>
         </div>
         <div style="font-size: 11px; letter-spacing: 1.5px; color: #555; text-transform: uppercase;">
