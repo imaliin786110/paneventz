@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { db } from "@/lib/db";
 import { extractDriveId, getDirectDriveDownloadUrl } from "@/lib/drive";
+import { galleryAccessCookieName, hasGalleryAccess } from "@/lib/gallery-access";
 
 export async function GET(
   req: Request,
@@ -10,7 +12,6 @@ export async function GET(
     const { slug } = await params;
     const url = new URL(req.url);
     const downloadType = url.searchParams.get("type") || "client_master";
-    const pin = url.searchParams.get("pin");
     const photoId = url.searchParams.get("photoId");
 
     const album = await db.weddingAlbum.findUnique({
@@ -22,16 +23,21 @@ export async function GET(
       return NextResponse.json({ error: "Album not found" }, { status: 404 });
     }
 
+    const cookieStore = await cookies();
+    const isUnlocked = hasGalleryAccess(
+      slug,
+      album.pin_code,
+      cookieStore.get(galleryAccessCookieName(slug))?.value,
+    );
+
+    if (!isUnlocked) {
+      return NextResponse.json({ error: "Unlock this private gallery before downloading media." }, { status: 401 });
+    }
+
     // 1. Client Master Download
     if (downloadType === "client_master") {
-      // Validate PIN if PIN protection is active
-      if (album.pin_code && album.pin_code.trim() !== "") {
-        if (!pin || pin.trim().toLowerCase() !== album.pin_code.trim().toLowerCase()) {
-          return NextResponse.json(
-            { error: "Unauthorized. Valid client password/PIN required for master download." },
-            { status: 401 }
-          );
-        }
+      if (!album.allow_downloads) {
+        return NextResponse.json({ error: "Downloads are disabled for this gallery." }, { status: 403 });
       }
 
       const driveInfo = extractDriveId(album.google_drive_folder_id);
@@ -68,6 +74,9 @@ export async function GET(
 
     // 2. Single Photo Download (Guest or Public)
     if (downloadType === "single_photo" && photoId) {
+      if (!album.allow_downloads) {
+        return NextResponse.json({ error: "Downloads are disabled for this gallery." }, { status: 403 });
+      }
       const photo = album.photos.find((p) => String(p.id) === photoId);
       if (!photo) {
         return NextResponse.json({ error: "Photo not found" }, { status: 404 });

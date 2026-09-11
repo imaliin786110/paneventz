@@ -22,6 +22,18 @@ const nextConfig = {
       },
     ],
   },
+  webpack(config, { isServer }) {
+    // face-api.js ships optional Node-only helpers. The gallery imports it only
+    // in the browser, so exclude those helpers from the client bundle.
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        encoding: false,
+      };
+    }
+    return config;
+  },
   async headers() {
     return [
       {

@@ -64,9 +64,7 @@ export default function ClientPortalPage() {
                 {albumData.location}
               </p>
               <a
-                href={albumData.google_drive_folder_id ? `https://drive.google.com/drive/folders/${albumData.google_drive_folder_id}` : "#"}
-                target="_blank"
-                rel="noreferrer"
+                href={`/api/gallery/${albumData.slug}/download?type=client_master`}
                 className="inline-flex items-center justify-center gap-2 w-full py-4 rounded-full text-xs uppercase tracking-widest bg-[#c4a472] text-[#0c0c0d] font-bold"
               >
                 <Download size={16} /> Download Full Master Gallery

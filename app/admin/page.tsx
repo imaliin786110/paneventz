@@ -2,7 +2,7 @@ import React from "react";
 import { db } from "@/lib/db";
 import { serializeData } from "@/lib/utils";
 import Link from "next/link";
-import { Users, Camera, Image, Sparkles, Clock, ArrowUpRight } from "lucide-react";
+import { Users, Camera, Image, Sparkles, ArrowUpRight, FolderSync, ShieldCheck, Settings } from "lucide-react";
 
 export const revalidate = 0;
 
@@ -69,6 +69,27 @@ export default async function AdminDashboardPage() {
           </div>
         </div>
       </div>
+
+      <section className="mb-12 rounded-3xl border border-white/10 bg-gradient-to-r from-[#121929] via-[#121214] to-[#17121a] p-6 sm:p-8">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
+          <div>
+            <span className="text-[10px] uppercase tracking-[0.3em] text-[#00f0ff] font-bold">Studio workflow</span>
+            <h2 className="font-serif text-2xl text-white font-light mt-2">Everything important, ready for the next wedding</h2>
+          </div>
+          <span className="text-xs text-zinc-400">Manage content without touching code.</span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <Link href="/admin/wedding-albums" className="group rounded-2xl border border-[#00f0ff]/20 bg-[#00f0ff]/5 p-5 hover:bg-[#00f0ff]/10 transition-colors">
+            <FolderSync size={20} className="text-[#00f0ff] mb-3" /><h3 className="text-sm text-white font-semibold">Prepare guest galleries</h3><p className="text-xs text-zinc-400 mt-1">Create albums, add PINs, upload and face-index guest photos.</p><span className="mt-4 inline-flex text-xs text-[#00f0ff] group-hover:translate-x-1 transition-transform">Open album manager →</span>
+          </Link>
+          <Link href="/admin/settings" className="group rounded-2xl border border-[#c4a472]/20 bg-[#c4a472]/5 p-5 hover:bg-[#c4a472]/10 transition-colors">
+            <Settings size={20} className="text-[#c4a472] mb-3" /><h3 className="text-sm text-white font-semibold">Update website content</h3><p className="text-xs text-zinc-400 mt-1">Edit studio details, homepage content, contact information and SEO.</p><span className="mt-4 inline-flex text-xs text-[#c4a472] group-hover:translate-x-1 transition-transform">Open content CMS →</span>
+          </Link>
+          <Link href="/admin/enquiries" className="group rounded-2xl border border-emerald-400/20 bg-emerald-400/5 p-5 hover:bg-emerald-400/10 transition-colors">
+            <ShieldCheck size={20} className="text-emerald-400 mb-3" /><h3 className="text-sm text-white font-semibold">Review new client leads</h3><p className="text-xs text-zinc-400 mt-1">Keep wedding enquiries moving with notes and clear status updates.</p><span className="mt-4 inline-flex text-xs text-emerald-400 group-hover:translate-x-1 transition-transform">Open inquiries →</span>
+          </Link>
+        </div>
+      </section>
 
       {/* Two Column Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

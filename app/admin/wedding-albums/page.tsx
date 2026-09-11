@@ -34,6 +34,7 @@ export default function AdminAlbumsPage() {
   const [googleDriveFolderId, setGoogleDriveFolderId] = useState("");
   const [guestGoogleDriveFolderId, setGuestGoogleDriveFolderId] = useState("");
   const [enableFaceAi, setEnableFaceAi] = useState(true);
+  const [allowDownloads, setAllowDownloads] = useState(false);
   const [isPublic, setIsPublic] = useState(false);
   const [coverImage, setCoverImage] = useState("/images/1.jpg");
 
@@ -65,6 +66,7 @@ export default function AdminAlbumsPage() {
     setGoogleDriveFolderId("");
     setGuestGoogleDriveFolderId("");
     setEnableFaceAi(true);
+    setAllowDownloads(false);
     setIsPublic(false);
     setCoverImage("/images/1.jpg");
     setModalOpen(true);
@@ -79,6 +81,7 @@ export default function AdminAlbumsPage() {
     setGoogleDriveFolderId(album.google_drive_folder_id || "");
     setGuestGoogleDriveFolderId(album.guest_google_drive_folder_id || "");
     setEnableFaceAi(Boolean(album.enable_face_ai));
+    setAllowDownloads(Boolean(album.allow_downloads));
     setIsPublic(Boolean(album.is_public));
     setCoverImage(album.cover_image || "/images/1.jpg");
     setModalOpen(true);
@@ -100,6 +103,7 @@ export default function AdminAlbumsPage() {
           google_drive_folder_id: googleDriveFolderId,
           guest_google_drive_folder_id: guestGoogleDriveFolderId,
           enable_face_ai: enableFaceAi,
+          allow_downloads: allowDownloads,
           is_public: isPublic,
           cover_image: coverImage,
         }),
@@ -222,6 +226,12 @@ export default function AdminAlbumsPage() {
                 >
                   <Edit size={14} /> Configure & Drive Links
                 </button>
+                <Link
+                  href={`/admin/wedding-albums/${album.id}`}
+                  className="px-4 py-2 bg-[#00f0ff]/10 hover:bg-[#00f0ff]/20 border border-[#00f0ff]/20 rounded-xl text-[#00f0ff] font-medium flex items-center gap-1.5 transition-colors"
+                >
+                  <Sparkles size={14} /> Media & Face Index
+                </Link>
               </div>
             </div>
           ))}
@@ -335,7 +345,7 @@ export default function AdminAlbumsPage() {
                   className="w-full bg-[#18181b] border border-white/10 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-emerald-400"
                 />
                 <p className="text-[10px] text-zinc-500 mt-1">
-                  Photos here are scanned by AI. Guests can only view and download their own matched images.
+                  Add the actual guest photos in Media & Face Index. The Drive folder alone is not face-indexed automatically.
                 </p>
               </div>
 
@@ -348,7 +358,7 @@ export default function AdminAlbumsPage() {
               />
 
               {/* Toggles */}
-              <div className="pt-2 flex items-center justify-between border-t border-white/5 text-xs">
+              <div className="pt-2 space-y-3 border-t border-white/5 text-xs">
                 <label className="flex items-center gap-2 cursor-pointer text-zinc-300">
                   <input
                     type="checkbox"
@@ -357,6 +367,15 @@ export default function AdminAlbumsPage() {
                     className="accent-[#00f0ff]"
                   />
                   <span>Enable Guest AI Facial Recognition</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer text-zinc-300">
+                  <input
+                    type="checkbox"
+                    checked={allowDownloads}
+                    onChange={(e) => setAllowDownloads(e.target.checked)}
+                    className="accent-[#c4a472]"
+                  />
+                  <span>Allow visitors to download gallery media</span>
                 </label>
               </div>
 

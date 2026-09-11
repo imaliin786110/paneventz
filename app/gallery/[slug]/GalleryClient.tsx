@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import * as faceapi from "face-api.js";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import {
@@ -11,7 +12,6 @@ import {
   Play,
   X,
   RefreshCw,
-  Upload,
   Sparkles,
   ShieldCheck,
   FolderArchive,
@@ -31,11 +31,11 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
   const [cameraActive, setCameraActive] = useState(false);
   const [scanning, setScanning] = useState(false);
   const [guestMatchedPhotos, setGuestMatchedPhotos] = useState<any[] | null>(null);
+  const [faceSearchError, setFaceSearchError] = useState("");
   const [previewMedia, setPreviewMedia] = useState<any | null>(null);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (slug) {
@@ -74,6 +74,7 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
       const data = await res.json();
       if (res.ok && data.success) {
         setIsUnlocked(true);
+        await fetchAlbumData(slug);
       } else {
         setPinError("Incorrect passcode. Please verify with the couple.");
       }
@@ -94,7 +95,7 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
       }
     } catch (err) {
       console.error("Camera access error:", err);
-      alert("Unable to access camera. Please upload a selfie portrait.");
+      setFaceSearchError("We could not access your camera. Please allow camera permission and try again.");
       setCameraActive(false);
     }
   };
@@ -107,27 +108,72 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
     setCameraActive(false);
   };
 
-  const executeFaceScan = () => {
-    setScanning(true);
-    setTimeout(() => {
-      setScanning(false);
-      stopCamera();
-      // Match photos for the guest
-      const matches = photos.filter((_, idx) => idx % 2 === 0 || idx === 0);
-      setGuestMatchedPhotos(matches);
-      setIsAiModalOpen(false);
-    }, 1800);
+  const loadFaceModels = async () => {
+    const modelPath = "/models";
+
+    await Promise.all([
+      faceapi.nets.ssdMobilenetv1.isLoaded || faceapi.nets.ssdMobilenetv1.loadFromUri(modelPath),
+      faceapi.nets.faceLandmark68Net.isLoaded || faceapi.nets.faceLandmark68Net.loadFromUri(modelPath),
+      faceapi.nets.faceRecognitionNet.isLoaded || faceapi.nets.faceRecognitionNet.loadFromUri(modelPath),
+    ]);
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setScanning(true);
-      setTimeout(() => {
-        setScanning(false);
-        const matches = photos.filter((_, idx) => idx % 2 === 0 || idx === 0);
-        setGuestMatchedPhotos(matches);
-        setIsAiModalOpen(false);
-      }, 1500);
+  const getStoredDescriptors = (rawDescriptors: unknown): Float32Array[] => {
+    if (!rawDescriptors) return [];
+
+    const source = rawDescriptors as { descriptors?: unknown } | unknown[];
+    const candidates = Array.isArray(source)
+      ? (Array.isArray(source[0]) ? source : [source])
+      : Array.isArray(source.descriptors)
+        ? source.descriptors
+        : [];
+
+    return candidates
+      .filter((candidate): candidate is number[] => Array.isArray(candidate) && candidate.length === 128 && candidate.every(Number.isFinite))
+      .map((candidate) => new Float32Array(candidate));
+  };
+
+  const matchGuestDescriptor = async (guestDescriptor: Float32Array) => {
+    const indexedPhotos = photos.filter((photo) => getStoredDescriptors(photo.face_descriptors).length > 0);
+
+    if (indexedPhotos.length === 0) {
+      throw new Error("This collection is not indexed for face search yet. Please ask the studio to prepare Guest Photos for this album.");
+    }
+
+    // Face-api distance: lower is a stronger match. 0.52 gives a cautious result for wedding-event photos.
+    const matches = indexedPhotos.filter((photo) =>
+      getStoredDescriptors(photo.face_descriptors).some(
+        (descriptor) => faceapi.euclideanDistance(guestDescriptor, descriptor) <= 0.52,
+      ),
+    );
+
+    setGuestMatchedPhotos(matches);
+    setIsAiModalOpen(false);
+    stopCamera();
+  };
+
+  const executeFaceScan = async () => {
+    if (!videoRef.current) return;
+
+    setScanning(true);
+    setFaceSearchError("");
+
+    try {
+      await loadFaceModels();
+      const detection = await faceapi
+        .detectSingleFace(videoRef.current, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.55 }))
+        .withFaceLandmarks()
+        .withFaceDescriptor();
+
+      if (!detection) {
+        throw new Error("We could not find a clear face. Move into better light and try again.");
+      }
+
+      await matchGuestDescriptor(detection.descriptor);
+    } catch (error) {
+      setFaceSearchError(error instanceof Error ? error.message : "Face search could not be completed. Please try again.");
+    } finally {
+      setScanning(false);
     }
   };
 
@@ -257,18 +303,21 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
               {/* Guest AI Facial Finder Trigger */}
               <button
                 onClick={() => setIsAiModalOpen(true)}
+                disabled={album?.enable_face_ai === false}
                 className="px-6 py-2.5 rounded-xl text-xs uppercase tracking-wider font-bold bg-gradient-to-r from-[#00b4d8] to-[#00f0ff] text-black flex items-center gap-2 hover:opacity-90 shadow-lg shadow-[#00f0ff]/20 transition-all"
               >
                 <ScanFace size={16} /> Find My Photos (AI)
               </button>
 
               {/* Client Password-Protected Master Archive Download */}
-              <a
-                href={`/api/gallery/${slug}/download?type=client_master&pin=${encodeURIComponent(pin)}`}
-                className="px-6 py-2.5 rounded-xl text-xs uppercase tracking-wider font-semibold bg-white/10 hover:bg-white/15 border border-white/20 text-white flex items-center gap-2 transition-all"
-              >
-                <FolderArchive size={16} className="text-[#c4a472]" /> Download Master 4K Archive
-              </a>
+              {album?.allow_downloads && (
+                <a
+                  href={`/api/gallery/${slug}/download?type=client_master`}
+                  className="px-6 py-2.5 rounded-xl text-xs uppercase tracking-wider font-semibold bg-white/10 hover:bg-white/15 border border-white/20 text-white flex items-center gap-2 transition-all"
+                >
+                  <FolderArchive size={16} className="text-[#c4a472]" /> Download Master 4K Archive
+                </a>
+              )}
             </div>
           </section>
 
@@ -316,13 +365,15 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
                     </div>
 
                     {/* Download Button Proxied via Website */}
-                    <a
-                      href={`/api/gallery/${slug}/download?type=single_photo&photoId=${photo.id}`}
-                      download={photo.file_name || `photo_${idx + 1}.jpg`}
-                      className="absolute bottom-3 right-3 bg-black/80 backdrop-blur-md border border-white/20 text-white px-3 py-1 rounded-full text-[10px] uppercase font-bold flex items-center gap-1 hover:bg-[#c4a472] hover:text-black transition-colors shadow-lg z-10"
-                    >
-                      <Download size={12} /> Download
-                    </a>
+                    {album?.allow_downloads && (
+                      <a
+                        href={`/api/gallery/${slug}/download?type=single_photo&photoId=${photo.id}`}
+                        download={photo.file_name || `photo_${idx + 1}.jpg`}
+                        className="absolute bottom-3 right-3 bg-black/80 backdrop-blur-md border border-white/20 text-white px-3 py-1 rounded-full text-[10px] uppercase font-bold flex items-center gap-1 hover:bg-[#c4a472] hover:text-black transition-colors shadow-lg z-10"
+                      >
+                        <Download size={12} /> Download
+                      </a>
+                    )}
                   </div>
                 );
               })}
@@ -352,8 +403,14 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
               Find Your Photos Privately
             </h3>
             <p className="text-xs text-zinc-400 mb-6 leading-relaxed">
-              Take a selfie or upload a portrait. Our on-device AI scans the album descriptors and isolates only the photos you appear in.
+              Use your live camera selfie. Guest uploads are disabled: only the studio can add media to this album.
             </p>
+
+            {faceSearchError && (
+              <p className="mb-5 rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-xs leading-relaxed text-red-200">
+                {faceSearchError}
+              </p>
+            )}
 
             {cameraActive ? (
               <div className="mb-6 relative max-w-[260px] mx-auto aspect-[3/4] rounded-2xl overflow-hidden border-2 border-[#00f0ff]">
@@ -369,30 +426,14 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
               </div>
             ) : null}
 
-            <input
-              type="file"
-              accept="image/*"
-              ref={fileInputRef}
-              onChange={handleFileUpload}
-              className="hidden"
-            />
-
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               {!cameraActive ? (
-                <>
-                  <button
-                    onClick={startCamera}
-                    className="w-full sm:w-auto px-6 py-3 rounded-xl text-xs uppercase tracking-wider bg-gradient-to-r from-[#00b4d8] to-[#00f0ff] text-black font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all shadow-lg shadow-[#00f0ff]/20"
-                  >
-                    <Camera size={16} /> Open Camera
-                  </button>
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="w-full sm:w-auto px-6 py-3 rounded-xl text-xs uppercase tracking-wider bg-white/10 hover:bg-white/15 text-white font-semibold flex items-center justify-center gap-2 transition-colors border border-white/10"
-                  >
-                    <Upload size={16} /> Upload Selfie
-                  </button>
-                </>
+                <button
+                  onClick={startCamera}
+                  className="w-full sm:w-auto px-6 py-3 rounded-xl text-xs uppercase tracking-wider bg-gradient-to-r from-[#00b4d8] to-[#00f0ff] text-black font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all shadow-lg shadow-[#00f0ff]/20"
+                >
+                  <Camera size={16} /> Open Camera
+                </button>
               ) : (
                 <button
                   onClick={executeFaceScan}
@@ -406,7 +447,7 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
 
             <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-center gap-1.5 text-[11px] text-zinc-500">
               <ShieldCheck size={12} className="text-emerald-400" />
-              <span>Privacy Shield: You will only view and download photos containing your face.</span>
+              <span>Camera-only matching: no guest photo is uploaded, saved, or added to this gallery.</span>
             </div>
           </div>
         </div>
