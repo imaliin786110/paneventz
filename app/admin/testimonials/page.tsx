@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Plus, Edit, Trash2, CheckCircle2, X, Star } from "lucide-react";
 import MediaUploader from "@/components/admin/MediaUploader";
+import { formatMediaUrl } from "@/components/SmartMedia";
 
 
 export default function AdminTestimonialsPage() {
@@ -144,7 +145,7 @@ export default function AdminTestimonialsPage() {
                 <p className="text-xs text-zinc-300 italic mb-6 leading-relaxed">"{item.review}"</p>
                 <div className="flex items-center gap-3">
                   <img
-                    src={item.photo || "/images/1.jpg"}
+                    src={formatMediaUrl(item.photo, "/images/1.jpg")}
                     alt={item.couple_name}
                     className="w-10 h-10 rounded-full object-cover border border-[#c4a472]/40"
                   />

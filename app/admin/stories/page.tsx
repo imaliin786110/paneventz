@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Camera, Plus, Edit, Trash2, CheckCircle2, X } from "lucide-react";
 import MediaUploader from "@/components/admin/MediaUploader";
+import SmartMedia from "@/components/SmartMedia";
 
 
 export default function AdminStoriesPage() {
@@ -132,10 +133,11 @@ export default function AdminStoriesPage() {
               className="bg-[#121214] border border-white/5 rounded-3xl overflow-hidden flex flex-col justify-between hover:border-white/10 transition-all"
             >
               <div className="relative aspect-[4/3] bg-zinc-900">
-                <img
-                  src={story.cover_image || "/images/1.jpg"}
+                <SmartMedia
+                  src={story.cover_image}
                   alt={story.couple_name}
                   className="w-full h-full object-cover"
+                  containerClassName="w-full h-full"
                 />
               </div>
 

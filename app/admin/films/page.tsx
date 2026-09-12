@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Film, Plus, Edit, Trash2, CheckCircle2, X, Play } from "lucide-react";
 import MediaUploader from "@/components/admin/MediaUploader";
+import { formatMediaUrl } from "@/components/SmartMedia";
 
 
 export default function AdminFilmsPage() {
@@ -145,7 +146,7 @@ export default function AdminFilmsPage() {
             >
               <div className="relative aspect-video bg-black">
                 <img
-                  src={film.thumbnail || "/images/hero.jpg"}
+                  src={formatMediaUrl(film.thumbnail, "/images/hero.jpg")}
                   alt={film.title}
                   className="w-full h-full object-cover opacity-80"
                 />
