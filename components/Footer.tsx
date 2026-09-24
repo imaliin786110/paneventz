@@ -16,13 +16,13 @@ export default function Footer({ setting }: { setting: any }) {
   return (
     <footer id="contact" className="relative bg-[#060608] border-t border-white/[0.08] pt-32 pb-16 px-6 lg:px-12 text-center text-[#94a3b8] overflow-hidden">
       {/* AMBIENT LUXURY GLOW BACKDROP */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(196,164,114,0.12),transparent_70%)] pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(196,164,114,0.18),transparent_70%)] pointer-events-none animate-ambient-glow" />
 
-      <div className="relative max-w-6xl mx-auto">
+      <div className="relative z-10 max-w-6xl mx-auto">
         {/* EYEBROW WITH BESPOKE FLANKING HAIRLINES */}
         <div className="flex items-center justify-center gap-4 mb-5">
           <span className="h-[1px] w-10 bg-gradient-to-r from-transparent to-[#c4a472]/60" />
-          <span className="text-[11px] uppercase tracking-[0.35em] text-[#c4a472] font-semibold">
+          <span className="text-[11px] uppercase tracking-[0.35em] text-[#c4a472] font-semibold animate-pulse [animation-duration:6s]">
             LET&apos;S CONNECT
           </span>
           <span className="h-[1px] w-10 bg-gradient-to-l from-transparent to-[#c4a472]/60" />
@@ -47,11 +47,11 @@ export default function Footer({ setting }: { setting: any }) {
 
         {/* DIRECT STUDIO LINES LUXURY HUB (SINGLE FOCUSED CENTER) */}
         <div className="max-w-xl mx-auto mb-14">
-          <div className="group relative bg-gradient-to-b from-[#0e121a]/90 via-[#0a0d14]/95 to-[#06080d]/98 border border-white/[0.08] hover:border-[#c4a472]/50 rounded-2xl p-8 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.8),0_0_30px_rgba(196,164,114,0.12)] text-left">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[radial-gradient(circle_at_top_right,rgba(196,164,114,0.08),transparent_70%)] pointer-events-none rounded-tr-2xl" />
+          <div className="group relative bg-gradient-to-b from-[#0e121a]/90 via-[#0a0d14]/95 to-[#06080d]/98 border border-white/[0.08] hover:border-[#c4a472]/50 rounded-2xl p-8 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.8),0_0_30px_rgba(196,164,114,0.15)] text-left">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[radial-gradient(circle_at_top_right,rgba(196,164,114,0.12),transparent_70%)] pointer-events-none rounded-tr-2xl animate-glow-pulse" />
             <div className="mb-5">
               <div className="text-[11px] tracking-[2.5px] uppercase text-[#c4a472] font-bold flex items-center gap-2 mb-2">
-                <Phone size={14} className="text-[#c4a472]" />
+                <Phone size={14} className="text-[#c4a472] animate-pulse" />
                 <span>Direct Studio Lines</span>
               </div>
               <h3 className="font-serif text-xl sm:text-2xl text-white font-light tracking-wide">
@@ -64,7 +64,7 @@ export default function Footer({ setting }: { setting: any }) {
                 <a
                   key={idx}
                   href={`tel:${phoneNum.replace(/[^0-9+]/g, "")}`}
-                  className="text-white hover:text-[#fce7b2] text-base font-semibold tracking-wider flex items-center justify-between group/link py-3 px-4 rounded-xl bg-white/[0.02] hover:bg-white/[0.06] border border-white/[0.05] hover:border-[#c4a472]/30 transition-all duration-300"
+                  className="text-white hover:text-[#fce7b2] text-base font-semibold tracking-wider flex items-center justify-between group/link py-3 px-4 rounded-xl bg-white/[0.02] hover:bg-white/[0.06] border border-white/[0.05] hover:border-[#c4a472]/40 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
                 >
                   <div className="flex items-center gap-3">
                     <span className="w-7 h-7 rounded-full bg-[#c4a472]/15 border border-[#c4a472]/40 flex items-center justify-center text-[#c4a472] text-xs group-hover/link:bg-[#c4a472] group-hover/link:text-[#060608] transition-colors">
@@ -90,7 +90,7 @@ export default function Footer({ setting }: { setting: any }) {
             href="https://www.paneventz.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="group inline-flex items-center gap-3 text-white bg-gradient-to-r from-[#00f0ff]/10 via-[#00f0ff]/5 to-[#00f0ff]/10 hover:from-[#00f0ff]/20 hover:to-[#00f0ff]/20 border border-[#00f0ff]/30 hover:border-[#00f0ff]/60 px-7 py-3.5 rounded-full text-xs sm:text-sm tracking-wider uppercase transition-all duration-300 shadow-lg shadow-[#00f0ff]/5 hover:shadow-[#00f0ff]/20"
+            className="group inline-flex items-center gap-3 text-white bg-gradient-to-r from-[#00f0ff]/10 via-[#00f0ff]/5 to-[#00f0ff]/10 hover:from-[#00f0ff]/20 hover:to-[#00f0ff]/20 border border-[#00f0ff]/30 hover:border-[#00f0ff]/60 px-7 py-3.5 rounded-full text-xs sm:text-sm tracking-wider uppercase transition-all duration-300 shadow-lg shadow-[#00f0ff]/5 hover:shadow-[#00f0ff]/20 hover:scale-105 active:scale-95"
           >
             <Sparkles size={16} className="text-[#00f0ff] animate-pulse" />
             <span>
@@ -105,7 +105,7 @@ export default function Footer({ setting }: { setting: any }) {
         <div className="flex items-center justify-center mb-20">
           <a
             href="#enquire"
-            className="group inline-flex items-center gap-3 bg-[#c4a472] hover:bg-[#d8b886] text-[#080809] px-10 py-4 text-xs tracking-[3px] uppercase font-bold transition-all duration-300 shadow-[0_10px_30px_rgba(196,164,114,0.2)] hover:shadow-[0_15px_40px_rgba(196,164,114,0.35)] hover:-translate-y-0.5"
+            className="btn-shimmer group inline-flex items-center gap-3 bg-[#c4a472] hover:bg-[#d8b886] text-[#080809] px-10 py-4 text-xs tracking-[3px] uppercase font-bold transition-all duration-300 shadow-[0_10px_30px_rgba(196,164,114,0.25)] hover:shadow-[0_15px_40px_rgba(196,164,114,0.45)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
           >
             <span>Start A Wedding Conversation</span>
             <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />

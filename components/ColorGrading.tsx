@@ -47,9 +47,12 @@ export default function ColorGrading({ setting }: { setting: any }) {
   const isBeforeVideo = ["mp4", "webm", "mov"].some((ext) => beforeSrc.toLowerCase().endsWith(ext));
 
   return (
-    <section className="py-28 px-6 lg:px-12 bg-[#09090b] border-y border-white/5 select-none">
-      <div className="max-w-6xl mx-auto text-center mb-16">
-        <span className="text-xs uppercase tracking-[0.3em] text-[#c4a472] mb-3 block font-semibold">
+    <section className="py-28 px-6 lg:px-12 bg-[#09090b] border-y border-white/5 select-none relative overflow-hidden">
+      {/* AMBIENT LIVING LIGHT */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(196,164,114,0.08),transparent_70%)] pointer-events-none animate-ambient-glow" />
+
+      <div className="relative z-10 max-w-6xl mx-auto text-center mb-16">
+        <span className="text-xs uppercase tracking-[0.3em] text-[#c4a472] mb-3 block font-semibold animate-pulse [animation-duration:6s]">
           THE ART OF MASTERY
         </span>
         <h2 className="font-serif text-3xl sm:text-5xl text-white font-light mb-4">
@@ -66,7 +69,7 @@ export default function ColorGrading({ setting }: { setting: any }) {
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
-        className="max-w-4xl mx-auto relative aspect-[16/10] rounded-2xl sm:rounded-3xl overflow-hidden border border-white/10 shadow-2xl cursor-ew-resize touch-none bg-black"
+        className="max-w-4xl mx-auto relative aspect-[16/10] rounded-2xl sm:rounded-3xl overflow-hidden border border-white/10 hover:border-[#c4a472]/40 shadow-2xl cursor-ew-resize touch-none bg-black transition-all duration-500"
       >
         {/* Right / Paneventz Signature Graded Media (Underneath) */}
         {isAfterVideo ? (
@@ -120,7 +123,7 @@ export default function ColorGrading({ setting }: { setting: any }) {
           className="absolute top-0 bottom-0 w-1 bg-[#c4a472] pointer-events-none z-20 shadow-[0_0_15px_rgba(196,164,114,0.6)]"
           style={{ left: `${sliderPos}%` }}
         >
-          <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#c4a472] text-black flex items-center justify-center font-bold text-xs shadow-2xl border-2 border-white/80">
+          <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#c4a472] text-black flex items-center justify-center font-bold text-xs shadow-[0_0_20px_rgba(196,164,114,0.6)] border-2 border-white/90">
             <Sliders size={14} className="sm:hidden" />
             <Sliders size={16} className="hidden sm:block" />
           </div>
@@ -135,7 +138,7 @@ export default function ColorGrading({ setting }: { setting: any }) {
           Paneventz Signature Grade
         </div>
 
-        <div className="absolute bottom-2.5 sm:bottom-4 left-1/2 -translate-x-1/2 bg-black/75 backdrop-blur-md text-zinc-300 border border-white/10 px-3 sm:px-4 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-[10px] uppercase tracking-wider z-10 pointer-events-none whitespace-nowrap">
+        <div className="absolute bottom-2.5 sm:bottom-4 left-1/2 -translate-x-1/2 bg-black/75 backdrop-blur-md text-zinc-300 border border-white/10 px-3 sm:px-4 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-[10px] uppercase tracking-wider z-10 pointer-events-none whitespace-nowrap animate-subtle-float">
           ← Drag Slider to Compare →
         </div>
       </div>

@@ -36,9 +36,12 @@ export default function Approach({ setting }: { setting: any }) {
   ];
 
   return (
-    <section className="py-28 px-6 lg:px-12 bg-[#09090b] text-center relative border-y border-white/5" id="about">
-      <div className="max-w-4xl mx-auto mb-16">
-        <span className="text-xs uppercase tracking-[0.3em] text-[#c4a472] mb-4 block font-semibold">
+    <section className="py-28 px-6 lg:px-12 bg-[#09090b] text-center relative border-y border-white/5 overflow-hidden" id="about">
+      {/* AMBIENT LIVING LIGHT */}
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(196,164,114,0.08),transparent_70%)] pointer-events-none animate-ambient-glow" />
+
+      <div className="relative z-10 max-w-4xl mx-auto mb-16">
+        <span className="text-xs uppercase tracking-[0.3em] text-[#c4a472] mb-4 block font-semibold animate-pulse [animation-duration:6s]">
           {eyebrow}
         </span>
         <h2 className="font-serif text-3xl sm:text-5xl lg:text-6xl text-white font-light leading-tight mb-4">
@@ -55,25 +58,28 @@ export default function Approach({ setting }: { setting: any }) {
         </p>
       </div>
 
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+      <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
         {pillars.map((p, idx) => {
           const Icon = p.icon;
           return (
             <div
               key={idx}
-              className="bg-[#121214] border border-white/10 rounded-3xl p-8 lg:p-10 flex flex-col justify-between hover:border-[#c4a472]/40 transition-all duration-300 shadow-xl"
+              className="group luxury-card-interactive bg-[#121214] border border-white/10 hover:border-[#c4a472]/50 rounded-3xl p-8 lg:p-10 flex flex-col justify-between shadow-xl relative overflow-hidden"
             >
+              {/* Subtle card interior ambient glow */}
+              <div className="absolute top-0 right-0 w-36 h-36 bg-[radial-gradient(circle_at_top_right,rgba(196,164,114,0.1),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+
               <div>
                 <div className="flex items-center justify-between mb-6 pb-4 border-b border-[#c4a472]/20">
                   <span className="text-xs uppercase tracking-widest text-[#c4a472] font-semibold">
                     {p.tag}
                   </span>
-                  <div className="w-10 h-10 rounded-xl bg-[#c4a472]/10 text-[#c4a472] flex items-center justify-center border border-[#c4a472]/20">
+                  <div className="w-10 h-10 rounded-xl bg-[#c4a472]/10 text-[#c4a472] flex items-center justify-center border border-[#c4a472]/20 group-hover:scale-110 group-hover:bg-[#c4a472] group-hover:text-[#09090b] transition-all duration-500 shadow-md">
                     <Icon size={18} />
                   </div>
                 </div>
 
-                <h3 className="font-serif text-2xl text-white font-light mb-4 leading-snug">
+                <h3 className="font-serif text-2xl text-white font-light mb-4 leading-snug group-hover:text-[#f7ebd7] transition-colors duration-300">
                   {p.title}
                 </h3>
 
@@ -85,7 +91,7 @@ export default function Approach({ setting }: { setting: any }) {
                 </p>
               </div>
 
-              <div className="pt-4 border-t border-white/5 text-xs font-semibold text-[#c4a472] tracking-wider">
+              <div className="pt-4 border-t border-white/5 text-xs font-semibold text-[#c4a472] tracking-wider group-hover:translate-x-1 transition-transform duration-300">
                 {p.bottomTag}
               </div>
             </div>

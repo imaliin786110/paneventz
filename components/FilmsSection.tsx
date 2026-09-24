@@ -11,11 +11,14 @@ export default function FilmsSection({ films }: { films: any[] }) {
   if (!films || films.length === 0) return null;
 
   return (
-    <section id="films" className="py-28 px-6 lg:px-12 bg-[#09090b] border-t border-white/5 scroll-mt-20">
-      <div className="max-w-7xl mx-auto">
+    <section id="films" className="py-28 px-6 lg:px-12 bg-[#09090b] border-t border-white/5 scroll-mt-20 relative overflow-hidden">
+      {/* AMBIENT LIVING LIGHT */}
+      <div className="absolute top-1/2 left-10 w-[550px] h-[550px] bg-[radial-gradient(circle,rgba(196,164,114,0.06),transparent_70%)] pointer-events-none animate-ambient-glow" />
+
+      <div className="relative z-10 max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16">
           <div>
-            <span className="text-xs uppercase tracking-[0.3em] text-[#c4a472] mb-3 block font-light">
+            <span className="text-xs uppercase tracking-[0.3em] text-[#c4a472] mb-3 block font-semibold animate-pulse [animation-duration:6s]">
               MOTION PICTURES
             </span>
             <h2 className="font-serif text-4xl sm:text-6xl text-[#f5f5f7] font-light">
@@ -36,7 +39,7 @@ export default function FilmsSection({ films }: { films: any[] }) {
             return (
               <div
                 key={film.id || idx}
-                className="group bg-[#121214] border border-white/5 rounded-3xl overflow-hidden flex flex-col hover:border-[#c4a472]/40 transition-all duration-500 shadow-2xl"
+                className="group luxury-card-interactive bg-[#121214] border border-white/5 rounded-3xl overflow-hidden flex flex-col hover:border-[#c4a472]/50 shadow-2xl"
               >
                 <div
                   className="relative aspect-video w-full overflow-hidden bg-black cursor-pointer"
@@ -46,29 +49,31 @@ export default function FilmsSection({ films }: { films: any[] }) {
                     src={mediaSource}
                     poster={film.thumbnail}
                     alt={`${film.title} - 4K luxury wedding film in ${film.location || "India"}`}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-1000 ease-out"
                     containerClassName="relative w-full h-full overflow-hidden bg-black"
                   />
 
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors pointer-events-none" />
+                  <div className="absolute inset-0 bg-black/25 group-hover:bg-black/10 transition-colors pointer-events-none duration-500" />
 
-                  <span className="absolute top-4 left-4 bg-black/70 backdrop-blur-sm text-[#c4a472] px-3 py-1 rounded-full text-[10px] uppercase tracking-wider font-semibold border border-[#c4a472]/20 z-10 flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#c4a472] animate-pulse" />
+                  <span className="absolute top-4 left-4 bg-black/80 backdrop-blur-md text-[#c4a472] px-3.5 py-1.5 rounded-full text-[10px] uppercase tracking-wider font-semibold border border-[#c4a472]/30 z-10 flex items-center gap-2 shadow-lg">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#c4a472] animate-ping [animation-duration:2.5s]" />
                     4K Master Cinema
                   </span>
 
-                  <div className="absolute bottom-4 right-4 bg-black/70 backdrop-blur-md text-white/90 text-[10px] uppercase tracking-wider px-3 py-1.5 rounded-full border border-white/10 opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all flex items-center gap-2 z-10">
-                    <Play size={12} className="fill-current text-[#c4a472]" />
+                  <div className="absolute bottom-4 right-4 bg-black/80 backdrop-blur-md text-white text-[10px] uppercase tracking-wider px-4 py-2 rounded-full border border-[#c4a472]/40 opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300 flex items-center gap-2.5 z-10 shadow-xl">
+                    <div className="w-5 h-5 rounded-full bg-[#c4a472]/20 flex items-center justify-center">
+                      <Play size={10} className="fill-[#c4a472] text-[#c4a472] ml-0.5" />
+                    </div>
                     <span>Watch Full Film</span>
                   </div>
                 </div>
 
                 <div className="p-8 flex flex-col justify-between flex-1">
                   <div>
-                    <span className="text-[11px] uppercase tracking-widest text-[#c4a472] font-semibold block mb-1">
+                    <span className="text-[11px] uppercase tracking-widest text-[#c4a472] font-semibold block mb-1 group-hover:text-[#f7ebd7] transition-colors">
                       {film.location || "Destination Wedding"}
                     </span>
-                    <h3 className="font-serif text-3xl text-[#f5f5f7] font-light mb-2">
+                    <h3 className="font-serif text-3xl text-[#f5f5f7] font-light mb-2 group-hover:text-[#c4a472] transition-colors duration-300">
                       {film.title}
                     </h3>
                     {film.description && (

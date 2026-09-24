@@ -114,7 +114,7 @@ export default function Navbar({ studioName = "Paneventz" }: { studioName?: stri
             <Link
               href="/#enquire"
               onClick={(e) => handleAnchorClick(e, "/#enquire")}
-              className="px-6 py-2.5 rounded-full text-xs uppercase tracking-widest bg-[#c4a472] hover:bg-[#b09060] text-black font-bold hover:scale-105 transition-all shadow-lg shadow-[#c4a472]/30 flex items-center gap-1.5"
+              className="btn-shimmer px-6 py-2.5 rounded-full text-xs uppercase tracking-widest bg-[#c4a472] hover:bg-[#d8b886] text-black font-bold hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg shadow-[#c4a472]/30 flex items-center gap-1.5"
             >
               <span>Contact Us</span>
               <ArrowRight size={14} />

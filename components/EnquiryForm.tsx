@@ -49,14 +49,14 @@ export default function EnquiryForm() {
       className="relative pt-16 sm:pt-20 pb-28 sm:pb-32 px-4 sm:px-6 lg:px-12 bg-[#08080a] border-t border-white/[0.08] scroll-mt-24 overflow-hidden"
     >
       {/* AMBIENT LUXURY WARM GLOW BACKDROP */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-96 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(196,164,114,0.14),transparent_70%)] pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-96 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(196,164,114,0.18),transparent_70%)] pointer-events-none animate-ambient-glow" />
 
-      <div className="relative max-w-4xl mx-auto w-full">
+      <div className="relative z-10 max-w-4xl mx-auto w-full">
         {/* EMOTIONAL INTRODUCTION ABOVE FORM */}
         <div className="text-center mb-8 sm:mb-10">
           <div className="flex items-center justify-center gap-3 mb-3 sm:mb-4">
             <span className="h-[1px] w-8 sm:w-12 bg-gradient-to-r from-transparent to-[#c4a472]/60" />
-            <span className="text-[11px] sm:text-xs uppercase tracking-[0.35em] text-[#c4a472] font-semibold">
+            <span className="text-[11px] sm:text-xs uppercase tracking-[0.35em] text-[#c4a472] font-semibold animate-pulse [animation-duration:6s]">
               YOUR STORY BEGINS HERE
             </span>
             <span className="h-[1px] w-8 sm:w-12 bg-gradient-to-l from-transparent to-[#c4a472]/60" />
@@ -88,7 +88,7 @@ export default function EnquiryForm() {
                 href={whatsappUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full text-xs uppercase tracking-widest bg-gradient-to-r from-[#20ba5a] to-[#25D366] text-white font-bold hover:brightness-110 transition-all shadow-[0_10px_25px_rgba(37,211,102,0.3)] hover:-translate-y-0.5"
+                className="btn-shimmer inline-flex items-center gap-2 px-8 py-3.5 rounded-full text-xs uppercase tracking-widest bg-gradient-to-r from-[#20ba5a] to-[#25D366] text-white font-bold hover:brightness-110 transition-all shadow-[0_10px_25px_rgba(37,211,102,0.3)] hover:-translate-y-0.5"
               >
                 <span>Connect on WhatsApp Now</span>
                 <span>↗</span>
@@ -101,8 +101,8 @@ export default function EnquiryForm() {
             className="group relative bg-gradient-to-b from-[#151720]/98 via-[#101218]/98 to-[#0b0c10]/98 border border-[#c4a472]/30 hover:border-[#c4a472]/45 rounded-2xl sm:rounded-3xl p-5 sm:p-10 md:p-12 grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9),0_0_35px_rgba(196,164,114,0.08)] backdrop-blur-xl transition-all duration-500 w-full max-w-full overflow-hidden"
           >
             {/* CORNER ACCENT GLOWS */}
-            <div className="absolute top-0 right-0 w-44 h-44 bg-[radial-gradient(circle_at_top_right,rgba(196,164,114,0.1),transparent_70%)] pointer-events-none rounded-tr-2xl sm:rounded-tr-3xl" />
-            <div className="absolute bottom-0 left-0 w-44 h-44 bg-[radial-gradient(circle_at_bottom_left,rgba(196,164,114,0.06),transparent_70%)] pointer-events-none rounded-bl-2xl sm:rounded-bl-3xl" />
+            <div className="absolute top-0 right-0 w-44 h-44 bg-[radial-gradient(circle_at_top_right,rgba(196,164,114,0.12),transparent_70%)] pointer-events-none rounded-tr-2xl sm:rounded-tr-3xl animate-glow-pulse" />
+            <div className="absolute bottom-0 left-0 w-44 h-44 bg-[radial-gradient(circle_at_bottom_left,rgba(196,164,114,0.08),transparent_70%)] pointer-events-none rounded-bl-2xl sm:rounded-bl-3xl" />
 
             {/* FIELD 1: COUPLE NAMES */}
             <div className="w-full min-w-0 max-w-full">
@@ -115,7 +115,7 @@ export default function EnquiryForm() {
                 placeholder="e.g. Aditi & Kabir"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full max-w-full min-w-0 h-[50px] sm:h-[52px] box-border block bg-[#181a22]/90 hover:bg-[#1b1e27] focus:bg-[#1d202a] border border-white/[0.14] hover:border-[#c4a472]/40 focus:border-[#c4a472] focus:ring-1 focus:ring-[#c4a472]/40 rounded-xl px-4 text-sm text-white placeholder-zinc-400 focus:outline-none transition-all duration-200"
+                className="w-full max-w-full min-w-0 h-[50px] sm:h-[52px] box-border block bg-[#181a22]/90 hover:bg-[#1b1e27] focus:bg-[#1d202a] border border-white/[0.14] hover:border-[#c4a472]/40 focus:border-[#c4a472] focus:ring-2 focus:ring-[#c4a472]/30 rounded-xl px-4 text-sm text-white placeholder-zinc-400 focus:outline-none transition-all duration-200"
               />
             </div>
 
@@ -130,7 +130,7 @@ export default function EnquiryForm() {
                 placeholder="you@domain.com"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full max-w-full min-w-0 h-[50px] sm:h-[52px] box-border block bg-[#181a22]/90 hover:bg-[#1b1e27] focus:bg-[#1d202a] border border-white/[0.14] hover:border-[#c4a472]/40 focus:border-[#c4a472] focus:ring-1 focus:ring-[#c4a472]/40 rounded-xl px-4 text-sm text-white placeholder-zinc-400 focus:outline-none transition-all duration-200"
+                className="w-full max-w-full min-w-0 h-[50px] sm:h-[52px] box-border block bg-[#181a22]/90 hover:bg-[#1b1e27] focus:bg-[#1d202a] border border-white/[0.14] hover:border-[#c4a472]/40 focus:border-[#c4a472] focus:ring-2 focus:ring-[#c4a472]/30 rounded-xl px-4 text-sm text-white placeholder-zinc-400 focus:outline-none transition-all duration-200"
               />
             </div>
 
@@ -145,7 +145,7 @@ export default function EnquiryForm() {
                 placeholder="+91 98765 43210"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="w-full max-w-full min-w-0 h-[50px] sm:h-[52px] box-border block bg-[#181a22]/90 hover:bg-[#1b1e27] focus:bg-[#1d202a] border border-white/[0.14] hover:border-[#c4a472]/40 focus:border-[#c4a472] focus:ring-1 focus:ring-[#c4a472]/40 rounded-xl px-4 text-sm text-white placeholder-zinc-400 focus:outline-none transition-all duration-200"
+                className="w-full max-w-full min-w-0 h-[50px] sm:h-[52px] box-border block bg-[#181a22]/90 hover:bg-[#1b1e27] focus:bg-[#1d202a] border border-white/[0.14] hover:border-[#c4a472]/40 focus:border-[#c4a472] focus:ring-2 focus:ring-[#c4a472]/30 rounded-xl px-4 text-sm text-white placeholder-zinc-400 focus:outline-none transition-all duration-200"
               />
             </div>
 
@@ -158,7 +158,7 @@ export default function EnquiryForm() {
                 type="date"
                 value={formData.wedding_date}
                 onChange={(e) => setFormData({ ...formData, wedding_date: e.target.value })}
-                className="w-full max-w-full min-w-0 h-[50px] sm:h-[52px] box-border block bg-[#181a22]/90 hover:bg-[#1b1e27] focus:bg-[#1d202a] border border-white/[0.14] hover:border-[#c4a472]/40 focus:border-[#c4a472] focus:ring-1 focus:ring-[#c4a472]/40 rounded-xl px-4 text-sm text-white placeholder-zinc-400 focus:outline-none transition-all duration-200 [color-scheme:dark] appearance-none [-webkit-appearance:none] [-moz-appearance:none] [&::-webkit-date-and-time-value]:text-left [&::-webkit-date-and-time-value]:m-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-80 [&::-webkit-calendar-picker-indicator]:hover:opacity-100 [&::-webkit-calendar-picker-indicator]:p-0 [&::-webkit-calendar-picker-indicator]:m-0"
+                className="w-full max-w-full min-w-0 h-[50px] sm:h-[52px] box-border block bg-[#181a22]/90 hover:bg-[#1b1e27] focus:bg-[#1d202a] border border-white/[0.14] hover:border-[#c4a472]/40 focus:border-[#c4a472] focus:ring-2 focus:ring-[#c4a472]/30 rounded-xl px-4 text-sm text-white placeholder-zinc-400 focus:outline-none transition-all duration-200 [color-scheme:dark] appearance-none [-webkit-appearance:none] [-moz-appearance:none] [&::-webkit-date-and-time-value]:text-left [&::-webkit-date-and-time-value]:m-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-80 [&::-webkit-calendar-picker-indicator]:hover:opacity-100 [&::-webkit-calendar-picker-indicator]:p-0 [&::-webkit-calendar-picker-indicator]:m-0"
               />
             </div>
 
@@ -173,7 +173,7 @@ export default function EnquiryForm() {
                 placeholder="e.g. The Taj Mahal Palace, Mumbai / Jagmandir Palace, Udaipur"
                 value={formData.wedding_location}
                 onChange={(e) => setFormData({ ...formData, wedding_location: e.target.value })}
-                className="w-full max-w-full min-w-0 h-[50px] sm:h-[52px] box-border block bg-[#181a22]/90 hover:bg-[#1b1e27] focus:bg-[#1d202a] border border-white/[0.14] hover:border-[#c4a472]/40 focus:border-[#c4a472] focus:ring-1 focus:ring-[#c4a472]/40 rounded-xl px-4 text-sm text-white placeholder-zinc-400 focus:outline-none transition-all duration-200"
+                className="w-full max-w-full min-w-0 h-[50px] sm:h-[52px] box-border block bg-[#181a22]/90 hover:bg-[#1b1e27] focus:bg-[#1d202a] border border-white/[0.14] hover:border-[#c4a472]/40 focus:border-[#c4a472] focus:ring-2 focus:ring-[#c4a472]/30 rounded-xl px-4 text-sm text-white placeholder-zinc-400 focus:outline-none transition-all duration-200"
               />
             </div>
 
@@ -187,7 +187,7 @@ export default function EnquiryForm() {
                 placeholder="Tell us about your celebration, guest count, aesthetic, and how you envision your memories..."
                 value={formData.message}
                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                className="w-full max-w-full min-w-0 box-border block bg-[#181a22]/90 hover:bg-[#1b1e27] focus:bg-[#1d202a] border border-white/[0.14] hover:border-[#c4a472]/40 focus:border-[#c4a472] focus:ring-1 focus:ring-[#c4a472]/40 rounded-xl p-4 text-sm text-white placeholder-zinc-400 focus:outline-none transition-all duration-200 resize-none"
+                className="w-full max-w-full min-w-0 box-border block bg-[#181a22]/90 hover:bg-[#1b1e27] focus:bg-[#1d202a] border border-white/[0.14] hover:border-[#c4a472]/40 focus:border-[#c4a472] focus:ring-2 focus:ring-[#c4a472]/30 rounded-xl p-4 text-sm text-white placeholder-zinc-400 focus:outline-none transition-all duration-200 resize-none"
               />
             </div>
 
@@ -203,7 +203,7 @@ export default function EnquiryForm() {
               <button
                 type="submit"
                 disabled={status === "loading"}
-                className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-14 py-3.5 sm:py-4 rounded-full text-xs uppercase tracking-[0.16em] sm:tracking-[0.25em] bg-gradient-to-r from-[#d8b886] via-[#c4a472] to-[#b38a4c] hover:from-[#e2c79b] hover:via-[#d8b886] hover:to-[#c4a472] text-[#09090b] font-bold shadow-[0_10px_30px_rgba(196,164,114,0.3)] hover:shadow-[0_15px_40px_rgba(196,164,114,0.45)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 disabled:opacity-50"
+                className="btn-shimmer group w-full sm:w-auto inline-flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-14 py-3.5 sm:py-4 rounded-full text-xs uppercase tracking-[0.16em] sm:tracking-[0.25em] bg-gradient-to-r from-[#d8b886] via-[#c4a472] to-[#b38a4c] hover:from-[#e2c79b] hover:via-[#d8b886] hover:to-[#c4a472] text-[#09090b] font-bold shadow-[0_10px_30px_rgba(196,164,114,0.3)] hover:shadow-[0_15px_40px_rgba(196,164,114,0.5)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 disabled:opacity-50"
               >
                 <span>{status === "loading" ? "Submitting Inquiry..." : "Submit Wedding Inquiry"}</span>
                 <Send size={14} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform shrink-0" />
