@@ -88,6 +88,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 import WhatsAppButton from "@/components/WhatsAppButton";
+import ScrollLivingEffects from "@/components/ScrollLivingEffects";
 
 export default async function RootLayout({
   children,
@@ -186,6 +187,7 @@ export default async function RootLayout({
         />
       </head>
       <body className="bg-[#0c0c0d] text-[#d6d6d8] antialiased selection:bg-[#c4a472] selection:text-[#0c0c0d]">
+        <ScrollLivingEffects />
         {children}
         <WhatsAppButton />
       </body>
