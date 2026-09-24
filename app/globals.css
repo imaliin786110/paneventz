@@ -16,7 +16,6 @@
 }
 
 html {
-  scroll-behavior: smooth;
   background-color: #0c0c0d;
   color: #d6d6d8;
 }
@@ -281,31 +280,29 @@ h3.in-view-glow {
 
 @keyframes livingBgBreathe {
   0%, 100% {
-    opacity: 0.55;
-    filter: blur(90px);
+    opacity: 0.6;
   }
   50% {
-    opacity: 0.85;
-    filter: blur(125px);
+    opacity: 0.9;
   }
 }
 
 .animate-bg-drift-1 {
   animation: livingBgDrift1 26s ease-in-out infinite, livingBgBreathe 12s ease-in-out infinite;
-  will-change: transform, opacity, filter;
+  will-change: transform, opacity;
 }
 
 .animate-bg-drift-2 {
   animation: livingBgDrift2 32s ease-in-out infinite, livingBgBreathe 16s ease-in-out infinite;
-  will-change: transform, opacity, filter;
+  will-change: transform, opacity;
 }
 
 .animate-bg-drift-3 {
   animation: livingBgDrift3 28s ease-in-out infinite, livingBgBreathe 14s ease-in-out infinite;
-  will-change: transform, opacity, filter;
+  will-change: transform, opacity;
 }
 
 .animate-bg-drift-4 {
   animation: livingBgDrift4 36s ease-in-out infinite, livingBgBreathe 18s ease-in-out infinite;
-  will-change: transform, opacity, filter;
+  will-change: transform, opacity;
 }
