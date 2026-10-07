@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { serializeData } from "@/lib/utils";
+import { refreshPublicContent } from "@/lib/content-revalidation";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+const noStore = { "Cache-Control": "no-store, max-age=0" };
 
 export async function GET(
   req: Request,
@@ -33,7 +39,7 @@ export async function GET(
         return NextResponse.json({ error: "Unknown resource" }, { status: 400 });
     }
 
-    return NextResponse.json({ data: serializeData(data) });
+    return NextResponse.json({ data: serializeData(data) }, { headers: noStore });
   } catch (error) {
     console.error("GET /api/admin/content error:", error);
     return NextResponse.json({ error: "Failed to fetch data" }, { status: 500 });
@@ -213,9 +219,12 @@ export async function POST(
           },
         });
       }
+    } else {
+      return NextResponse.json({ error: "Unknown resource" }, { status: 400, headers: noStore });
     }
 
-    return NextResponse.json({ success: true, item: serializeData(result) });
+    refreshPublicContent(resource);
+    return NextResponse.json({ success: true, item: serializeData(result) }, { headers: noStore });
   } catch (error) {
     console.error("POST /api/admin/content error:", error);
     return NextResponse.json({ error: "Failed to save item" }, { status: 500 });
@@ -260,7 +269,8 @@ export async function DELETE(
         return NextResponse.json({ error: "Unknown resource" }, { status: 400 });
     }
 
-    return NextResponse.json({ success: true });
+    refreshPublicContent(resource);
+    return NextResponse.json({ success: true }, { headers: noStore });
   } catch (error) {
     console.error("DELETE /api/admin/content error:", error);
     return NextResponse.json({ error: "Failed to delete item" }, { status: 500 });

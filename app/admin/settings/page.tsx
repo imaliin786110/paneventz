@@ -19,6 +19,7 @@ export default function AdminSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<any>({
     studio_name: "",
@@ -62,7 +63,7 @@ export default function AdminSettingsPage() {
   const fetchSettings = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/admin/settings");
+      const res = await fetch("/api/admin/settings", { cache: "no-store" });
       const data = await res.json();
       if (res.ok && data.setting) {
         setFormData(data.setting);
@@ -85,6 +86,7 @@ export default function AdminSettingsPage() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
+    setSaveError(null);
     try {
       const res = await fetch("/api/admin/settings", {
         method: "POST",
@@ -92,12 +94,17 @@ export default function AdminSettingsPage() {
         body: JSON.stringify(formData),
       });
 
+      const data = await res.json();
       if (res.ok) {
-        setNotification("Website content & media updated successfully!");
+        setFormData(data.setting || formData);
+        setNotification("Saved and published — the live website is updated now.");
         setTimeout(() => setNotification(null), 3500);
+      } else {
+        setSaveError(data.error || "The update could not be saved. Please try again.");
       }
     } catch (err) {
       console.error("Save error:", err);
+      setSaveError("Network error. Your changes were not saved.");
     } finally {
       setSaving(false);
     }
@@ -134,6 +141,11 @@ export default function AdminSettingsPage() {
       {notification && (
         <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl text-emerald-400 text-xs flex items-center gap-2">
           <CheckCircle2 size={16} /> {notification}
+        </div>
+      )}
+      {saveError && (
+        <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-2xl text-red-300 text-xs">
+          {saveError}
         </div>
       )}
 

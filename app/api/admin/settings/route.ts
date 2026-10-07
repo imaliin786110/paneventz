@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { serializeData } from "@/lib/utils";
+import { refreshPublicContent } from "@/lib/content-revalidation";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+const noStore = { "Cache-Control": "no-store, max-age=0" };
 
 export async function GET() {
   try {
@@ -43,7 +49,7 @@ export async function GET() {
       });
     }
 
-    return NextResponse.json({ setting: serializeData(setting) });
+    return NextResponse.json({ setting: serializeData(setting) }, { headers: noStore });
   } catch (error) {
     console.error("GET /api/admin/settings error:", error);
     return NextResponse.json({ error: "Failed to fetch settings" }, { status: 500 });
@@ -109,7 +115,8 @@ export async function POST(req: Request) {
       });
     }
 
-    return NextResponse.json({ success: true, setting: serializeData(updated) });
+    refreshPublicContent();
+    return NextResponse.json({ success: true, setting: serializeData(updated) }, { headers: noStore });
   } catch (error) {
     console.error("POST /api/admin/settings error:", error);
     return NextResponse.json({ error: "Failed to update settings" }, { status: 500 });

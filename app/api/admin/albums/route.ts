@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { serializeData } from "@/lib/utils";
+import { refreshGallery } from "@/lib/content-revalidation";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+const noStore = { "Cache-Control": "no-store, max-age=0" };
 
 // GET: List all albums
 export async function GET() {
@@ -13,7 +19,7 @@ export async function GET() {
       orderBy: { created_at: "desc" },
     }).then(serializeData);
 
-    return NextResponse.json({ albums });
+    return NextResponse.json({ albums }, { headers: noStore });
   } catch (error) {
     console.error("GET /api/admin/albums error:", error);
     return NextResponse.json({ error: "Failed to fetch albums" }, { status: 500 });
@@ -68,7 +74,8 @@ export async function POST(req: NextRequest) {
         },
       }).then(serializeData);
 
-      return NextResponse.json({ success: true, album: updated });
+      refreshGallery(updated.slug);
+      return NextResponse.json({ success: true, album: updated }, { headers: noStore });
     } else {
       // Create new
       const created = await db.weddingAlbum.create({
@@ -89,7 +96,8 @@ export async function POST(req: NextRequest) {
         },
       }).then(serializeData);
 
-      return NextResponse.json({ success: true, album: created });
+      refreshGallery(created.slug);
+      return NextResponse.json({ success: true, album: created }, { headers: noStore });
     }
   } catch (error) {
     console.error("POST /api/admin/albums error:", error);

@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import GalleryClient from "./GalleryClient";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function generateStaticParams() {
   try {

@@ -16,7 +16,8 @@ import Footer from "@/components/Footer";
 
 import type { Metadata } from "next";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function generateMetadata(): Promise<Metadata> {
   let setting = null;
