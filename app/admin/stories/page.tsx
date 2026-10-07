@@ -26,7 +26,7 @@ export default function AdminStoriesPage() {
   const fetchStories = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/admin/content/stories");
+      const res = await fetch("/api/admin/content/stories", { cache: "no-store" });
       const data = await res.json();
       if (res.ok) setStories(data.data || []);
     } catch (err) {

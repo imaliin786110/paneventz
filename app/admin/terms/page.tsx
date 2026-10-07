@@ -25,7 +25,7 @@ export default function AdminTermsPage() {
   const fetchTerms = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/admin/content/terms");
+      const res = await fetch("/api/admin/content/terms", { cache: "no-store" });
       const data = await res.json();
       if (res.ok && data.data && data.data.length > 0) {
         setFormData(data.data[0]);

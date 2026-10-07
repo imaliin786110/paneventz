@@ -7,8 +7,10 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import { Clock, ArrowLeft } from "lucide-react";
+import { formatMediaUrl } from "@/components/SmartMedia";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function generateStaticParams() {
   try {
@@ -32,7 +34,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const title = `${post.title} | Paneventz Journal`;
   const description = post.excerpt || "Timeless insights on luxury wedding photography and destination celebrations.";
   const canonicalUrl = `https://paneventz.in/blog/${post.slug}`;
-  const imageUrl = post.featured_image || "https://paneventz.in/images/1.jpg";
+  const imageUrl = formatMediaUrl(post.featured_image, "https://paneventz.in/images/1.jpg");
 
   return {
     title,
@@ -85,7 +87,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     },
     "headline": post.title,
     "description": post.excerpt || undefined,
-    "image": [post.featured_image || "https://paneventz.in/images/1.jpg"],
+    "image": [formatMediaUrl(post.featured_image, "https://paneventz.in/images/1.jpg")],
     "datePublished": post.published_at || post.created_at,
     "dateModified": post.updated_at || post.published_at || post.created_at,
     "author": {
@@ -168,7 +170,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
         {post.featured_image && (
           <div className="relative aspect-[16/9] rounded-3xl overflow-hidden mb-12 bg-[#121214]">
-            <img src={post.featured_image} alt={post.title} className="w-full h-full object-cover" />
+            <img src={formatMediaUrl(post.featured_image)} alt={post.title} className="w-full h-full object-cover" />
           </div>
         )}
 

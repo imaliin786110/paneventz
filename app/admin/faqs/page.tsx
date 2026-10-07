@@ -21,7 +21,7 @@ export default function AdminFaqsPage() {
   const fetchFaqs = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/admin/content/faqs");
+      const res = await fetch("/api/admin/content/faqs", { cache: "no-store" });
       const data = await res.json();
       if (res.ok) setFaqs(data.data || []);
     } catch (err) {

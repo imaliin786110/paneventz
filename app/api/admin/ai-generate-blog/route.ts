@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { refreshBlogPost } from "@/lib/content-revalidation";
 
 export async function POST(req: Request) {
   try {
@@ -62,6 +63,8 @@ export async function POST(req: Request) {
         published_at: new Date(),
       },
     });
+
+    refreshBlogPost(post.slug);
 
     return NextResponse.json({
       success: true,

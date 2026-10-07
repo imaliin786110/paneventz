@@ -27,7 +27,7 @@ export default function AdminTestimonialsPage() {
   const fetchTestimonials = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/admin/content/testimonials");
+      const res = await fetch("/api/admin/content/testimonials", { cache: "no-store" });
       const data = await res.json();
       if (res.ok) setTestimonials(data.data || []);
     } catch (err) {

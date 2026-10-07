@@ -6,6 +6,8 @@ import { revalidatePath } from "next/cache";
  * show the previous content until the cache expired.
  */
 export function refreshPublicContent(resource?: string) {
+  revalidatePath("/", "layout");
+
   const sharedPaths = [
     "/",
     "/services",
@@ -34,6 +36,11 @@ export function refreshPublicContent(resource?: string) {
   for (const path of resource ? pathsByResource[resource] || [] : []) {
     revalidatePath(path);
   }
+}
+
+export function refreshBlogPost(slug?: string) {
+  refreshPublicContent("blog");
+  if (slug) revalidatePath(`/blog/${slug}`);
 }
 
 export function refreshGallery(slug?: string) {

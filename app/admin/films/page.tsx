@@ -29,7 +29,7 @@ export default function AdminFilmsPage() {
   const fetchFilms = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/admin/content/films");
+      const res = await fetch("/api/admin/content/films", { cache: "no-store" });
       const data = await res.json();
       if (res.ok) setFilms(data.data || []);
     } catch (err) {

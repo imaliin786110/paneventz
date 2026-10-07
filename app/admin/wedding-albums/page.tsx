@@ -45,7 +45,7 @@ export default function AdminAlbumsPage() {
   const fetchAlbums = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/admin/albums");
+      const res = await fetch("/api/admin/albums", { cache: "no-store" });
       const data = await res.json();
       if (res.ok) {
         setAlbums(data.albums || []);

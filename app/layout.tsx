@@ -4,6 +4,9 @@ import "./globals.css";
 import { db } from "@/lib/db";
 import { serializeData } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600"],

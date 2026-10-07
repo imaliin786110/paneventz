@@ -22,7 +22,7 @@ export default function AlbumMediaManager({ params }: { params: Promise<{ id: st
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const loadAlbum = async (id: string) => {
-    const response = await fetch(`/api/admin/albums/${id}/photos`);
+    const response = await fetch(`/api/admin/albums/${id}/photos`, { cache: "no-store" });
     const data = await response.json();
     if (response.ok) setAlbum(data.album); else setMessage(data.error || "Unable to load this album.");
   };

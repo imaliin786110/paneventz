@@ -5,6 +5,7 @@ import { serializeData } from "@/lib/utils";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Lock, Camera, MapPin, Calendar, Search } from "lucide-react";
+import { formatMediaUrl } from "@/components/SmartMedia";
 
 import type { Metadata } from "next";
 
@@ -119,7 +120,7 @@ export default async function GalleriesIndexPage({
             >
               <div className="relative aspect-[16/10] overflow-hidden bg-[#09090b]">
                 <img
-                  src={album.cover_image ? (album.cover_image.startsWith("http") || album.cover_image.startsWith("/") ? album.cover_image : `/${album.cover_image}`) : "/images/1.jpg"}
+                  src={formatMediaUrl(album.cover_image, "/images/1.jpg")}
                   alt={album.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
