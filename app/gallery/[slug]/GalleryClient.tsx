@@ -36,6 +36,7 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
   // AI Face Finder & Guest Filter State
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
+  const [capturedSelfie, setCapturedSelfie] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState({ current: 0, total: 0 });
   const [guestMatchedPhotos, setGuestMatchedPhotos] = useState<any[] | null>(null);
@@ -106,6 +107,7 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
 
   const startCamera = async () => {
     try {
+      setCapturedSelfie(null);
       setCameraActive(true);
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "user", width: 640, height: 480 },
@@ -283,6 +285,12 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
       }
 
       const inputSource = ctx ? canvas : video;
+      if (ctx) {
+        // Keep a still copy visible while the album is searched. The live
+        // camera is stopped immediately below, so guests do not have to keep
+        // staring at a moving preview during a large Drive scan.
+        setCapturedSelfie(canvas.toDataURL("image/jpeg", 0.82));
+      }
 
       // Freeze the live camera as soon as the selfie frame is captured. The
       // expensive album scan can continue in the background without making
@@ -691,6 +699,7 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
             <button
               onClick={() => {
                 stopCamera();
+                setCapturedSelfie(null);
                 setIsAiModalOpen(false);
               }}
               className="absolute top-6 right-6 text-zinc-400 hover:text-white"
@@ -714,14 +723,21 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
               </div>
             )}
 
-            {cameraActive ? (
+            {cameraActive || capturedSelfie ? (
               <div className="mb-6 relative max-w-[260px] mx-auto aspect-[3/4] rounded-2xl overflow-hidden border-2 border-[#00f0ff]">
-                <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover scale-x-[-1]" />
+                {capturedSelfie ? (
+                  <img src={capturedSelfie} alt="Captured selfie" className="w-full h-full object-cover scale-x-[-1]" />
+                ) : (
+                  <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover scale-x-[-1]" />
+                )}
                 {scanning && (
-                  <div className="absolute inset-0 bg-[#00f0ff]/20 flex flex-col items-center justify-center gap-3 backdrop-blur-xs">
+                  <div className="absolute inset-0 bg-black/45 flex flex-col items-center justify-center gap-3 backdrop-blur-[2px]">
                     <RefreshCw size={32} className="text-[#00f0ff] animate-spin" />
                     <span className="text-xs text-white font-bold uppercase tracking-widest">
-                      Scanning Faces...
+                      Finding Your Photos...
+                    </span>
+                    <span className="text-[10px] text-zinc-200/80">
+                      You can look away — this selfie is captured
                     </span>
                   </div>
                 )}
@@ -729,7 +745,7 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
             ) : null}
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              {!cameraActive ? (
+              {!cameraActive && !scanning ? (
                 <button
                   onClick={startCamera}
                   className="w-full sm:w-auto px-6 py-3 rounded-xl text-xs uppercase tracking-wider bg-gradient-to-r from-[#00b4d8] to-[#00f0ff] text-black font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all shadow-lg shadow-[#00f0ff]/20"
