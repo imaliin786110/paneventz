@@ -27,7 +27,8 @@ export async function GET(
     });
     if (!photo) return NextResponse.json({ error: "Photo not found" }, { status: 404 });
 
-    const source = photo.thumbnail_url || photo.photo_url;
+    const requestedSize = new URL(req.url).searchParams.get("size");
+    const source = requestedSize === "original" ? photo.photo_url : (photo.thumbnail_url || photo.photo_url);
     if (!source.startsWith("http")) {
       const path = await import("path");
       const fs = await import("fs/promises");

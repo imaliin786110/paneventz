@@ -37,6 +37,7 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
   const [scanning, setScanning] = useState(false);
+  const [scanProgress, setScanProgress] = useState({ current: 0, total: 0 });
   const [guestMatchedPhotos, setGuestMatchedPhotos] = useState<any[] | null>(null);
   const [faceSearchError, setFaceSearchError] = useState("");
   const [previewIndex, setPreviewIndex] = useState<number | null>(null);
@@ -137,6 +138,13 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
     ]);
   };
 
+  // Always use our same-origin proxy for Drive media. Direct Drive URLs can
+  // render in an <img>, but browser fetch() used by face recognition is
+  // blocked by Drive CORS. The proxy also serves the smaller thumbnail for
+  // scanning and mobile grids.
+  const getMediaUrl = (photo: any, original = false) =>
+    `/api/gallery/${encodeURIComponent(slug)}/media?photoId=${encodeURIComponent(photo.id)}${original ? "&size=original" : ""}`;
+
   const getStoredDescriptors = (rawDescriptors: unknown): Float32Array[] => {
     if (!rawDescriptors) return [];
 
@@ -161,9 +169,11 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
     // preserving the fast vector-only path for admin-indexed photos.
     if (unindexedPhotos.length > 0) {
       const dynamicallyMatched: any[] = [];
+      setScanProgress({ current: 0, total: unindexedPhotos.length });
+      let completed = 0;
       const scanPhoto = async (photo: any) => {
         try {
-          const imgUrl = photo.photo_url.startsWith("http") || photo.photo_url.startsWith("/") ? photo.photo_url : `/${photo.photo_url}`;
+          const imgUrl = getMediaUrl(photo);
           const response = await fetch(imgUrl, { signal: AbortSignal.timeout(15000) });
           if (!response.ok) return;
           const imgElem = await faceapi.bufferToImage(await response.blob());
@@ -176,6 +186,9 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
           }
         } catch {
           // Ignore an individual unavailable/corrupt image and continue.
+        } finally {
+          completed += 1;
+          setScanProgress({ current: completed, total: unindexedPhotos.length });
         }
       };
 
@@ -551,9 +564,7 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
           {canShowGuestMedia ? <section className="pb-28 px-6 lg:px-12 max-w-7xl mx-auto">
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
               {displayedPhotos.map((photo: any, idx: number) => {
-                const mediaUrl = photo.photo_url.startsWith("http") || photo.photo_url.startsWith("/")
-                  ? photo.photo_url
-                  : `/${photo.photo_url}`;
+                const mediaUrl = getMediaUrl(photo);
                 const isSelected = selectedPhotoIds.includes(photo.id);
 
                 return (
@@ -704,7 +715,9 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
                   disabled={scanning}
                   className="w-full px-8 py-3.5 rounded-xl text-xs uppercase tracking-wider bg-gradient-to-r from-[#00b4d8] to-[#00f0ff] text-black font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all disabled:opacity-50"
                 >
-                  {scanning ? "Scanning Album..." : "Capture & Match My Photos"}
+                  {scanning
+                    ? `Scanning ${scanProgress.current}/${scanProgress.total || photos.length} photos…`
+                    : "Capture & Match My Photos"}
                 </button>
               )}
             </div>
@@ -720,22 +733,22 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
       {/* 5. Big Screen Lightbox Modal with Next / Prev Navigation */}
       {currentPreviewMedia && previewIndex !== null && (
         <div
-          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-3 sm:p-6"
+          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-2 sm:p-6"
           onClick={() => setPreviewIndex(null)}
         >
           {/* Header Bar */}
-          <div className="absolute top-4 inset-x-4 sm:inset-x-8 flex items-center justify-between z-20">
-            <div className="flex items-center gap-3 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 text-xs text-zinc-300">
+          <div className="absolute top-2 inset-x-2 sm:top-4 sm:inset-x-8 flex items-center justify-between gap-2 z-20">
+            <div className="min-w-0 flex items-center gap-2 sm:gap-3 bg-black/60 backdrop-blur-md px-3 sm:px-4 py-2 rounded-full border border-white/10 text-[10px] sm:text-xs text-zinc-300">
               <span className="font-bold text-[#c4a472]">
-                Photo {previewIndex + 1} of {displayedPhotos.length}
+                {previewIndex + 1}/{displayedPhotos.length}
               </span>
-              <span className="text-zinc-500">|</span>
-              <span className="truncate max-w-[160px] sm:max-w-xs text-zinc-400">
+              <span className="text-zinc-500 hidden sm:inline">|</span>
+              <span className="truncate max-w-[90px] sm:max-w-xs text-zinc-400 hidden sm:inline">
                 {currentPreviewMedia.file_name || `Photo #${previewIndex + 1}`}
               </span>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2 shrink-0">
               {/* Select / Deselect toggle inside Lightbox */}
               <button
                 type="button"
@@ -789,7 +802,7 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
                 e.stopPropagation();
                 setPreviewIndex(previewIndex > 0 ? previewIndex - 1 : displayedPhotos.length - 1);
               }}
-              className="absolute left-3 sm:left-6 z-20 p-3 sm:p-4 rounded-full bg-black/60 hover:bg-[#c4a472] text-white hover:text-black border border-white/10 transition-all shadow-2xl"
+              className="absolute left-1 sm:left-6 z-20 p-2 sm:p-4 rounded-full bg-black/60 hover:bg-[#c4a472] text-white hover:text-black border border-white/10 transition-all shadow-2xl"
               title="Previous Photo (Left Arrow)"
             >
               <ChevronLeft size={24} />
@@ -798,29 +811,21 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
 
           {/* Main Media Container */}
           <div
-            className="max-w-6xl max-h-[82vh] flex flex-col items-center justify-center relative select-none"
+            className="w-full max-w-6xl max-h-[calc(100dvh-7.5rem)] sm:max-h-[82vh] flex flex-col items-center justify-center relative select-none"
             onClick={(e) => e.stopPropagation()}
           >
             {currentPreviewMedia.is_video ? (
               <video
-                src={
-                  currentPreviewMedia.photo_url.startsWith("http") || currentPreviewMedia.photo_url.startsWith("/")
-                    ? currentPreviewMedia.photo_url
-                    : `/${currentPreviewMedia.photo_url}`
-                }
+                src={getMediaUrl(currentPreviewMedia, true)}
                 controls
                 autoPlay
-                className="max-h-[75vh] sm:max-h-[80vh] w-auto rounded-2xl shadow-2xl"
+                className="max-h-[58vh] sm:max-h-[80vh] max-w-full w-auto rounded-2xl shadow-2xl"
               />
             ) : (
               <img
-                src={
-                  currentPreviewMedia.photo_url.startsWith("http") || currentPreviewMedia.photo_url.startsWith("/")
-                    ? currentPreviewMedia.photo_url
-                    : `/${currentPreviewMedia.photo_url}`
-                }
+                src={getMediaUrl(currentPreviewMedia, true)}
                 alt={currentPreviewMedia.file_name || "Big Screen Preview"}
-                className="max-h-[75vh] sm:max-h-[80vh] w-auto max-w-full object-contain rounded-2xl shadow-2xl"
+                className="max-h-[58vh] sm:max-h-[80vh] w-auto max-w-full object-contain rounded-2xl shadow-2xl"
               />
             )}
 
@@ -858,7 +863,7 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
                 e.stopPropagation();
                 setPreviewIndex(previewIndex < displayedPhotos.length - 1 ? previewIndex + 1 : 0);
               }}
-              className="absolute right-3 sm:right-6 z-20 p-3 sm:p-4 rounded-full bg-black/60 hover:bg-[#c4a472] text-white hover:text-black border border-white/10 transition-all shadow-2xl"
+              className="absolute right-1 sm:right-6 z-20 p-2 sm:p-4 rounded-full bg-black/60 hover:bg-[#c4a472] text-white hover:text-black border border-white/10 transition-all shadow-2xl"
               title="Next Photo (Right Arrow)"
             >
               <ChevronRight size={24} />
