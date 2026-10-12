@@ -16,6 +16,11 @@ import {
   ShieldCheck,
   FolderArchive,
   ExternalLink,
+  ChevronLeft,
+  ChevronRight,
+  Maximize2,
+  Circle,
+  Check,
 } from "lucide-react";
 
 export default function GalleryClient({ initialSlug }: { initialSlug: string }) {
@@ -28,14 +33,21 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
   const [pinError, setPinError] = useState("");
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
 
-  
   // AI Face Finder & Guest Filter State
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
   const [scanning, setScanning] = useState(false);
   const [guestMatchedPhotos, setGuestMatchedPhotos] = useState<any[] | null>(null);
   const [faceSearchError, setFaceSearchError] = useState("");
-  const [previewMedia, setPreviewMedia] = useState<any | null>(null);
+  const [previewIndex, setPreviewIndex] = useState<number | null>(null);
+  const [selectedPhotoIds, setSelectedPhotoIds] = useState<(string | number)[]>([]);
+  const [downloadProgress, setDownloadProgress] = useState<{
+    active: boolean;
+    current: number;
+    total: number;
+    filename: string;
+  } | null>(null);
+  const cancelBatchRef = useRef<boolean>(false);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -252,6 +264,90 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
         return true;
       });
 
+  // Keyboard navigation for Big Screen Lightbox
+  useEffect(() => {
+    if (previewIndex === null || displayedPhotos.length === 0) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") {
+        setPreviewIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : displayedPhotos.length - 1));
+      } else if (e.key === "ArrowRight") {
+        setPreviewIndex((prev) => (prev !== null && prev < displayedPhotos.length - 1 ? prev + 1 : 0));
+      } else if (e.key === "Escape") {
+        setPreviewIndex(null);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [previewIndex, displayedPhotos]);
+
+  // Selection toggle helpers
+  const togglePhotoSelection = (id: string | number, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setSelectedPhotoIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const selectAllPhotos = () => {
+    if (!displayedPhotos) return;
+    setSelectedPhotoIds(displayedPhotos.map((p: any) => p.id));
+  };
+
+  const deselectAllPhotos = () => {
+    setSelectedPhotoIds([]);
+  };
+
+  // Download all or download selected photos in browser
+  const handleBatchDownload = async (targetPhotos?: any[]) => {
+    const list = targetPhotos || displayedPhotos;
+    if (!list || list.length === 0) return;
+    cancelBatchRef.current = false;
+    setDownloadProgress({
+      active: true,
+      current: 0,
+      total: list.length,
+      filename: "Initializing download queue...",
+    });
+
+    for (let i = 0; i < list.length; i++) {
+      if (cancelBatchRef.current) break;
+      const photo = list[i];
+      const name = photo.file_name || `Paneventz_${i + 1}.jpg`;
+      setDownloadProgress({
+        active: true,
+        current: i + 1,
+        total: list.length,
+        filename: name,
+      });
+
+      const downloadUrl = `/api/gallery/${slug}/download?type=single_photo&photoId=${photo.id}`;
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = name;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Brief delay to prevent browser throttling
+      await new Promise((r) => setTimeout(r, 650));
+    }
+
+    setDownloadProgress(null);
+  };
+
+  const handleDownloadAll = () => handleBatchDownload(displayedPhotos);
+
+  const handleDownloadSelected = () => {
+    if (!displayedPhotos || selectedPhotoIds.length === 0) return;
+    const selected = displayedPhotos.filter((p: any) => selectedPhotoIds.includes(p.id));
+    handleBatchDownload(selected);
+  };
+
+  const currentPreviewMedia =
+    previewIndex !== null && displayedPhotos ? displayedPhotos[previewIndex] : null;
+
   return (
     <main className="min-h-screen bg-[#070708] text-[#d6d6d8]">
       <Navbar studioName="Paneventz" />
@@ -367,6 +463,17 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
                 </>
               )}
 
+              {/* Select All / Deselect All Button */}
+              {displayedPhotos.length > 0 && (
+                <button
+                  type="button"
+                  onClick={selectedPhotoIds.length === displayedPhotos.length ? deselectAllPhotos : selectAllPhotos}
+                  className="px-4 py-2.5 rounded-xl text-xs uppercase tracking-wider font-semibold bg-white/5 hover:bg-white/10 border border-white/10 text-zinc-300 transition-colors"
+                >
+                  {selectedPhotoIds.length === displayedPhotos.length ? "Deselect All" : "Select All"}
+                </button>
+              )}
+
               {/* Guest AI Facial Finder Trigger */}
               <button
                 onClick={() => setIsAiModalOpen(true)}
@@ -375,6 +482,17 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
               >
                 <ScanFace size={16} /> Find My Photos (AI)
               </button>
+
+              {/* Download All Photos Directly on Our Website */}
+              {album?.allow_downloads && displayedPhotos.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleDownloadAll}
+                  className="px-6 py-2.5 rounded-xl text-xs uppercase tracking-wider font-bold bg-[#c4a472] hover:bg-[#b09060] text-black flex items-center gap-2 transition-all shadow-lg shadow-[#c4a472]/20"
+                >
+                  <Download size={15} /> Download All ({displayedPhotos.length})
+                </button>
+              )}
 
               {/* Guest Google Drive Folder Access */}
               {(album?.guest_drive_browse_url || album?.guest_google_drive_folder_id) && (
@@ -401,7 +519,7 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
                   }}
                   className="px-6 py-2.5 rounded-xl text-xs uppercase tracking-wider font-semibold bg-white/10 hover:bg-white/15 border border-white/20 text-white flex items-center gap-2 transition-all cursor-pointer"
                 >
-                  <FolderArchive size={16} className="text-[#c4a472]" /> Download Master 4K Archive
+                  <FolderArchive size={16} className="text-[#c4a472]" /> Master Cloud Archive
                 </button>
               )}
             </div>
@@ -414,16 +532,33 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
                 const mediaUrl = photo.photo_url.startsWith("http") || photo.photo_url.startsWith("/")
                   ? photo.photo_url
                   : `/${photo.photo_url}`;
+                const isSelected = selectedPhotoIds.includes(photo.id);
 
                 return (
                   <div
                     key={photo.id || idx}
-                    className="group relative aspect-square rounded-2xl overflow-hidden bg-[#121214] border border-white/5 hover:border-[#c4a472]/40 transition-all duration-300 shadow-xl"
+                    className={`group relative aspect-square rounded-2xl overflow-hidden bg-[#121214] transition-all duration-300 shadow-xl cursor-pointer ${
+                      isSelected
+                        ? "border-2 border-[#c4a472] ring-4 ring-[#c4a472]/20 scale-[0.98]"
+                        : "border border-white/5 hover:border-[#c4a472]/40"
+                    }`}
+                    onClick={() => setPreviewIndex(idx)}
                   >
-                    <div
-                      className="w-full h-full cursor-pointer"
-                      onClick={() => setPreviewMedia(photo)}
+                    {/* Select / Deselect Checkbox Button */}
+                    <button
+                      type="button"
+                      onClick={(e) => togglePhotoSelection(photo.id, e)}
+                      className={`absolute top-3 left-3 z-20 w-7 h-7 rounded-full flex items-center justify-center transition-all ${
+                        isSelected
+                          ? "bg-[#c4a472] text-black shadow-lg shadow-[#c4a472]/50 scale-110"
+                          : "bg-black/60 text-white/70 hover:text-white hover:bg-black/90 border border-white/20"
+                      }`}
+                      title={isSelected ? "Deselect this photo" : "Select this photo"}
                     >
+                      {isSelected ? <Check size={16} className="stroke-[3]" /> : <Circle size={15} />}
+                    </button>
+
+                    <div className="w-full h-full">
                       {photo.is_video ? (
                         <div className="w-full h-full relative flex items-center justify-center bg-black">
                           <video
@@ -436,28 +571,30 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
                           <div className="absolute w-12 h-12 rounded-full bg-[#c4a472]/30 border border-[#c4a472] flex items-center justify-center text-white shadow-lg">
                             <Play size={18} className="fill-current ml-1" />
                           </div>
-                          <span className="absolute top-3 left-3 bg-black/80 text-[#c4a472] text-[9px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full">
+                          <span className="absolute top-3 right-3 bg-black/80 text-[#c4a472] text-[9px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full">
                             Cinema {photo.file_size ? `· ${photo.file_size}` : ""}
                           </span>
                         </div>
                       ) : (
                         <img
-                          src={mediaUrl}
-                          alt={photo.file_name}
+                          src={photo.thumbnail_url || mediaUrl}
+                          alt={photo.file_name || `Photo #${idx + 1}`}
                           loading="lazy"
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
                       )}
                     </div>
 
-                    {/* Download Button Proxied via Website */}
+                    {/* Single Photo Direct Download Button */}
                     {album?.allow_downloads && (
                       <a
                         href={`/api/gallery/${slug}/download?type=single_photo&photoId=${photo.id}`}
                         download={photo.file_name || `photo_${idx + 1}.jpg`}
+                        onClick={(e) => e.stopPropagation()}
                         className="absolute bottom-3 right-3 bg-black/80 backdrop-blur-md border border-white/20 text-white px-3 py-1 rounded-full text-[10px] uppercase font-bold flex items-center gap-1 hover:bg-[#c4a472] hover:text-black transition-colors shadow-lg z-10"
+                        title="Download 4K"
                       >
-                        <Download size={12} /> Download
+                        <Download size={12} /> 4K
                       </a>
                     )}
                   </div>
@@ -551,39 +688,230 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
         </div>
       )}
 
-      {/* 5. Media Preview Modal */}
-      {previewMedia && (
-        <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="max-w-5xl w-full max-h-[90vh] flex flex-col items-center justify-center relative">
+      {/* 5. Big Screen Lightbox Modal with Next / Prev Navigation */}
+      {currentPreviewMedia && previewIndex !== null && (
+        <div
+          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-3 sm:p-6"
+          onClick={() => setPreviewIndex(null)}
+        >
+          {/* Header Bar */}
+          <div className="absolute top-4 inset-x-4 sm:inset-x-8 flex items-center justify-between z-20">
+            <div className="flex items-center gap-3 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 text-xs text-zinc-300">
+              <span className="font-bold text-[#c4a472]">
+                Photo {previewIndex + 1} of {displayedPhotos.length}
+              </span>
+              <span className="text-zinc-500">|</span>
+              <span className="truncate max-w-[160px] sm:max-w-xs text-zinc-400">
+                {currentPreviewMedia.file_name || `Photo #${previewIndex + 1}`}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {/* Select / Deselect toggle inside Lightbox */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  togglePhotoSelection(currentPreviewMedia.id);
+                }}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                  selectedPhotoIds.includes(currentPreviewMedia.id)
+                    ? "bg-[#c4a472] text-black"
+                    : "bg-white/10 hover:bg-white/20 text-white"
+                }`}
+              >
+                {selectedPhotoIds.includes(currentPreviewMedia.id) ? (
+                  <>
+                    <Check size={14} className="stroke-[3]" /> Selected
+                  </>
+                ) : (
+                  <>
+                    <Circle size={14} /> Select
+                  </>
+                )}
+              </button>
+
+              {album?.allow_downloads && (
+                <a
+                  href={`/api/gallery/${slug}/download?type=single_photo&photoId=${currentPreviewMedia.id}`}
+                  download={currentPreviewMedia.file_name}
+                  onClick={(e) => e.stopPropagation()}
+                  className="px-4 py-1.5 rounded-full bg-[#c4a472] text-black text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-lg hover:opacity-95 transition-opacity"
+                >
+                  <Download size={13} /> Download 4K
+                </a>
+              )}
+
+              <button
+                onClick={() => setPreviewIndex(null)}
+                className="text-zinc-400 hover:text-white p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                title="Close (Esc)"
+              >
+                <X size={20} />
+              </button>
+            </div>
+          </div>
+
+          {/* Previous Button */}
+          {displayedPhotos.length > 1 && (
             <button
-              onClick={() => setPreviewMedia(null)}
-              className="absolute -top-12 right-0 text-white/80 hover:text-white"
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setPreviewIndex(previewIndex > 0 ? previewIndex - 1 : displayedPhotos.length - 1);
+              }}
+              className="absolute left-3 sm:left-6 z-20 p-3 sm:p-4 rounded-full bg-black/60 hover:bg-[#c4a472] text-white hover:text-black border border-white/10 transition-all shadow-2xl"
+              title="Previous Photo (Left Arrow)"
             >
-              <X size={28} />
+              <ChevronLeft size={24} />
             </button>
-            {previewMedia.is_video ? (
+          )}
+
+          {/* Main Media Container */}
+          <div
+            className="max-w-6xl max-h-[82vh] flex flex-col items-center justify-center relative select-none"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {currentPreviewMedia.is_video ? (
               <video
-                src={previewMedia.photo_url.startsWith("http") || previewMedia.photo_url.startsWith("/") ? previewMedia.photo_url : `/${previewMedia.photo_url}`}
+                src={
+                  currentPreviewMedia.photo_url.startsWith("http") || currentPreviewMedia.photo_url.startsWith("/")
+                    ? currentPreviewMedia.photo_url
+                    : `/${currentPreviewMedia.photo_url}`
+                }
                 controls
                 autoPlay
-                className="max-h-[80vh] w-auto rounded-2xl shadow-2xl"
+                className="max-h-[75vh] sm:max-h-[80vh] w-auto rounded-2xl shadow-2xl"
               />
             ) : (
               <img
-                src={previewMedia.photo_url.startsWith("http") || previewMedia.photo_url.startsWith("/") ? previewMedia.photo_url : `/${previewMedia.photo_url}`}
-                alt={previewMedia.file_name}
-                className="max-h-[80vh] w-auto object-contain rounded-2xl shadow-2xl"
+                src={
+                  currentPreviewMedia.photo_url.startsWith("http") || currentPreviewMedia.photo_url.startsWith("/")
+                    ? currentPreviewMedia.photo_url
+                    : `/${currentPreviewMedia.photo_url}`
+                }
+                alt={currentPreviewMedia.file_name || "Big Screen Preview"}
+                className="max-h-[75vh] sm:max-h-[80vh] w-auto max-w-full object-contain rounded-2xl shadow-2xl"
               />
             )}
-            <div className="mt-4 flex items-center gap-4">
-              <a
-                href={`/api/gallery/${slug}/download?type=single_photo&photoId=${previewMedia.id}`}
-                download={previewMedia.file_name}
-                className="px-6 py-2.5 bg-[#c4a472] text-black rounded-xl text-xs uppercase font-bold flex items-center gap-2 hover:bg-[#b09060] transition-colors"
-              >
-                <Download size={14} /> Download 4K Image
-              </a>
+
+            {/* Bottom Navigation & Download Bar */}
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+              {album?.allow_downloads && (
+                <a
+                  href={`/api/gallery/${slug}/download?type=single_photo&photoId=${currentPreviewMedia.id}`}
+                  download={currentPreviewMedia.file_name}
+                  className="px-6 py-2.5 rounded-full text-xs uppercase tracking-wider font-bold bg-[#c4a472] text-black flex items-center gap-2 shadow-lg shadow-[#c4a472]/20 hover:scale-105 active:scale-95 transition-all"
+                >
+                  <Download size={14} /> Download Original 4K
+                </a>
+              )}
+              {album?.allow_downloads && (
+                <button
+                  type="button"
+                  onClick={handleDownloadAll}
+                  className="px-5 py-2.5 rounded-full text-xs uppercase tracking-wider font-semibold bg-white/10 hover:bg-white/15 text-white border border-white/15 flex items-center gap-2 transition-all"
+                >
+                  <Download size={14} className="text-[#c4a472]" /> Download All ({displayedPhotos.length})
+                </button>
+              )}
+              <span className="text-[11px] text-zinc-500 hidden sm:inline-block">
+                Use &larr; / &rarr; arrow keys to navigate
+              </span>
             </div>
+          </div>
+
+          {/* Next Button */}
+          {displayedPhotos.length > 1 && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setPreviewIndex(previewIndex < displayedPhotos.length - 1 ? previewIndex + 1 : 0);
+              }}
+              className="absolute right-3 sm:right-6 z-20 p-3 sm:p-4 rounded-full bg-black/60 hover:bg-[#c4a472] text-white hover:text-black border border-white/10 transition-all shadow-2xl"
+              title="Next Photo (Right Arrow)"
+            >
+              <ChevronRight size={24} />
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Floating Selection Bar (appears when 1 or more photos selected) */}
+      {selectedPhotoIds.length > 0 && (
+        <div className="fixed bottom-6 inset-x-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 max-w-xl z-40 bg-[#121214]/95 border border-[#c4a472]/60 backdrop-blur-xl px-5 py-3.5 rounded-2xl sm:rounded-full shadow-2xl flex flex-wrap items-center justify-between gap-3 animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <div className="flex items-center gap-2.5 text-xs">
+            <span className="w-6 h-6 rounded-full bg-[#c4a472] text-black font-bold flex items-center justify-center text-[11px]">
+              {selectedPhotoIds.length}
+            </span>
+            <span className="text-white font-medium">Selected to Download</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={deselectAllPhotos}
+              className="text-[11px] text-zinc-400 hover:text-white px-2.5 py-1.5 rounded-lg hover:bg-white/5 transition-colors"
+            >
+              Deselect All
+            </button>
+            <button
+              type="button"
+              onClick={handleDownloadSelected}
+              className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider bg-[#c4a472] hover:bg-[#b09060] text-black flex items-center gap-1.5 shadow-lg shadow-[#c4a472]/30 transition-all"
+            >
+              <Download size={13} /> Download Selected ({selectedPhotoIds.length})
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* In-Browser Batch Download Progress Modal */}
+      {downloadProgress && downloadProgress.active && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[#121214] border border-[#c4a472]/40 rounded-3xl p-8 max-w-md w-full text-center shadow-2xl relative">
+            <div className="w-14 h-14 rounded-full bg-[#c4a472]/15 text-[#c4a472] flex items-center justify-center mx-auto mb-4 animate-pulse">
+              <Download size={26} />
+            </div>
+            <h3 className="font-serif text-2xl text-white font-light mb-1">
+              Downloading Your 4K Photos
+            </h3>
+            <p className="text-xs text-zinc-400 mb-6">
+              Saving photo files directly to your device from our website.
+            </p>
+
+            {/* Progress Bar */}
+            <div className="w-full bg-white/10 rounded-full h-3 mb-3 overflow-hidden">
+              <div
+                className="bg-gradient-to-r from-[#d8b886] via-[#c4a472] to-[#b38a4c] h-full transition-all duration-300"
+                style={{
+                  width: `${(downloadProgress.current / downloadProgress.total) * 100}%`,
+                }}
+              />
+            </div>
+
+            <div className="flex items-center justify-between text-xs text-zinc-300 mb-4">
+              <span className="font-bold text-[#c4a472]">
+                Photo {downloadProgress.current} of {downloadProgress.total}
+              </span>
+              <span>{Math.round((downloadProgress.current / downloadProgress.total) * 100)}%</span>
+            </div>
+
+            <p className="text-[11px] text-zinc-500 truncate mb-6">
+              {downloadProgress.filename}
+            </p>
+
+            <button
+              type="button"
+              onClick={() => {
+                cancelBatchRef.current = true;
+                setDownloadProgress(null);
+              }}
+              className="px-6 py-2.5 rounded-full text-xs uppercase tracking-wider font-semibold bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white border border-white/10 transition-colors"
+            >
+              Cancel Download
+            </button>
           </div>
         </div>
       )}
