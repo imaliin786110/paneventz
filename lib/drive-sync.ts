@@ -19,10 +19,15 @@ export async function fetchDriveFolderFiles(folderUrlOrId: string): Promise<Sync
   if (!driveInfo?.id) return [];
   const folderId = driveInfo.id;
 
+  const configuredSetting = await db.websiteSetting.findFirst({
+    select: { google_drive_api_key: true },
+  }).catch(() => null);
+
   const apiKey =
     process.env.GOOGLE_DRIVE_API_KEY ||
     process.env.GOOGLE_API_KEY ||
     process.env.NEXT_PUBLIC_GOOGLE_API_KEY ||
+    configuredSetting?.google_drive_api_key ||
     "";
 
   const files: SyncedDriveFile[] = [];

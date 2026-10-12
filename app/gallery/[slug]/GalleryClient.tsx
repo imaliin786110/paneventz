@@ -157,7 +157,7 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
     // dynamically index them in browser memory for instant guest matching
     if (indexedPhotos.length === 0 && photos.length > 0) {
       const dynamicallyMatched: any[] = [];
-      const candidatePhotos = photos.filter((p) => !p.is_video).slice(0, 30);
+      const candidatePhotos = photos.filter((p) => !p.is_video);
 
       for (const p of candidatePhotos) {
         try {
@@ -263,6 +263,11 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
         if (activeTab === "videos") return p.is_video;
         return true;
       });
+
+  // Guest AI albums remain locked to the selfie flow until a match is found.
+  // This prevents guests from browsing the complete celebration gallery.
+  const requiresFaceMatch = Boolean(album?.enable_face_ai);
+  const canShowGuestMedia = !requiresFaceMatch || Boolean(guestMatchedPhotos);
 
   // Keyboard navigation for Big Screen Lightbox
   useEffect(() => {
@@ -417,18 +422,22 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
                     <span className="text-zinc-400">Showing {guestMatchedPhotos.length} photos featuring you.</span>
                   </div>
                 </div>
-                <button
-                  onClick={() => setGuestMatchedPhotos(null)}
+                  <button
+                    onClick={() => {
+                      setGuestMatchedPhotos(null);
+                      setSelectedPhotoIds([]);
+                      setPreviewIndex(null);
+                    }}
                   className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl font-medium transition-colors text-xs"
                 >
-                  Show Full Gallery &times;
+                  Clear Matches
                 </button>
               </div>
             )}
 
             {/* Action Bar: Filter Tabs + AI Finder + Client Master Download */}
             <div className="flex flex-wrap items-center justify-center gap-3">
-              {!guestMatchedPhotos && (
+              {!guestMatchedPhotos && !requiresFaceMatch && (
                 <>
                   <button
                     onClick={() => setActiveTab("all")}
@@ -464,7 +473,7 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
               )}
 
               {/* Select All / Deselect All Button */}
-              {displayedPhotos.length > 0 && (
+              {canShowGuestMedia && displayedPhotos.length > 0 && (
                 <button
                   type="button"
                   onClick={selectedPhotoIds.length === displayedPhotos.length ? deselectAllPhotos : selectAllPhotos}
@@ -484,7 +493,7 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
               </button>
 
               {/* Download All Photos Directly on Our Website */}
-              {album?.allow_downloads && displayedPhotos.length > 0 && (
+              {canShowGuestMedia && album?.allow_downloads && displayedPhotos.length > 0 && (
                 <button
                   type="button"
                   onClick={handleDownloadAll}
@@ -495,7 +504,7 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
               )}
 
               {/* Guest Google Drive Folder Access */}
-              {(album?.guest_drive_browse_url || album?.guest_google_drive_folder_id) && (
+              {!requiresFaceMatch && (album?.guest_drive_browse_url || album?.guest_google_drive_folder_id) && (
                 <a
                   href={album.guest_drive_browse_url || album.guest_google_drive_folder_id}
                   target="_blank"
@@ -507,7 +516,7 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
               )}
 
               {/* Client Password-Protected Master Archive Download */}
-              {album?.allow_downloads && (
+              {album?.allow_downloads && !requiresFaceMatch && (
                 <button
                   type="button"
                   onClick={() => {
@@ -525,8 +534,8 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
             </div>
           </section>
 
-          {/* 3. Media Grid */}
-          <section className="pb-28 px-6 lg:px-12 max-w-7xl mx-auto">
+          {/* 3. Media Grid (hidden until the guest selfie matches) */}
+          {canShowGuestMedia ? <section className="pb-28 px-6 lg:px-12 max-w-7xl mx-auto">
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
               {displayedPhotos.map((photo: any, idx: number) => {
                 const mediaUrl = photo.photo_url.startsWith("http") || photo.photo_url.startsWith("/")
@@ -601,7 +610,26 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
                 );
               })}
             </div>
-          </section>
+          </section> : (
+            <section className="pb-28 px-6 lg:px-12 max-w-2xl mx-auto">
+              <div className="rounded-3xl border border-[#00f0ff]/25 bg-[#00f0ff]/5 p-8 sm:p-12 text-center shadow-2xl">
+                <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-[#00f0ff]/40 bg-[#00f0ff]/10 text-[#00f0ff]">
+                  <ScanFace size={30} />
+                </div>
+                <h2 className="font-serif text-3xl text-white font-light mb-3">Your private photos are waiting</h2>
+                <p className="text-sm leading-relaxed text-zinc-400 mb-7">
+                  Take a live selfie to securely find only the photos that feature you. The complete album stays hidden.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setIsAiModalOpen(true)}
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#00b4d8] to-[#00f0ff] px-7 py-3 text-xs font-bold uppercase tracking-wider text-black shadow-lg shadow-[#00f0ff]/20"
+                >
+                  <Camera size={16} /> Open Selfie Camera
+                </button>
+              </div>
+            </section>
+          )}
         </>
       )}
 
@@ -632,18 +660,6 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
             {faceSearchError && (
               <div className="mb-5 rounded-2xl border border-red-400/30 bg-red-400/10 p-4 text-xs leading-relaxed text-red-200">
                 <p>{faceSearchError}</p>
-                {(album?.guest_drive_browse_url || album?.guest_google_drive_folder_id) && (
-                  <div className="mt-3 pt-3 border-t border-red-400/20">
-                    <a
-                      href={album.guest_drive_browse_url || album.guest_google_drive_folder_id}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-bold text-xs transition-colors"
-                    >
-                      <FolderArchive size={14} /> Open Guest Celebration Drive <ExternalLink size={12} />
-                    </a>
-                  </div>
-                )}
               </div>
             )}
 

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { db } from "@/lib/db";
-import { extractDriveId, getDirectDriveDownloadUrl } from "@/lib/drive";
+import { extractDriveId } from "@/lib/drive";
 import { galleryAccessCookieName, hasGalleryAccess } from "@/lib/gallery-access";
 
 export async function GET(
@@ -36,22 +36,9 @@ export async function GET(
         return NextResponse.json({ error: "Unlock this private gallery before downloading master archive." }, { status: 401 });
       }
 
-      const driveUrl = album.google_drive_folder_id?.trim();
-      const driveInfo = extractDriveId(driveUrl);
-
-      // If client master Google Drive folder or file is configured, redirect directly
-      if (driveUrl && driveUrl.startsWith("http")) {
-        return NextResponse.redirect(driveUrl);
-      } else if (driveInfo?.id) {
-        if (driveInfo.type === "folder") {
-          return NextResponse.redirect(`https://drive.google.com/drive/folders/${driveInfo.id}`);
-        } else {
-          return NextResponse.redirect(`https://drive.google.com/uc?export=download&id=${driveInfo.id}`);
-        }
-      }
-
-      // If no external Drive link was configured, redirect to the web gallery
-      return NextResponse.redirect(new URL(`/gallery/${album.slug}`, req.url));
+      // The customer portal is intentionally a photo-only experience. Never
+      // redirect customers to the raw Google Drive folder.
+      return NextResponse.redirect(new URL(`/client-portal?album=${album.slug}`, req.url));
     }
 
     // 2. Single Photo Download (Guest or Public)
@@ -72,10 +59,21 @@ export async function GET(
 
       const cleanName = (photo.file_name || `Paneventz_${photo.id}.jpg`).replace(/[^a-zA-Z0-9_.-]/g, "_");
 
-      // If photo has remote URL (e.g. Google Drive CDN)
+      // If photo has a remote URL (including a Drive thumbnail), fetch it on
+      // the server and return it as an attachment so Drive is never opened.
       if (photo.photo_url.startsWith("http")) {
         try {
-          const photoRes = await fetch(photo.photo_url);
+          const driveInfo = extractDriveId(photo.photo_url);
+          const sourceUrl = driveInfo?.id
+            ? `https://drive.google.com/uc?export=download&id=${driveInfo.id}`
+            : photo.photo_url;
+          let photoRes = await fetch(sourceUrl, { redirect: "follow" });
+          const firstType = photoRes.headers.get("content-type") || "";
+          // Large Drive files can answer the `uc` URL with a confirmation HTML
+          // page. Fall back to the thumbnail rather than downloading HTML.
+          if ((!photoRes.ok || !photoRes.body || (!firstType.startsWith("image/") && !firstType.startsWith("video/"))) && driveInfo?.id) {
+            photoRes = await fetch(`https://drive.google.com/thumbnail?id=${driveInfo.id}&sz=w4096`, { redirect: "follow" });
+          }
           if (photoRes.ok && photoRes.body) {
             return new Response(photoRes.body, {
               headers: {

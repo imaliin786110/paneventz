@@ -44,9 +44,11 @@ export async function GET(
       is_public: album.is_public,
       enable_face_ai: album.enable_face_ai,
       allow_downloads: album.allow_downloads,
-      guest_google_drive_folder_id: album.guest_google_drive_folder_id,
-      guest_drive_embed_url: getDriveEmbedUrl(album.guest_google_drive_folder_id),
-      guest_drive_browse_url: getDriveBrowseUrl(album.guest_google_drive_folder_id),
+      // AI guest albums never expose the raw Drive folder or a Drive iframe.
+      // Guests receive only same-origin media after the selfie flow.
+      guest_google_drive_folder_id: album.enable_face_ai ? null : album.guest_google_drive_folder_id,
+      guest_drive_embed_url: album.enable_face_ai ? null : getDriveEmbedUrl(album.guest_google_drive_folder_id),
+      guest_drive_browse_url: album.enable_face_ai ? null : getDriveBrowseUrl(album.guest_google_drive_folder_id),
       master_drive_embed_url: isUnlocked ? getDriveEmbedUrl(album.google_drive_folder_id) : null,
       master_drive_browse_url: isUnlocked ? getDriveBrowseUrl(album.google_drive_folder_id) : null,
     };
@@ -69,9 +71,19 @@ export async function GET(
       }
     }
 
+    const responsePhotos = album.enable_face_ai && !isUnlocked
+      ? photos.map((photo) => ({
+          ...photo,
+          // Keep Drive URLs server-side while allowing the browser AI to read
+          // thumbnails through our same-origin proxy (avoids CORS failures).
+          photo_url: `/api/gallery/${encodeURIComponent(slug)}/media?photoId=${photo.id}`,
+          thumbnail_url: `/api/gallery/${encodeURIComponent(slug)}/media?photoId=${photo.id}`,
+        }))
+      : photos;
+
     return NextResponse.json({
       album: serializeData(safeAlbum),
-      photos: serializeData(photos),
+      photos: serializeData(responsePhotos),
       isUnlocked,
     });
   } catch (error) {
@@ -79,4 +91,3 @@ export async function GET(
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
-
