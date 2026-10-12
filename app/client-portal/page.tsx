@@ -106,72 +106,26 @@ export default function ClientPortalPage() {
             </div>
           </div>
 
-          {/* Master Google Drive Cloud Access (Directly In Our System) */}
-          {albumData.drive_embed_url ? (
-            <div className="bg-[#121214] border border-white/10 rounded-3xl p-6 sm:p-8 mb-12 shadow-2xl">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5 pb-4 border-b border-white/5">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[#c4a472]/15 text-[#c4a472] flex items-center justify-center">
-                    <FolderArchive size={20} />
-                  </div>
-                  <div>
-                    <h2 className="font-serif text-xl sm:text-2xl text-white font-light">
-                      4K Master Cloud Drive — All Files & Folders
-                    </h2>
-                    <p className="text-xs text-zinc-400">
-                      Explore all folders and master photos directly within your Paneventz portal.
-                    </p>
-                  </div>
+          {/* 1. Photo Gallery Grid in Our Website Panel (PRIMARY SHOWCASE) */}
+          {albumData.photos && albumData.photos.length > 0 ? (
+            <div className="mb-14">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <div>
+                  <h2 className="font-serif text-2xl sm:text-3xl text-white font-light">
+                    Your Wedding Heirlooms
+                  </h2>
+                  <p className="text-xs text-zinc-400 mt-1">
+                    Loaded directly from 4K Master Cloud ({albumData.photos.length} High-Resolution Photographs)
+                  </p>
                 </div>
 
-                {albumData.drive_browse_url && (
+                <div className="flex items-center gap-2">
                   <a
-                    href={albumData.drive_browse_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-[#c4a472] border border-[#c4a472]/30 font-semibold transition-all"
+                    href={`/api/gallery/${albumData.slug}/download?type=client_master`}
+                    className="px-4 py-2 rounded-xl bg-[#c4a472] text-black text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-md hover:opacity-90"
                   >
-                    Open in Google Drive <ExternalLink size={13} />
+                    <Download size={13} /> Download All Master Photos
                   </a>
-                )}
-              </div>
-
-              {/* Embedded Google Drive Explorer */}
-              <div className="relative w-full h-[650px] sm:h-[720px] rounded-2xl overflow-hidden border border-white/10 bg-[#08080a] shadow-inner">
-                <iframe
-                  src={albumData.drive_embed_url}
-                  className="w-full h-full border-0"
-                  title="Master Google Drive Gallery"
-                  allow="fullscreen"
-                  loading="lazy"
-                />
-              </div>
-            </div>
-          ) : (
-            albumData.google_drive_folder_id && (
-              <div className="bg-[#121214] border border-white/10 rounded-3xl p-8 mb-12 text-center">
-                <FolderArchive size={40} className="text-[#c4a472] mx-auto mb-4" />
-                <h3 className="font-serif text-2xl text-white font-light mb-2">Master Cloud Archive</h3>
-                <p className="text-xs text-zinc-400 max-w-md mx-auto mb-6">
-                  Your master archive is configured and ready. Access your complete 4K collection via high-speed cloud link.
-                </p>
-                <a
-                  href={`/api/gallery/${albumData.slug}/download?type=client_master`}
-                  className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full text-xs uppercase tracking-widest bg-[#c4a472] text-black font-bold shadow-lg"
-                >
-                  <Download size={16} /> Access 4K Master Cloud
-                </a>
-              </div>
-            )
-          )}
-
-          {/* Photo Gallery Grid (if photos are stored in album) */}
-          {albumData.photos && albumData.photos.length > 0 && (
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h3 className="font-serif text-2xl text-white font-light">Master Wedding Highlights</h3>
-                  <p className="text-xs text-zinc-400">High-resolution heirloom collection ({albumData.photos.length} photos)</p>
                 </div>
               </div>
 
@@ -190,25 +144,97 @@ export default function ClientPortalPage() {
                       <img
                         src={photo.thumbnail_url || mediaUrl}
                         alt={photo.file_name || `Photo ${idx + 1}`}
+                        loading="lazy"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-4 flex flex-col justify-end">
                         <span className="text-[11px] text-white truncate font-medium">{photo.file_name || "Wedding Photo"}</span>
-                        <div className="flex items-center gap-2 mt-2">
+                        <div className="flex items-center justify-between gap-2 mt-2">
+                          <span className="text-[10px] text-zinc-300">Click to preview</span>
                           <a
                             href={`/api/gallery/${albumData.slug}/download?type=single_photo&photoId=${photo.id}`}
                             onClick={(e) => e.stopPropagation()}
-                            className="p-1.5 rounded-lg bg-[#c4a472] text-black hover:opacity-90"
+                            className="p-1.5 rounded-lg bg-[#c4a472] text-black hover:opacity-90 flex items-center gap-1 text-[10px] font-bold"
                             title="Download Original"
                           >
-                            <Download size={12} />
+                            <Download size={12} /> 4K
                           </a>
-                          <span className="text-[10px] text-zinc-300">Click to preview</span>
                         </div>
                       </div>
                     </div>
                   );
                 })}
+              </div>
+            </div>
+          ) : (
+            /* If photos not yet populated in database */
+            <div className="bg-[#121214] border border-white/10 rounded-3xl p-8 sm:p-12 mb-12 text-center">
+              <FolderArchive size={48} className="text-[#c4a472] mx-auto mb-4" />
+              <h2 className="font-serif text-2xl sm:text-3xl text-white font-light mb-2">
+                4K Master Cloud Archive Ready
+              </h2>
+              <p className="text-xs text-zinc-400 max-w-lg mx-auto mb-8">
+                Your high-resolution photographs are linked to your secure Google Drive repository. You can download the complete master archive below or explore the cloud storage.
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                <a
+                  href={`/api/gallery/${albumData.slug}/download?type=client_master`}
+                  className="px-8 py-3.5 rounded-full text-xs uppercase tracking-widest bg-gradient-to-r from-[#d8b886] via-[#c4a472] to-[#b38a4c] text-black font-bold shadow-lg shadow-[#c4a472]/20 flex items-center gap-2"
+                >
+                  <Download size={16} /> Download Full Master 4K Gallery
+                </a>
+                {albumData.drive_browse_url && (
+                  <a
+                    href={albumData.drive_browse_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-6 py-3.5 rounded-full text-xs uppercase tracking-widest bg-white/5 hover:bg-white/10 border border-white/15 text-white font-semibold transition-all flex items-center gap-2"
+                  >
+                    Open in Google Drive <ExternalLink size={14} />
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* 2. Optional Embedded Google Drive Cloud Explorer */}
+          {albumData.drive_embed_url && (
+            <div className="bg-[#121214] border border-white/10 rounded-3xl p-6 sm:p-8 mb-12 shadow-2xl">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5 pb-4 border-b border-white/5">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-[#c4a472]/15 text-[#c4a472] flex items-center justify-center">
+                    <FolderArchive size={20} />
+                  </div>
+                  <div>
+                    <h3 className="font-serif text-xl sm:text-2xl text-white font-light">
+                      4K Cloud Drive Explorer
+                    </h3>
+                    <p className="text-xs text-zinc-400">
+                      Explore all folders and master files directly inside your Paneventz portal.
+                    </p>
+                  </div>
+                </div>
+
+                {albumData.drive_browse_url && (
+                  <a
+                    href={albumData.drive_browse_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-[#c4a472] border border-[#c4a472]/30 font-semibold transition-all"
+                  >
+                    Open in Google Drive <ExternalLink size={13} />
+                  </a>
+                )}
+              </div>
+
+              <div className="relative w-full h-[600px] sm:h-[680px] rounded-2xl overflow-hidden border border-white/10 bg-[#08080a] shadow-inner">
+                <iframe
+                  src={albumData.drive_embed_url}
+                  className="w-full h-full border-0"
+                  title="Master Google Drive Gallery"
+                  allow="fullscreen"
+                  loading="lazy"
+                />
               </div>
             </div>
           )}

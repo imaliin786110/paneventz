@@ -24,6 +24,24 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid PIN code" }, { status: 401 });
     }
 
+    let photos = album.photos || [];
+
+    // If album has no photos yet in our database, attempt backend sync from Google Drive
+    if (photos.length === 0 && album.google_drive_folder_id) {
+      try {
+        const { syncAlbumFromGoogleDrive } = await import("@/lib/drive-sync");
+        const syncRes = await syncAlbumFromGoogleDrive(album.id, album.google_drive_folder_id);
+        if (syncRes.added > 0) {
+          photos = await db.albumPhoto.findMany({
+            where: { wedding_album_id: album.id },
+            orderBy: { created_at: "desc" },
+          });
+        }
+      } catch (syncErr) {
+        console.warn("Backend Drive sync attempt warning:", syncErr);
+      }
+    }
+
     const embedUrl = getDriveEmbedUrl(album.google_drive_folder_id);
     const browseUrl = getDriveBrowseUrl(album.google_drive_folder_id);
 
@@ -41,7 +59,7 @@ export async function POST(req: Request) {
         google_drive_folder_id: album.google_drive_folder_id,
         drive_embed_url: embedUrl,
         drive_browse_url: browseUrl,
-        photos: album.photos || [],
+        photos: photos,
       }),
     });
 

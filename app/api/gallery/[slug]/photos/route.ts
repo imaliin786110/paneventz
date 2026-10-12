@@ -51,9 +51,27 @@ export async function GET(
       master_drive_browse_url: isUnlocked ? getDriveBrowseUrl(album.google_drive_folder_id) : null,
     };
 
+    let photos = album.photos;
+
+    // If album has no photos in database, attempt backend sync from Guest Google Drive
+    if (photos.length === 0 && album.guest_google_drive_folder_id) {
+      try {
+        const { syncAlbumFromGoogleDrive } = await import("@/lib/drive-sync");
+        const syncRes = await syncAlbumFromGoogleDrive(album.id, album.guest_google_drive_folder_id);
+        if (syncRes.added > 0) {
+          photos = await db.albumPhoto.findMany({
+            where: { wedding_album_id: album.id },
+            orderBy: { created_at: "desc" },
+          });
+        }
+      } catch (syncErr) {
+        console.warn("Gallery photos Drive auto-sync warning:", syncErr);
+      }
+    }
+
     return NextResponse.json({
       album: serializeData(safeAlbum),
-      photos: serializeData(album.photos),
+      photos: serializeData(photos),
       isUnlocked,
     });
   } catch (error) {
