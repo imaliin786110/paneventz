@@ -276,8 +276,8 @@ export default function AlbumMediaManager({ params }: { params: Promise<{ id: st
     try {
       await loadFaceModels();
       let facesFound = 0;
-      for (let i = 0; i < pending.length; i++) {
-        const photo = pending[i];
+      let completed = 0;
+      const processPhoto = async (photo: any) => {
         try {
           // Fetch through our same-origin proxy. Direct Drive thumbnails can
           // display in an <img> but are blocked by CORS when face-api fetches
@@ -308,8 +308,18 @@ export default function AlbumMediaManager({ params }: { params: Promise<{ id: st
         } catch (error) {
           console.warn("Unable to index album photo", photo.id, error);
         } finally {
-          setAlbumIndexProgress({ current: i + 1, total: pending.length, facesFound });
+          completed += 1;
+          setAlbumIndexProgress({ current: completed, total: pending.length, facesFound });
         }
+      };
+
+      // Face-api is CPU-heavy, so use a small controlled pool instead of
+      // waiting for every photo serially. This is substantially faster while
+      // avoiding the memory spike caused by launching the whole album at once.
+      const isMobile = typeof window !== "undefined" && window.matchMedia("(max-width: 640px)").matches;
+      const batchSize = isMobile ? 2 : 4;
+      for (let i = 0; i < pending.length; i += batchSize) {
+        await Promise.all(pending.slice(i, i + batchSize).map(processPhoto));
       }
       setMessage(`Fast face index complete: ${pending.length} photos prepared, ${facesFound} faces found.`);
       await loadAlbum(albumId);
