@@ -95,39 +95,68 @@ export default function MediaUploader({
     setUploading(true);
     setError(null);
 
+    const isImage = !isVideo && (
+      file.type.startsWith("image/") ||
+      /\.(jpe?g|png|webp|avif|gif|bmp|heic|tiff?)$/i.test(file.name) ||
+      !file.type
+    );
+
     try {
-      const uploadPayload = await optimizeImageIfNeeded(file);
-      const formData = new FormData();
-      formData.append("file", uploadPayload, file.name);
+      if (isImage) {
+        // 1. Optimize image (downscale to max 2200px, 0.88 JPEG)
+        const uploadPayload = await optimizeImageIfNeeded(file);
+        // 2. Read as data URL immediately
+        const localDataUrl = await readFileAsDataUrl(uploadPayload);
 
-      const res = await fetch("/api/admin/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await res.json().catch(() => null);
-      if (res.ok && data?.url) {
-        onChange(data.url);
+        // 3. Set preview and input value immediately so user sees their photo with zero waiting
+        onChange(localDataUrl);
         setError(null);
+
+        // 4. Send clean JSON payload to server to save as static file
+        try {
+          const res = await fetch("/api/admin/upload", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              dataUrl: localDataUrl,
+              fileName: file.name,
+              fileType: file.type || "image/jpeg",
+            }),
+          });
+          const data = await res.json().catch(() => null);
+          if (res.ok && data?.url) {
+            onChange(data.url);
+          }
+        } catch (serverErr) {
+          console.warn("Server file persistence skipped, keeping local data URL:", serverErr);
+        }
       } else {
-        // Fallback for image uploads if server cannot write to disk
-        if (file.type.startsWith("image/")) {
-          const fallbackDataUrl = await readFileAsDataUrl(uploadPayload);
-          onChange(fallbackDataUrl);
+        // Video upload via FormData
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const res = await fetch("/api/admin/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await res.json().catch(() => null);
+        if (res.ok && data?.url) {
+          onChange(data.url);
           setError(null);
         } else {
-          setError(data?.error || "Upload failed. Please try a smaller file or paste a link.");
+          setError(data?.error || "Video upload failed. Please try a smaller file or paste a link.");
         }
       }
     } catch (err) {
       console.error(err);
-      if (file.type.startsWith("image/")) {
+      if (isImage) {
         try {
           const fallbackDataUrl = await readFileAsDataUrl(file);
           onChange(fallbackDataUrl);
           setError(null);
         } catch {
-          setError("Network error during upload");
+          setError("Could not read image file.");
         }
       } else {
         setError("Network error during upload");
