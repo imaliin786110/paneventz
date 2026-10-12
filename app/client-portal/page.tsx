@@ -11,7 +11,6 @@ import {
   CheckCircle2,
   FolderArchive,
   Image as ImageIcon,
-  Film,
   Sparkles,
   ArrowRight,
   LogOut,
@@ -30,7 +29,6 @@ export default function ClientPortalPage() {
   const [albumData, setAlbumData] = useState<any>(null);
   const [previewIndex, setPreviewIndex] = useState<number | null>(null);
   const [selectedPhotoIds, setSelectedPhotoIds] = useState<(string | number)[]>([]);
-  const [activeMediaType, setActiveMediaType] = useState<"photos" | "videos">("photos");
   const [downloadProgress, setDownloadProgress] = useState<{
     active: boolean;
     current: number;
@@ -39,19 +37,15 @@ export default function ClientPortalPage() {
   } | null>(null);
   const cancelBatchRef = useRef<boolean>(false);
 
-  const visibleMedia = albumData?.photos?.filter((media: any) =>
-    activeMediaType === "videos" ? media.is_video : !media.is_video
-  ) || [];
-
   // Keyboard navigation for Big Screen Lightbox
   useEffect(() => {
-    if (previewIndex === null || !visibleMedia.length) return;
+    if (previewIndex === null || !albumData?.photos?.length) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowLeft") {
-        setPreviewIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : visibleMedia.length - 1));
+        setPreviewIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : albumData.photos.length - 1));
       } else if (e.key === "ArrowRight") {
-        setPreviewIndex((prev) => (prev !== null && prev < visibleMedia.length - 1 ? prev + 1 : 0));
+        setPreviewIndex((prev) => (prev !== null && prev < albumData.photos.length - 1 ? prev + 1 : 0));
       } else if (e.key === "Escape") {
         setPreviewIndex(null);
       }
@@ -59,7 +53,7 @@ export default function ClientPortalPage() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [previewIndex, visibleMedia]);
+  }, [previewIndex, albumData]);
 
   const handleUnlock = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,7 +85,6 @@ export default function ClientPortalPage() {
     setPin("");
     setPreviewIndex(null);
     setSelectedPhotoIds([]);
-    setActiveMediaType("photos");
   };
 
   // Selection toggle helpers
@@ -103,7 +96,8 @@ export default function ClientPortalPage() {
   };
 
   const selectAllPhotos = () => {
-    setSelectedPhotoIds(visibleMedia.map((p: any) => p.id));
+    if (!albumData?.photos) return;
+    setSelectedPhotoIds(albumData.photos.map((p: any) => p.id));
   };
 
   const deselectAllPhotos = () => {
@@ -148,7 +142,7 @@ export default function ClientPortalPage() {
     setDownloadProgress(null);
   };
 
-  const handleDownloadAll = () => handleBatchDownload(visibleMedia);
+  const handleDownloadAll = () => handleBatchDownload(albumData?.photos);
 
   const handleDownloadSelected = () => {
     if (!albumData?.photos || selectedPhotoIds.length === 0) return;
@@ -157,7 +151,7 @@ export default function ClientPortalPage() {
   };
 
   const currentPreviewPhoto =
-    previewIndex !== null ? visibleMedia[previewIndex] : null;
+    previewIndex !== null && albumData?.photos ? albumData.photos[previewIndex] : null;
 
   return (
     <main className="min-h-screen bg-[#0c0c0d] text-[#d6d6d8]">
@@ -190,7 +184,7 @@ export default function ClientPortalPage() {
                   onClick={handleDownloadAll}
                   className="px-6 py-3 rounded-full text-xs uppercase tracking-widest bg-gradient-to-r from-[#d8b886] via-[#c4a472] to-[#b38a4c] text-[#0c0c0d] font-bold hover:scale-105 active:scale-95 transition-all shadow-lg shadow-[#c4a472]/30 flex items-center gap-2"
                 >
-                  <Download size={15} /> Download {activeMediaType === "videos" ? "Films" : "Photos"} ({visibleMedia.length})
+                  <Download size={15} /> Download All ({albumData.photos?.length || 0} Photos)
                 </button>
 
                 <Link
@@ -220,47 +214,30 @@ export default function ClientPortalPage() {
                     Your Wedding Heirlooms
                   </h2>
                   <p className="text-xs text-zinc-400 mt-1">
-                    Select media using the circles, or click to preview in big screen ({visibleMedia.length} {activeMediaType === "videos" ? "Cinema Films" : "High-Resolution Photographs"})
+                    Select photos using the circles, or click to preview in big screen ({albumData.photos.length} High-Resolution Photographs)
                   </p>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
                   <button
                     type="button"
-                    onClick={selectedPhotoIds.length === visibleMedia.length ? deselectAllPhotos : selectAllPhotos}
+                    onClick={selectedPhotoIds.length === albumData.photos.length ? deselectAllPhotos : selectAllPhotos}
                     className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 text-xs font-semibold uppercase tracking-wider border border-white/10 transition-colors"
                   >
-                    {selectedPhotoIds.length === visibleMedia.length ? "Deselect All" : "Select All"}
+                    {selectedPhotoIds.length === albumData.photos.length ? "Deselect All" : "Select All"}
                   </button>
                   <button
                     type="button"
                     onClick={handleDownloadAll}
                     className="px-4 py-2 rounded-xl bg-[#c4a472] text-black text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-md hover:opacity-90 transition-opacity"
                   >
-                    <Download size={13} /> Download All {activeMediaType === "videos" ? "Films" : "Photos"}
+                    <Download size={13} /> Download All Photos
                   </button>
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-2 mb-6">
-                <button
-                  type="button"
-                  onClick={() => { setActiveMediaType("photos"); setPreviewIndex(null); setSelectedPhotoIds([]); }}
-                  className={`px-4 py-2 rounded-full text-xs uppercase tracking-wider font-semibold border transition-all flex items-center gap-2 ${activeMediaType === "photos" ? "bg-[#c4a472] text-black border-[#c4a472]" : "bg-white/5 text-zinc-300 border-white/10 hover:bg-white/10"}`}
-                >
-                  <ImageIcon size={14} /> Photos ({albumData.photos.filter((p: any) => !p.is_video).length})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setActiveMediaType("videos"); setPreviewIndex(null); setSelectedPhotoIds([]); }}
-                  className={`px-4 py-2 rounded-full text-xs uppercase tracking-wider font-semibold border transition-all flex items-center gap-2 ${activeMediaType === "videos" ? "bg-[#c4a472] text-black border-[#c4a472]" : "bg-white/5 text-zinc-300 border-white/10 hover:bg-white/10"}`}
-                >
-                  <Film size={14} /> Cinema Films ({albumData.photos.filter((p: any) => p.is_video).length})
-                </button>
-              </div>
-
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
-                {visibleMedia.map((photo: any, idx: number) => {
+                {albumData.photos.map((photo: any, idx: number) => {
                   const mediaUrl = photo.photo_url?.startsWith("http") || photo.photo_url?.startsWith("/")
                     ? photo.photo_url
                     : `/${photo.photo_url}`;
@@ -276,14 +253,12 @@ export default function ClientPortalPage() {
                       }`}
                       onClick={() => setPreviewIndex(idx)}
                     >
-                      {photo.is_video ? (
-                        <div className="relative w-full h-full">
-                          <img src={photo.thumbnail_url || mediaUrl} alt={photo.file_name || `Film ${idx + 1}`} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                          <span className="absolute bottom-3 left-3 inline-flex items-center gap-1 rounded-full bg-black/75 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white"><Film size={11} /> Cinema</span>
-                        </div>
-                      ) : (
-                        <img src={photo.thumbnail_url || mediaUrl} alt={photo.file_name || `Photo ${idx + 1}`} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                      )}
+                      <img
+                        src={photo.thumbnail_url || mediaUrl}
+                        alt={photo.file_name || `Photo ${idx + 1}`}
+                        loading="lazy"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
 
                       {/* Select / Deselect Checkbox Button */}
                       <button
@@ -304,7 +279,7 @@ export default function ClientPortalPage() {
                         href={`/api/gallery/${albumData.slug}/download?type=single_photo&photoId=${photo.id}`}
                         onClick={(e) => e.stopPropagation()}
                         className="absolute top-3 right-3 p-2 rounded-xl bg-black/70 hover:bg-[#c4a472] text-white hover:text-black border border-white/10 transition-all opacity-80 group-hover:opacity-100 shadow-lg z-10 flex items-center gap-1 text-[10px] font-bold"
-                        title={photo.is_video ? "Download Cinema Film" : "Download 4K Photo"}
+                        title="Download 4K Photo"
                       >
                         <Download size={12} />
                       </a>
@@ -320,9 +295,9 @@ export default function ClientPortalPage() {
                             href={`/api/gallery/${albumData.slug}/download?type=single_photo&photoId=${photo.id}`}
                             onClick={(e) => e.stopPropagation()}
                             className="px-2.5 py-1.5 rounded-lg bg-[#c4a472] text-black hover:opacity-90 flex items-center gap-1 text-[10px] font-bold shadow-md"
-                            title={photo.is_video ? "Download Cinema Film" : "Download Original 4K"}
+                            title="Download Original 4K"
                           >
-                            <Download size={11} /> {photo.is_video ? "Download Film" : "Download 4K"}
+                            <Download size={11} /> Download 4K
                           </a>
                         </div>
                       </div>
@@ -359,7 +334,7 @@ export default function ClientPortalPage() {
               <div className="absolute top-4 inset-x-4 sm:inset-x-8 flex items-center justify-between z-20">
                 <div className="flex items-center gap-3 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 text-xs text-zinc-300">
                   <span className="font-bold text-[#c4a472]">
-                    {activeMediaType === "videos" ? "Film" : "Photo"} {previewIndex + 1} of {visibleMedia.length}
+                    Photo {previewIndex + 1} of {albumData.photos.length}
                   </span>
                   <span className="text-zinc-500">|</span>
                   <span className="truncate max-w-[160px] sm:max-w-xs text-zinc-400">
@@ -397,7 +372,7 @@ export default function ClientPortalPage() {
                     onClick={(e) => e.stopPropagation()}
                     className="px-4 py-1.5 rounded-full bg-[#c4a472] text-black text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-lg hover:opacity-95 transition-opacity"
                   >
-                    <Download size={13} /> {currentPreviewPhoto.is_video ? "Download Film" : "Download 4K"}
+                    <Download size={13} /> Download 4K
                   </a>
 
                   <button
@@ -411,7 +386,7 @@ export default function ClientPortalPage() {
               </div>
 
               {/* Previous Button */}
-              {visibleMedia.length > 1 && (
+              {albumData.photos.length > 1 && (
                 <button
                   type="button"
                   onClick={(e) => {
@@ -430,25 +405,15 @@ export default function ClientPortalPage() {
                 className="max-w-6xl max-h-[82vh] flex flex-col items-center justify-center relative select-none"
                 onClick={(e) => e.stopPropagation()}
               >
-                {currentPreviewPhoto.is_video ? (
-                  <video
-                    src={`/api/gallery/${albumData.slug}/media?photoId=${currentPreviewPhoto.id}`}
-                    poster={currentPreviewPhoto.thumbnail_url || undefined}
-                    controls
-                    playsInline
-                    className="max-h-[75vh] sm:max-h-[80vh] w-auto max-w-full rounded-2xl shadow-2xl"
-                  />
-                ) : (
-                  <img
-                    src={
-                      currentPreviewPhoto.photo_url?.startsWith("http") || currentPreviewPhoto.photo_url?.startsWith("/")
-                        ? currentPreviewPhoto.photo_url
-                        : `/${currentPreviewPhoto.photo_url}`
-                    }
-                    alt={currentPreviewPhoto.file_name || "Big Screen Preview"}
-                    className="max-h-[75vh] sm:max-h-[80vh] w-auto max-w-full object-contain rounded-2xl shadow-2xl"
-                  />
-                )}
+                <img
+                  src={
+                    currentPreviewPhoto.photo_url?.startsWith("http") || currentPreviewPhoto.photo_url?.startsWith("/")
+                      ? currentPreviewPhoto.photo_url
+                      : `/${currentPreviewPhoto.photo_url}`
+                  }
+                  alt={currentPreviewPhoto.file_name || "Big Screen Preview"}
+                  className="max-h-[75vh] sm:max-h-[80vh] w-auto max-w-full object-contain rounded-2xl shadow-2xl"
+                />
 
                 {/* Bottom Navigation & Download Bar */}
                 <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
@@ -456,14 +421,14 @@ export default function ClientPortalPage() {
                     href={`/api/gallery/${albumData.slug}/download?type=single_photo&photoId=${currentPreviewPhoto.id}`}
                     className="px-6 py-2.5 rounded-full text-xs uppercase tracking-wider font-bold bg-[#c4a472] text-black flex items-center gap-2 shadow-lg shadow-[#c4a472]/20 hover:scale-105 active:scale-95 transition-all"
                   >
-                    <Download size={14} /> {currentPreviewPhoto.is_video ? "Download Cinema Film" : "Download Original 4K"}
+                    <Download size={14} /> Download Original 4K
                   </a>
                   <button
                     type="button"
                     onClick={handleDownloadAll}
                     className="px-5 py-2.5 rounded-full text-xs uppercase tracking-wider font-semibold bg-white/10 hover:bg-white/15 text-white border border-white/15 flex items-center gap-2 transition-all"
                   >
-                    <Download size={14} className="text-[#c4a472]" /> Download {activeMediaType === "videos" ? "Films" : "Photos"} ({visibleMedia.length})
+                    <Download size={14} className="text-[#c4a472]" /> Download All ({albumData.photos.length})
                   </button>
                   <span className="text-[11px] text-zinc-500 hidden sm:inline-block">
                     Use &larr; / &rarr; arrow keys to navigate
@@ -472,7 +437,7 @@ export default function ClientPortalPage() {
               </div>
 
               {/* Next Button */}
-              {visibleMedia.length > 1 && (
+              {albumData.photos.length > 1 && (
                 <button
                   type="button"
                   onClick={(e) => {

@@ -226,7 +226,6 @@ model WeddingAlbum {
   location                     String?
   pin_code                     String?
   google_drive_folder_id       String?
-  video_drive_folder_id        String?
   is_public                    Boolean      @default(false)
   allow_downloads              Boolean      @default(true)
   created_at                   DateTime?

@@ -27,9 +27,7 @@ export async function GET(
     });
     if (!photo) return NextResponse.json({ error: "Photo not found" }, { status: 404 });
 
-    // Images use the lightweight thumbnail for previews. Videos must use the
-    // original Drive stream so the client portal can play them inline.
-    const source = photo.is_video ? photo.photo_url : (photo.thumbnail_url || photo.photo_url);
+    const source = photo.thumbnail_url || photo.photo_url;
     if (!source.startsWith("http")) {
       const path = await import("path");
       const fs = await import("fs/promises");
@@ -60,9 +58,7 @@ export async function GET(
     }
 
     const driveInfo = extractDriveId(source);
-    const upstream = driveInfo?.id
-      ? (photo.is_video ? `https://drive.google.com/uc?export=download&id=${driveInfo.id}` : getDriveThumbnailUrl(driveInfo.id))
-      : source;
+    const upstream = driveInfo?.id ? getDriveThumbnailUrl(driveInfo.id) : source;
     const response = await fetch(upstream, { redirect: "follow" });
     if (!response.ok || !response.body) {
       return NextResponse.json({ error: "Media unavailable" }, { status: 502 });
