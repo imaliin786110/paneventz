@@ -65,7 +65,9 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
 
   const fetchAlbumData = async (albumSlug: string) => {
     try {
-      const res = await fetch(`/api/gallery/${albumSlug}/photos`);
+      const res = await fetch(`/api/gallery/${albumSlug}/photos?fresh=${Date.now()}`, {
+        cache: "no-store",
+      });
       const data = await res.json();
       if (res.ok) {
         setAlbum(data.album);

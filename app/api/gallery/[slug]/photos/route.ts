@@ -86,6 +86,10 @@ export async function GET(
       album: serializeData(safeAlbum),
       photos: serializeData(responsePhotos),
       isUnlocked,
+    }, {
+      headers: {
+        "Cache-Control": "private, no-store, max-age=0",
+      },
     });
   } catch (error) {
     console.error("Gallery Photos API Error:", error);
