@@ -55,12 +55,13 @@ export async function GET(
 
     let photos = album.photos;
 
-    // If album has no photos in database, attempt backend sync from Guest Google Drive
-    if (photos.length === 0 && album.guest_google_drive_folder_id) {
+    // Keep Drive-backed albums current. Existing rows are de-duplicated by
+    // URL, so this is safe when guests revisit the page after new uploads.
+    if (album.guest_google_drive_folder_id) {
       try {
         const { syncAlbumFromGoogleDrive } = await import("@/lib/drive-sync");
         const syncRes = await syncAlbumFromGoogleDrive(album.id, album.guest_google_drive_folder_id);
-        if (syncRes.added > 0) {
+        if (syncRes.added > 0 || photos.length === 0) {
           photos = await db.albumPhoto.findMany({
             where: { wedding_album_id: album.id },
             orderBy: { created_at: "desc" },

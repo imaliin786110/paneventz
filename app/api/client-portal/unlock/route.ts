@@ -26,12 +26,12 @@ export async function POST(req: Request) {
 
     let photos = album.photos || [];
 
-    // If album has no photos yet in our database, attempt backend sync from Google Drive
-    if (photos.length === 0 && album.google_drive_folder_id) {
+    // Keep the customer photo grid current when new files are added to Drive.
+    if (album.google_drive_folder_id) {
       try {
         const { syncAlbumFromGoogleDrive } = await import("@/lib/drive-sync");
         const syncRes = await syncAlbumFromGoogleDrive(album.id, album.google_drive_folder_id);
-        if (syncRes.added > 0) {
+        if (syncRes.added > 0 || photos.length === 0) {
           photos = await db.albumPhoto.findMany({
             where: { wedding_album_id: album.id },
             orderBy: { created_at: "desc" },

@@ -151,34 +151,45 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
   };
 
   const matchGuestDescriptor = async (guestDescriptor: Float32Array) => {
-    let indexedPhotos = photos.filter((photo) => getStoredDescriptors(photo.face_descriptors).length > 0);
+    const indexedPhotos = photos.filter((photo) => getStoredDescriptors(photo.face_descriptors).length > 0);
+    const unindexedPhotos = photos.filter((photo) => !photo.is_video && getStoredDescriptors(photo.face_descriptors).length === 0);
 
-    // If photos are in the album but face descriptors are not pre-indexed in DB yet,
-    // dynamically index them in browser memory for instant guest matching
-    if (indexedPhotos.length === 0 && photos.length > 0) {
+    // Drive-synced photos may not have descriptors yet. Scan those thumbnails
+    // in small parallel batches so a large album is still responsive, while
+    // preserving the fast vector-only path for admin-indexed photos.
+    if (unindexedPhotos.length > 0) {
       const dynamicallyMatched: any[] = [];
-      const candidatePhotos = photos.filter((p) => !p.is_video);
-
-      for (const p of candidatePhotos) {
+      const scanPhoto = async (photo: any) => {
         try {
-          const imgUrl = p.photo_url.startsWith("http") || p.photo_url.startsWith("/") ? p.photo_url : `/${p.photo_url}`;
-          const imgBlob = await (await fetch(imgUrl)).blob();
-          const imgElem = await faceapi.bufferToImage(imgBlob);
+          const imgUrl = photo.photo_url.startsWith("http") || photo.photo_url.startsWith("/") ? photo.photo_url : `/${photo.photo_url}`;
+          const response = await fetch(imgUrl, { signal: AbortSignal.timeout(15000) });
+          if (!response.ok) return;
+          const imgElem = await faceapi.bufferToImage(await response.blob());
           const detections = await faceapi
             .detectAllFaces(imgElem, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
             .withFaceLandmarks()
             .withFaceDescriptors();
-
           if (detections.some((d) => faceapi.euclideanDistance(guestDescriptor, d.descriptor) <= 0.54)) {
-            dynamicallyMatched.push(p);
+            dynamicallyMatched.push(photo);
           }
-        } catch (e) {
-          // ignore single image fetch error
+        } catch {
+          // Ignore an individual unavailable/corrupt image and continue.
         }
+      };
+
+      for (let i = 0; i < unindexedPhotos.length; i += 4) {
+        await Promise.all(unindexedPhotos.slice(i, i + 4).map(scanPhoto));
       }
 
-      if (dynamicallyMatched.length > 0) {
-        setGuestMatchedPhotos(dynamicallyMatched);
+      const indexedMatches = indexedPhotos.filter((photo) =>
+        getStoredDescriptors(photo.face_descriptors).some((descriptor) =>
+          faceapi.euclideanDistance(guestDescriptor, descriptor) <= 0.54,
+        ),
+      );
+      const matches = [...indexedMatches, ...dynamicallyMatched];
+
+      if (matches.length > 0) {
+        setGuestMatchedPhotos(matches);
         setIsAiModalOpen(false);
         stopCamera();
         return;
@@ -188,7 +199,7 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
     if (indexedPhotos.length === 0 && photos.length === 0) {
       if (album?.guest_drive_browse_url || album?.guest_google_drive_folder_id) {
         setFaceSearchError(
-          "Photos are available directly in the couple's celebration Google Drive! You can browse and download all photos using the button below:"
+          "The album is still being prepared. Please try again in a moment or contact the studio."
         );
         return;
       }
@@ -205,7 +216,7 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
 
     if (matches.length === 0) {
       setFaceSearchError(
-        "No matching photos were found for your selfie in this album. You can also view the complete gallery or open the Guest Drive collection below!"
+        "No matching photos were found for your selfie. Try again in better light with your face centered in the camera."
       );
       return;
     }

@@ -29,7 +29,32 @@ export async function GET(
 
     const source = photo.thumbnail_url || photo.photo_url;
     if (!source.startsWith("http")) {
-      return NextResponse.redirect(new URL(source.startsWith("/") ? source : `/${source}`, req.url));
+      const path = await import("path");
+      const fs = await import("fs/promises");
+      const relativePath = source.replace(/^\/+/, "");
+      const publicRoot = path.resolve(process.cwd(), "public");
+      const localPath = path.resolve(publicRoot, relativePath);
+      if (!localPath.startsWith(`${publicRoot}${path.sep}`)) {
+        return NextResponse.json({ error: "Invalid media path" }, { status: 400 });
+      }
+      try {
+        const buffer = await fs.readFile(localPath);
+        const extension = path.extname(localPath).toLowerCase();
+        const contentType = extension === ".png" ? "image/png"
+          : extension === ".webp" ? "image/webp"
+          : extension === ".avif" ? "image/avif"
+          : extension === ".mp4" ? "video/mp4"
+          : "image/jpeg";
+        return new Response(buffer, {
+          headers: {
+            "Content-Type": contentType,
+            "Cache-Control": "private, max-age=300",
+            "X-Content-Type-Options": "nosniff",
+          },
+        });
+      } catch {
+        return NextResponse.json({ error: "Media unavailable" }, { status: 404 });
+      }
     }
 
     const driveInfo = extractDriveId(source);
