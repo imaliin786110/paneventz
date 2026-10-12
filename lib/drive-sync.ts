@@ -35,26 +35,42 @@ export async function fetchDriveFolderFiles(folderUrlOrId: string): Promise<Sync
   // Method 1: Google Drive API v3
   if (apiKey) {
     try {
-      const query = encodeURIComponent(`'${folderId}' in parents and trashed = false`);
-      const url = `https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name,mimeType,thumbnailLink)&pageSize=200&key=${apiKey}`;
-      const res = await fetch(url, { headers: { "Accept": "application/json" } });
-      const data = await res.json();
+      let pageToken = "";
+      let pageCount = 0;
 
-      if (data.files && Array.isArray(data.files)) {
-        for (const item of data.files) {
-          const isVideo = String(item.mimeType || "").includes("video");
-          const isImage = String(item.mimeType || "").includes("image") || /\.(jpe?g|png|webp|avif)$/i.test(item.name || "");
-          if (isImage || isVideo) {
-            files.push({
-              id: item.id,
-              name: item.name || `Drive_${item.id}.jpg`,
-              photoUrl: `https://drive.google.com/thumbnail?id=${item.id}&sz=w2048`,
-              thumbnailUrl: `https://drive.google.com/thumbnail?id=${item.id}&sz=w600`,
-              isVideo,
-            });
+      // Drive returns paginated results. The previous implementation only
+      // read the first page, which silently capped larger wedding albums.
+      do {
+        const params = new URLSearchParams({
+          q: `'${folderId}' in parents and trashed = false`,
+          fields: "nextPageToken,files(id,name,mimeType,thumbnailLink)",
+          pageSize: "1000",
+          key: apiKey,
+        });
+        if (pageToken) params.set("pageToken", pageToken);
+        const res = await fetch(`https://www.googleapis.com/drive/v3/files?${params.toString()}`, {
+          headers: { "Accept": "application/json" },
+        });
+        const data = await res.json();
+
+        if (Array.isArray(data.files)) {
+          for (const item of data.files) {
+            const isVideo = String(item.mimeType || "").includes("video");
+            const isImage = String(item.mimeType || "").includes("image") || /\.(jpe?g|png|webp|avif)$/i.test(item.name || "");
+            if (isImage || isVideo) {
+              files.push({
+                id: item.id,
+                name: item.name || `Drive_${item.id}.jpg`,
+                photoUrl: `https://drive.google.com/thumbnail?id=${item.id}&sz=w2048`,
+                thumbnailUrl: `https://drive.google.com/thumbnail?id=${item.id}&sz=w600`,
+                isVideo,
+              });
+            }
           }
         }
-      }
+        pageToken = typeof data.nextPageToken === "string" ? data.nextPageToken : "";
+        pageCount += 1;
+      } while (pageToken && pageCount < 50);
     } catch (apiErr) {
       console.warn("Google Drive API query error:", apiErr);
     }
