@@ -271,6 +271,16 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
       await loadFaceModels();
 
       const video = videoRef.current;
+      if (video.readyState < 2) {
+        await new Promise<void>((resolve) => {
+          const onReady = () => {
+            video.removeEventListener("loadeddata", onReady);
+            resolve();
+          };
+          video.addEventListener("loadeddata", onReady, { once: true });
+          window.setTimeout(resolve, 700);
+        });
+      }
       // Downsample input frame to 480px on offscreen canvas for ultra-fast (sub-second) AI inference
       const canvas = document.createElement("canvas");
       const maxDim = 480;
@@ -297,10 +307,19 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
       // the guest's face visibly wobble like a video during processing.
       stopCamera();
 
-      const detection = await faceapi
-        .detectSingleFace(inputSource, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
+      // Laptop webcams are often only VGA quality. Start with the normal
+      // confidence, then retry once at a safer threshold so a clear but
+      // slightly dark/soft selfie is not rejected as “no face”.
+      let detection = await faceapi
+        .detectSingleFace(inputSource, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.45 }))
         .withFaceLandmarks()
         .withFaceDescriptor();
+      if (!detection) {
+        detection = await faceapi
+          .detectSingleFace(inputSource, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.3 }))
+          .withFaceLandmarks()
+          .withFaceDescriptor();
+      }
 
       if (!detection) {
         throw new Error("We could not find a clear face. Please look directly into the camera in good lighting and try again.");
