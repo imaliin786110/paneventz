@@ -26,6 +26,68 @@ export default function MediaUploader({
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  const optimizeImageIfNeeded = async (originalFile: File): Promise<Blob | File> => {
+    if (!originalFile.type.startsWith("image/") || originalFile.type.includes("svg") || originalFile.size < 1024 * 1024) {
+      return originalFile;
+    }
+    return new Promise((resolve) => {
+      const img = new Image();
+      const objectUrl = URL.createObjectURL(originalFile);
+      img.onload = () => {
+        URL.revokeObjectURL(objectUrl);
+        const MAX_DIM = 2200;
+        let { width, height } = img;
+        if (width > MAX_DIM || height > MAX_DIM) {
+          if (width > height) {
+            height = Math.round((height * MAX_DIM) / width);
+            width = MAX_DIM;
+          } else {
+            width = Math.round((width * MAX_DIM) / height);
+            height = MAX_DIM;
+          }
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          resolve(originalFile);
+          return;
+        }
+        ctx.imageSmoothingQuality = "high";
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(
+          (blob) => {
+            if (blob && blob.size < originalFile.size) {
+              resolve(blob);
+            } else {
+              resolve(originalFile);
+            }
+          },
+          "image/jpeg",
+          0.88
+        );
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        resolve(originalFile);
+      };
+      img.src = objectUrl;
+    });
+  };
+
+  const readFileAsDataUrl = (fileBlob: Blob | File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === "string") resolve(reader.result);
+        else reject(new Error("Failed to read image"));
+      };
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(fileBlob);
+    });
+  };
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -34,23 +96,42 @@ export default function MediaUploader({
     setError(null);
 
     try {
+      const uploadPayload = await optimizeImageIfNeeded(file);
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", uploadPayload, file.name);
 
       const res = await fetch("/api/admin/upload", {
         method: "POST",
         body: formData,
       });
 
-      const data = await res.json();
-      if (res.ok && data.url) {
+      const data = await res.json().catch(() => null);
+      if (res.ok && data?.url) {
         onChange(data.url);
+        setError(null);
       } else {
-        setError(data.error || "Upload failed");
+        // Fallback for image uploads if server cannot write to disk
+        if (file.type.startsWith("image/")) {
+          const fallbackDataUrl = await readFileAsDataUrl(uploadPayload);
+          onChange(fallbackDataUrl);
+          setError(null);
+        } else {
+          setError(data?.error || "Upload failed. Please try a smaller file or paste a link.");
+        }
       }
     } catch (err) {
       console.error(err);
-      setError("Network error during upload");
+      if (file.type.startsWith("image/")) {
+        try {
+          const fallbackDataUrl = await readFileAsDataUrl(file);
+          onChange(fallbackDataUrl);
+          setError(null);
+        } catch {
+          setError("Network error during upload");
+        }
+      } else {
+        setError("Network error during upload");
+      }
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
