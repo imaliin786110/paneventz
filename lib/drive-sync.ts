@@ -78,7 +78,7 @@ export async function fetchDriveFolderFiles(folderUrlOrId: string): Promise<Sync
         // item exposes aria-label="filename.jpg" and data-id="...".
         const patterns = [
           /\[\"([a-zA-Z0-9_-]{28,44})\",\[\"([^\"]+\.(?:jpe?g|png|webp|avif|mp4|mov))\"/gi,
-          /aria-label="([^\"]+\.(?:jpe?g|png|webp|avif|mp4|mov))[^\"]*".{0,1200}?data-id="([a-zA-Z0-9_-]{20,})"/gis,
+          /aria-label="([^\"]+\.(?:jpe?g|png|webp|avif|mp4|mov))[^\"]*"[\s\S]{0,1200}?data-id="([a-zA-Z0-9_-]{20,})"/gi,
         ];
         const seenIds = new Set<string>();
 
