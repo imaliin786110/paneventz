@@ -191,9 +191,20 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
       const scanPhoto = async (photo: any) => {
         try {
           const imgUrl = getMediaUrl(photo, false, true);
-          const response = await fetch(imgUrl, { signal: AbortSignal.timeout(15000) });
-          if (!response.ok) return;
-          const imgElem = await faceapi.bufferToImage(await response.blob());
+          let imageBlob: Blob | null = null;
+          // Drive/CDN thumbnails can occasionally return a transient 5xx or
+          // timeout on mobile networks. Retry twice instead of silently
+          // dropping that photo from the guest's results.
+          for (let attempt = 0; attempt < 3 && !imageBlob; attempt += 1) {
+            try {
+              const response = await fetch(imgUrl, { signal: AbortSignal.timeout(20000), cache: "force-cache" });
+              if (response.ok) imageBlob = await response.blob();
+            } catch {
+              if (attempt < 2) await new Promise((resolve) => window.setTimeout(resolve, 180 * (attempt + 1)));
+            }
+          }
+          if (!imageBlob) return;
+          const imgElem = await faceapi.bufferToImage(imageBlob);
           const maxDimension = 320;
           const scale = Math.min(maxDimension / imgElem.naturalWidth, maxDimension / imgElem.naturalHeight, 1);
           const scanCanvas = document.createElement("canvas");
