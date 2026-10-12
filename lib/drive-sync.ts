@@ -48,7 +48,9 @@ export async function fetchDriveFolderFiles(folderUrlOrId: string): Promise<Sync
             files.push({
               id: item.id,
               name: item.name || `Drive_${item.id}.jpg`,
-              photoUrl: `https://drive.google.com/thumbnail?id=${item.id}&sz=w2048`,
+              photoUrl: isVideo
+                ? `https://drive.google.com/uc?export=download&id=${item.id}`
+                : `https://drive.google.com/thumbnail?id=${item.id}&sz=w2048`,
               thumbnailUrl: `https://drive.google.com/thumbnail?id=${item.id}&sz=w600`,
               isVideo,
             });
@@ -93,7 +95,9 @@ export async function fetchDriveFolderFiles(folderUrlOrId: string): Promise<Sync
               files.push({
                 id: fId,
                 name: fName,
-                photoUrl: `https://drive.google.com/thumbnail?id=${fId}&sz=w2048`,
+                photoUrl: isVideo
+                  ? `https://drive.google.com/uc?export=download&id=${fId}`
+                  : `https://drive.google.com/thumbnail?id=${fId}&sz=w2048`,
                 thumbnailUrl: `https://drive.google.com/thumbnail?id=${fId}&sz=w600`,
                 isVideo,
               });

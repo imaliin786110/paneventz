@@ -42,6 +42,23 @@ export async function POST(req: Request) {
       }
     }
 
+    // Keep the dedicated cinema folder in sync as well. Both folders are
+    // still returned as website media; the Drive URLs never reach the client.
+    if (album.video_drive_folder_id) {
+      try {
+        const { syncAlbumFromGoogleDrive } = await import("@/lib/drive-sync");
+        const syncRes = await syncAlbumFromGoogleDrive(album.id, album.video_drive_folder_id);
+        if (syncRes.added > 0 || photos.length === 0) {
+          photos = await db.albumPhoto.findMany({
+            where: { wedding_album_id: album.id },
+            orderBy: { created_at: "desc" },
+          });
+        }
+      } catch (syncErr) {
+        console.warn("Backend cinema Drive sync attempt warning:", syncErr);
+      }
+    }
+
     const embedUrl = getDriveEmbedUrl(album.google_drive_folder_id);
     const browseUrl = getDriveBrowseUrl(album.google_drive_folder_id);
 
@@ -57,6 +74,7 @@ export async function POST(req: Request) {
         cover_image: album.cover_image,
         allow_downloads: album.allow_downloads,
         google_drive_folder_id: album.google_drive_folder_id,
+        video_drive_folder_id: album.video_drive_folder_id,
         drive_embed_url: embedUrl,
         drive_browse_url: browseUrl,
         photos: photos,

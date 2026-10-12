@@ -32,9 +32,10 @@ export default function AdminAlbumsPage() {
   const [location, setLocation] = useState("");
   const [pinCode, setPinCode] = useState("");
   const [googleDriveFolderId, setGoogleDriveFolderId] = useState("");
+  const [videoDriveFolderId, setVideoDriveFolderId] = useState("");
   const [guestGoogleDriveFolderId, setGuestGoogleDriveFolderId] = useState("");
   const [enableFaceAi, setEnableFaceAi] = useState(true);
-  const [allowDownloads, setAllowDownloads] = useState(false);
+  const [allowDownloads, setAllowDownloads] = useState(true);
   const [isPublic, setIsPublic] = useState(false);
   const [coverImage, setCoverImage] = useState("/images/1.jpg");
 
@@ -64,9 +65,10 @@ export default function AdminAlbumsPage() {
     setLocation("");
     setPinCode("");
     setGoogleDriveFolderId("");
+    setVideoDriveFolderId("");
     setGuestGoogleDriveFolderId("");
     setEnableFaceAi(true);
-    setAllowDownloads(false);
+    setAllowDownloads(true);
     setIsPublic(false);
     setCoverImage("/images/1.jpg");
     setModalOpen(true);
@@ -79,6 +81,7 @@ export default function AdminAlbumsPage() {
     setLocation(album.location || "");
     setPinCode(album.pin_code || "");
     setGoogleDriveFolderId(album.google_drive_folder_id || "");
+    setVideoDriveFolderId(album.video_drive_folder_id || "");
     setGuestGoogleDriveFolderId(album.guest_google_drive_folder_id || "");
     setEnableFaceAi(Boolean(album.enable_face_ai));
     setAllowDownloads(Boolean(album.allow_downloads));
@@ -101,6 +104,7 @@ export default function AdminAlbumsPage() {
           location,
           pin_code: pinCode,
           google_drive_folder_id: googleDriveFolderId,
+          video_drive_folder_id: videoDriveFolderId,
           guest_google_drive_folder_id: guestGoogleDriveFolderId,
           enable_face_ai: enableFaceAi,
           allow_downloads: allowDownloads,
@@ -329,6 +333,23 @@ export default function AdminAlbumsPage() {
                 />
                 <p className="text-[10px] text-zinc-500 mt-1">
                   Raw Google Drive link is NEVER shown to users. Downloads will be proxied via paneventz.in.
+                </p>
+              </div>
+
+              {/* Client Cinema Google Drive Link */}
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1 flex items-center gap-1">
+                  <FolderSync size={12} className="text-[#c4a472]" /> Client Cinema / Video Google Drive Link
+                </label>
+                <input
+                  type="text"
+                  value={videoDriveFolderId}
+                  onChange={(e) => setVideoDriveFolderId(e.target.value)}
+                  placeholder="https://drive.google.com/drive/folders/..."
+                  className="w-full bg-[#18181b] border border-[#c4a472]/40 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-[#c4a472]"
+                />
+                <p className="text-[10px] text-zinc-500 mt-1">
+                  Videos are synced separately and shown in the client portal&apos;s Cinema Films section.
                 </p>
               </div>
 
