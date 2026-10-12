@@ -89,6 +89,30 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   }
 }
 
+// Update the face vectors for an already-synced Drive photo. Drive albums are
+// imported without descriptors; the admin indexer fills them in once so guest
+// searches do not have to run face detection over the whole album.
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params;
+    const body = await request.json();
+    const photoId = BigInt(String(body.photo_id || ""));
+    const descriptors = asDescriptors(body.face_descriptors);
+    const photo = await db.albumPhoto.updateMany({
+      where: { id: photoId, wedding_album_id: BigInt(id) },
+      data: {
+        face_descriptors: descriptors,
+        faces_count: descriptors.length,
+        updated_at: new Date(),
+      },
+    });
+    if (photo.count === 0) return NextResponse.json({ error: "Photo not found" }, { status: 404 });
+    return NextResponse.json({ success: true }, { headers: noStore });
+  } catch {
+    return NextResponse.json({ error: "Unable to save face index" }, { status: 400 });
+  }
+}
+
 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {

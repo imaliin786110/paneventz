@@ -47,6 +47,8 @@ export default function AlbumMediaManager({ params }: { params: Promise<{ id: st
   const [driveLinksText, setDriveLinksText] = useState("");
   const [linksProcessing, setLinksProcessing] = useState(false);
   const [linksProgress, setLinksProgress] = useState({ current: 0, total: 0, facesFound: 0 });
+  const [albumIndexing, setAlbumIndexing] = useState(false);
+  const [albumIndexProgress, setAlbumIndexProgress] = useState({ current: 0, total: 0, facesFound: 0 });
 
   const loadAlbum = async (id: string) => {
     try {
@@ -254,6 +256,68 @@ export default function AlbumMediaManager({ params }: { params: Promise<{ id: st
     }
   };
 
+  // One-time index for photos that were imported automatically from a Drive
+  // folder. Once saved, guest searches compare vectors instead of downloading
+  // and detecting faces in every photo on every visit.
+  const indexExistingDrivePhotos = async () => {
+    if (!albumId || !album?.photos?.length) return;
+    const pending = album.photos.filter((photo: any) =>
+      !photo.is_video && !Array.isArray(photo.face_descriptors) ||
+      (!photo.is_video && Array.isArray(photo.face_descriptors) && photo.face_descriptors.length === 0)
+    );
+    if (!pending.length) {
+      setMessage("All album photos are already indexed for fast guest search.");
+      return;
+    }
+
+    setAlbumIndexing(true);
+    setAlbumIndexProgress({ current: 0, total: pending.length, facesFound: 0 });
+    setMessage("Preparing the album index. Guests will get instant searches after this one-time step.");
+    try {
+      await loadFaceModels();
+      let facesFound = 0;
+      for (let i = 0; i < pending.length; i++) {
+        const photo = pending[i];
+        try {
+          const driveInfo = extractDriveId(photo.photo_url);
+          const imageUrl = driveInfo?.id && driveInfo.type === "file"
+            ? getDriveThumbnailUrl(driveInfo.id)
+            : photo.thumbnail_url || photo.photo_url;
+          const response = await fetch(imageUrl);
+          if (!response.ok) throw new Error("image unavailable");
+          const image = await faceapi.bufferToImage(await response.blob());
+          const maxDimension = 900;
+          const scale = Math.min(maxDimension / image.naturalWidth, maxDimension / image.naturalHeight, 1);
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+          canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+          canvas.getContext("2d")?.drawImage(image, 0, 0, canvas.width, canvas.height);
+          const detections = await faceapi
+            .detectAllFaces(canvas, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
+            .withFaceLandmarks()
+            .withFaceDescriptors();
+          const descriptors = detections.map((detection) => Array.from(detection.descriptor));
+          facesFound += descriptors.length;
+          await fetch(`/api/admin/albums/${albumId}/photos`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ photo_id: photo.id, face_descriptors: descriptors }),
+          });
+        } catch (error) {
+          console.warn("Unable to index album photo", photo.id, error);
+        } finally {
+          setAlbumIndexProgress({ current: i + 1, total: pending.length, facesFound });
+        }
+      }
+      setMessage(`Fast face index complete: ${pending.length} photos prepared, ${facesFound} faces found.`);
+      await loadAlbum(albumId);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Unable to index this album.");
+    } finally {
+      setAlbumIndexing(false);
+    }
+  };
+
   // 3. Single Photo Add
   const addSingleMedia = async () => {
     if (!mediaUrl || !albumId) return;
@@ -327,6 +391,19 @@ export default function AlbumMediaManager({ params }: { params: Promise<{ id: st
           </div>
 
           <div className="flex items-center gap-2">
+            {album?.photos?.some((photo: any) => !photo.is_video && (!Array.isArray(photo.face_descriptors) || photo.face_descriptors.length === 0)) && (
+              <button
+                type="button"
+                onClick={indexExistingDrivePhotos}
+                disabled={albumIndexing}
+                className="px-4 py-2 rounded-xl bg-[#00f0ff] text-black text-xs font-bold flex items-center gap-1.5 disabled:opacity-50"
+              >
+                <Sparkles size={13} />
+                {albumIndexing
+                  ? `Indexing ${albumIndexProgress.current}/${albumIndexProgress.total}`
+                  : "Index Drive Album for Fast Search"}
+              </button>
+            )}
             <Link
               href={`/gallery/${album?.slug}`}
               target="_blank"
@@ -588,4 +665,3 @@ export default function AlbumMediaManager({ params }: { params: Promise<{ id: st
     </div>
   );
 }
-
