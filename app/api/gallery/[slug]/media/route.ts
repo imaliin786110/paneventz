@@ -28,7 +28,12 @@ export async function GET(
     if (!photo) return NextResponse.json({ error: "Photo not found" }, { status: 404 });
 
     const requestedSize = new URL(req.url).searchParams.get("size");
-    const source = requestedSize === "original" ? photo.photo_url : (photo.thumbnail_url || photo.photo_url);
+    let source = requestedSize === "original" ? photo.photo_url : (photo.thumbnail_url || photo.photo_url);
+    // Face matching only needs a small image. Keep the original 4K source for
+    // previews/downloads, but shrink Drive thumbnails for the recognition pass.
+    if (requestedSize === "scan" && source.includes("drive.google.com/thumbnail")) {
+      source = source.replace(/([?&]sz=)w\d+/i, "$1w320");
+    }
     if (!source.startsWith("http")) {
       const path = await import("path");
       const fs = await import("fs/promises");

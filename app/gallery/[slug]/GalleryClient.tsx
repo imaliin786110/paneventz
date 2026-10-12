@@ -142,8 +142,8 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
   // render in an <img>, but browser fetch() used by face recognition is
   // blocked by Drive CORS. The proxy also serves the smaller thumbnail for
   // scanning and mobile grids.
-  const getMediaUrl = (photo: any, original = false) =>
-    `/api/gallery/${encodeURIComponent(slug)}/media?photoId=${encodeURIComponent(photo.id)}${original ? "&size=original" : ""}`;
+  const getMediaUrl = (photo: any, original = false, scan = false) =>
+    `/api/gallery/${encodeURIComponent(slug)}/media?photoId=${encodeURIComponent(photo.id)}${original ? "&size=original" : scan ? "&size=scan" : ""}`;
 
   const getStoredDescriptors = (rawDescriptors: unknown): Float32Array[] => {
     if (!rawDescriptors) return [];
@@ -173,12 +173,18 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
       let completed = 0;
       const scanPhoto = async (photo: any) => {
         try {
-          const imgUrl = getMediaUrl(photo);
+          const imgUrl = getMediaUrl(photo, false, true);
           const response = await fetch(imgUrl, { signal: AbortSignal.timeout(15000) });
           if (!response.ok) return;
           const imgElem = await faceapi.bufferToImage(await response.blob());
+          const maxDimension = 320;
+          const scale = Math.min(maxDimension / imgElem.naturalWidth, maxDimension / imgElem.naturalHeight, 1);
+          const scanCanvas = document.createElement("canvas");
+          scanCanvas.width = Math.max(1, Math.round(imgElem.naturalWidth * scale));
+          scanCanvas.height = Math.max(1, Math.round(imgElem.naturalHeight * scale));
+          scanCanvas.getContext("2d")?.drawImage(imgElem, 0, 0, scanCanvas.width, scanCanvas.height);
           const detections = await faceapi
-            .detectAllFaces(imgElem, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
+            .detectAllFaces(scanCanvas, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
             .withFaceLandmarks()
             .withFaceDescriptors();
           if (detections.some((d) => faceapi.euclideanDistance(guestDescriptor, d.descriptor) <= 0.54)) {
@@ -192,8 +198,10 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
         }
       };
 
-      for (let i = 0; i < unindexedPhotos.length; i += 4) {
-        await Promise.all(unindexedPhotos.slice(i, i + 4).map(scanPhoto));
+      const isMobile = typeof window !== "undefined" && window.matchMedia("(max-width: 640px)").matches;
+      const batchSize = isMobile ? 3 : 6;
+      for (let i = 0; i < unindexedPhotos.length; i += batchSize) {
+        await Promise.all(unindexedPhotos.slice(i, i + batchSize).map(scanPhoto));
       }
 
       const indexedMatches = indexedPhotos.filter((photo) =>
