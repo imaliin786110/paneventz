@@ -5,7 +5,11 @@ import { serializeData } from "@/lib/utils";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Lock, Camera, MapPin, Calendar, Search } from "lucide-react";
-import { formatMediaUrl } from "@/components/SmartMedia";
+function formatMediaUrl(url?: string | null, fallback = "/images/1.jpg"): string {
+  if (!url) return fallback;
+  if (url.startsWith("http") || url.startsWith("/") || url.startsWith("data:")) return url;
+  return `/storage/${url}`;
+}
 
 import type { Metadata } from "next";
 
@@ -48,43 +52,40 @@ export default async function GalleriesIndexPage({
   let albums: any[] = [];
 
   try {
-    const [dbSetting, dbAlbums] = await Promise.all([
-      db.websiteSetting.findFirst().then(serializeData).catch(() => null),
-      db.weddingAlbum
-        .findMany({
-          where: q
-            ? {
-                OR: [
-                  { title: { contains: q, mode: "insensitive" } },
-                  { couple_names: { contains: q, mode: "insensitive" } },
-                  { location: { contains: q, mode: "insensitive" } },
-                ],
-              }
-            : {},
-          include: {
-            _count: { select: { photos: true } },
-          },
-          orderBy: { created_at: "desc" },
-        })
-        .then(serializeData)
-        .catch(async () => {
-          // Fallback if _count or mode: insensitive causes issue
-          return db.weddingAlbum
-            .findMany({
-              orderBy: { created_at: "desc" },
-            })
-            .then(serializeData);
-        }),
-    ]);
-
-    setting = dbSetting;
-    albums = Array.isArray(dbAlbums) ? dbAlbums : [];
-  } catch (error) {
-    console.error("Error fetching galleries:", error);
+    setting = await db.websiteSetting.findFirst().then(serializeData).catch(() => null);
+  } catch (e) {
+    console.warn("Setting fetch error:", e);
   }
 
-  // Graceful fallback albums if database is empty so visitors never see a broken page
-  const displayAlbums = albums.length > 0 ? albums : [
+  try {
+    const dbAlbums = await db.weddingAlbum
+      .findMany({
+        orderBy: { created_at: "desc" },
+        include: {
+          _count: { select: { photos: true } },
+        },
+      })
+      .then(serializeData);
+    if (Array.isArray(dbAlbums)) {
+      albums = dbAlbums;
+    }
+  } catch (error) {
+    console.warn("Albums with count fetch error:", error);
+    try {
+      const simpleAlbums = await db.weddingAlbum
+        .findMany({
+          orderBy: { created_at: "desc" },
+        })
+        .then(serializeData);
+      if (Array.isArray(simpleAlbums)) {
+        albums = simpleAlbums;
+      }
+    } catch (e2) {
+      console.warn("Simple albums fetch error:", e2);
+    }
+  }
+
+  const fallbackAlbums = [
     {
       id: "demo-1",
       title: "Royal Palace Wedding — Udaipur",
@@ -116,6 +117,19 @@ export default async function GalleriesIndexPage({
       _count: { photos: 180 },
     },
   ];
+
+  const sourceAlbums = albums.length > 0 ? albums : fallbackAlbums;
+
+  const displayAlbums = q
+    ? sourceAlbums.filter((a: any) => {
+        const query = q.toLowerCase();
+        return (
+          (a.title && a.title.toLowerCase().includes(query)) ||
+          (a.couple_names && a.couple_names.toLowerCase().includes(query)) ||
+          (a.location && a.location.toLowerCase().includes(query))
+        );
+      })
+    : sourceAlbums;
 
   const breadcrumbsSchema = {
     "@context": "https://schema.org",
