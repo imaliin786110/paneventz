@@ -49,6 +49,7 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
     filename: string;
   } | null>(null);
   const cancelBatchRef = useRef<boolean>(false);
+  const lastScanProgressAtRef = useRef(0);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -169,6 +170,7 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
     // preserving the fast vector-only path for admin-indexed photos.
     if (unindexedPhotos.length > 0) {
       const dynamicallyMatched: any[] = [];
+      lastScanProgressAtRef.current = 0;
       setScanProgress({ current: 0, total: unindexedPhotos.length });
       let completed = 0;
       const scanPhoto = async (photo: any) => {
@@ -194,12 +196,20 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
           // Ignore an individual unavailable/corrupt image and continue.
         } finally {
           completed += 1;
-          setScanProgress({ current: completed, total: unindexedPhotos.length });
+          // Avoid a React render for every thumbnail. On large Drive albums
+          // this used to make the camera preview stutter while face-api was
+          // already CPU-bound. Keep the progress indicator responsive without
+          // repainting the whole gallery hundreds of times.
+          const now = performance.now();
+          if (completed === unindexedPhotos.length || now - lastScanProgressAtRef.current >= 120) {
+            lastScanProgressAtRef.current = now;
+            setScanProgress({ current: completed, total: unindexedPhotos.length });
+          }
         }
       };
 
       const isMobile = typeof window !== "undefined" && window.matchMedia("(max-width: 640px)").matches;
-      const batchSize = isMobile ? 3 : 6;
+      const batchSize = isMobile ? 4 : 8;
       for (let i = 0; i < unindexedPhotos.length; i += batchSize) {
         await Promise.all(unindexedPhotos.slice(i, i + batchSize).map(scanPhoto));
       }
@@ -273,6 +283,12 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
       }
 
       const inputSource = ctx ? canvas : video;
+
+      // Freeze the live camera as soon as the selfie frame is captured. The
+      // expensive album scan can continue in the background without making
+      // the guest's face visibly wobble like a video during processing.
+      stopCamera();
+
       const detection = await faceapi
         .detectSingleFace(inputSource, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
         .withFaceLandmarks()
