@@ -110,9 +110,22 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
       setCapturedSelfie(null);
       setCameraActive(true);
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user", width: 640, height: 480 },
+        video: {
+          facingMode: "user",
+          width: { ideal: 1280, min: 640 },
+          height: { ideal: 720, min: 480 },
+          frameRate: { ideal: 24, min: 15 },
+        },
       });
       streamRef.current = stream;
+      const track = stream.getVideoTracks()[0];
+      if (track) {
+        try {
+          await track.applyConstraints({ width: { ideal: 1280 }, height: { ideal: 720 } });
+        } catch {
+          // Some integrated webcams only expose their fixed VGA mode.
+        }
+      }
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
@@ -283,7 +296,7 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
       }
       // Downsample input frame to 480px on offscreen canvas for ultra-fast (sub-second) AI inference
       const canvas = document.createElement("canvas");
-      const maxDim = 480;
+      const maxDim = 640;
       const vW = video.videoWidth || 640;
       const vH = video.videoHeight || 480;
       const scale = Math.min(maxDim / vW, maxDim / vH, 1);
@@ -291,6 +304,7 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
       canvas.height = Math.round(vH * scale);
       const ctx = canvas.getContext("2d");
       if (ctx) {
+        ctx.filter = "brightness(1.08) contrast(1.08)";
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       }
 
