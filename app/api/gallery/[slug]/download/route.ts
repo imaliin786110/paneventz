@@ -36,40 +36,22 @@ export async function GET(
 
     // 1. Client Master Download
     if (downloadType === "client_master") {
-      if (!album.allow_downloads) {
-        return NextResponse.json({ error: "Downloads are disabled for this gallery." }, { status: 403 });
-      }
+      const driveUrl = album.google_drive_folder_id?.trim();
+      const driveInfo = extractDriveId(driveUrl);
 
-      const driveInfo = extractDriveId(album.google_drive_folder_id);
-      const coupleNameClean = (album.couple_names || album.title || "Wedding")
-        .replace(/[^a-zA-Z0-9_-]/g, "_");
-      const filename = `Paneventz_${coupleNameClean}_Master_Collection.zip`;
-
-      if (driveInfo?.id) {
-        // Stream from Google Drive direct download
-        const targetUrl = getDirectDriveDownloadUrl(driveInfo.id);
-        const driveRes = await fetch(targetUrl);
-
-        if (driveRes.ok && driveRes.body) {
-          return new Response(driveRes.body, {
-            headers: {
-              "Content-Disposition": `attachment; filename="${filename}"`,
-              "Content-Type": driveRes.headers.get("content-type") || "application/zip",
-            },
-          });
+      // If client master Google Drive folder or file is configured, redirect directly
+      if (driveUrl && driveUrl.startsWith("http")) {
+        return NextResponse.redirect(driveUrl);
+      } else if (driveInfo?.id) {
+        if (driveInfo.type === "folder") {
+          return NextResponse.redirect(`https://drive.google.com/drive/folders/${driveInfo.id}`);
+        } else {
+          return NextResponse.redirect(`https://drive.google.com/uc?export=download&id=${driveInfo.id}`);
         }
       }
 
-      // If no Drive ID or Drive fetch failed, deliver first available media archive or confirmation
-      return NextResponse.json(
-        {
-          message: "Master download initiated.",
-          album: album.title,
-          total_photos: album.photos.length,
-          filename,
-        },
-        { status: 200 }
-      );
+      // If no external Drive link was configured, redirect to the web gallery
+      return NextResponse.redirect(new URL(`/gallery/${album.slug}`, req.url));
     }
 
     // 2. Single Photo Download (Guest or Public)
