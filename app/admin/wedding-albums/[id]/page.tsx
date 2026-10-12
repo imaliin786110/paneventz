@@ -279,9 +279,11 @@ export default function AlbumMediaManager({ params }: { params: Promise<{ id: st
       for (let i = 0; i < pending.length; i++) {
         const photo = pending[i];
         try {
-          const driveInfo = extractDriveId(photo.photo_url);
-          const imageUrl = driveInfo?.id && driveInfo.type === "file"
-            ? getDriveThumbnailUrl(driveInfo.id)
+          // Fetch through our same-origin proxy. Direct Drive thumbnails can
+          // display in an <img> but are blocked by CORS when face-api fetches
+          // them as blobs for indexing.
+          const imageUrl = album.slug
+            ? `/api/gallery/${encodeURIComponent(album.slug)}/media?photoId=${encodeURIComponent(photo.id)}&size=scan`
             : photo.thumbnail_url || photo.photo_url;
           const response = await fetch(imageUrl);
           if (!response.ok) throw new Error("image unavailable");
