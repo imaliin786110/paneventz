@@ -384,7 +384,10 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
       <Navbar studioName="Paneventz" />
 
       {/* 1. Strictly Private Album PIN Gate */}
-      {!isUnlocked && album?.has_pin && album?.is_public === false ? (
+      {/* Face-AI guest galleries skip the client PIN entirely. The selfie is
+          the gate and only matched media is revealed; client downloads keep
+          their separate PIN-protected portal. */}
+      {!isUnlocked && album?.has_pin && album?.is_public === false && !requiresFaceMatch ? (
         <section className="pt-40 pb-28 px-6 flex flex-col items-center justify-center min-h-[85vh]">
           <div className="w-full max-w-md bg-[#111113] border border-white/10 rounded-3xl p-8 sm:p-10 text-center shadow-2xl relative overflow-hidden">
             <div className="w-16 h-16 rounded-full bg-[#c4a472]/10 border border-[#c4a472]/30 flex items-center justify-center text-[#c4a472] mx-auto mb-6">
