@@ -73,24 +73,31 @@ export async function fetchDriveFolderFiles(folderUrlOrId: string): Promise<Sync
 
       if (res.ok) {
         const text = await res.text();
-        // Regex to extract file IDs and image names embedded in Google Drive initialData
-        const pattern = /\[\"([a-zA-Z0-9_-]{28,38})\",\[\"([^\"]+\.(?:jpe?g|png|webp|mp4|mov))\"/gi;
+        // Drive's folder markup has changed over time. Support both the
+        // original initialData shape and the current grid markup, where each
+        // item exposes aria-label="filename.jpg" and data-id="...".
+        const patterns = [
+          /\[\"([a-zA-Z0-9_-]{28,44})\",\[\"([^\"]+\.(?:jpe?g|png|webp|avif|mp4|mov))\"/gi,
+          /aria-label="([^\"]+\.(?:jpe?g|png|webp|avif|mp4|mov))[^\"]*".{0,1200}?data-id="([a-zA-Z0-9_-]{20,})"/gis,
+        ];
         const seenIds = new Set<string>();
-        let match;
 
-        while ((match = pattern.exec(text)) !== null) {
-          const fId = match[1];
-          const fName = match[2];
-          if (!seenIds.has(fId)) {
-            seenIds.add(fId);
-            const isVideo = /\.(mp4|mov)$/i.test(fName);
-            files.push({
-              id: fId,
-              name: fName,
-              photoUrl: `https://drive.google.com/thumbnail?id=${fId}&sz=w2048`,
-              thumbnailUrl: `https://drive.google.com/thumbnail?id=${fId}&sz=w600`,
-              isVideo,
-            });
+        for (const pattern of patterns) {
+          let match;
+          while ((match = pattern.exec(text)) !== null) {
+            const fName = pattern === patterns[0] ? match[2] : match[1];
+            const fId = pattern === patterns[0] ? match[1] : match[2];
+            if (!seenIds.has(fId)) {
+              seenIds.add(fId);
+              const isVideo = /\.(mp4|mov)$/i.test(fName);
+              files.push({
+                id: fId,
+                name: fName,
+                photoUrl: `https://drive.google.com/thumbnail?id=${fId}&sz=w2048`,
+                thumbnailUrl: `https://drive.google.com/thumbnail?id=${fId}&sz=w600`,
+                isVideo,
+              });
+            }
           }
         }
       }
