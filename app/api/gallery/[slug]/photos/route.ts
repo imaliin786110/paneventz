@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { db } from "@/lib/db";
 import { serializeData } from "@/lib/utils";
+import { getDriveEmbedUrl, getDriveBrowseUrl } from "@/lib/drive";
 import { galleryAccessCookieName, hasGalleryAccess } from "@/lib/gallery-access";
 
 export async function GET(
@@ -36,14 +37,23 @@ export async function GET(
       slug: album.slug,
       couple_names: album.couple_names,
       location: album.location,
+      cover_image: album.cover_image,
+      event_date: album.event_date,
+      has_pin: Boolean(album.pin_code),
       pin_code: Boolean(album.pin_code),
+      is_public: album.is_public,
       enable_face_ai: album.enable_face_ai,
       allow_downloads: album.allow_downloads,
+      guest_google_drive_folder_id: album.guest_google_drive_folder_id,
+      guest_drive_embed_url: getDriveEmbedUrl(album.guest_google_drive_folder_id),
+      guest_drive_browse_url: getDriveBrowseUrl(album.guest_google_drive_folder_id),
+      master_drive_embed_url: isUnlocked ? getDriveEmbedUrl(album.google_drive_folder_id) : null,
+      master_drive_browse_url: isUnlocked ? getDriveBrowseUrl(album.google_drive_folder_id) : null,
     };
 
     return NextResponse.json({
       album: serializeData(safeAlbum),
-      photos: isUnlocked ? serializeData(album.photos) : [],
+      photos: serializeData(album.photos),
       isUnlocked,
     });
   } catch (error) {
@@ -51,3 +61,4 @@ export async function GET(
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
+

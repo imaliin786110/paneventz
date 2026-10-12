@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { serializeData } from "@/lib/utils";
+import { getDriveEmbedUrl, getDriveBrowseUrl } from "@/lib/drive";
 import { galleryAccessCookieName, galleryAccessToken } from "@/lib/gallery-access";
 
 export async function POST(req: Request) {
@@ -10,22 +12,37 @@ export async function POST(req: Request) {
     }
 
     const album = await db.weddingAlbum.findFirst({
-      where: { pin_code: pin },
+      where: { pin_code: pin.trim() },
+      include: {
+        photos: {
+          orderBy: { created_at: "desc" },
+        },
+      },
     });
 
     if (!album) {
       return NextResponse.json({ error: "Invalid PIN code" }, { status: 401 });
     }
 
+    const embedUrl = getDriveEmbedUrl(album.google_drive_folder_id);
+    const browseUrl = getDriveBrowseUrl(album.google_drive_folder_id);
+
     const response = NextResponse.json({
       success: true,
-      // Do not return the Drive folder ID or the private PIN to the browser.
-      album: {
+      album: serializeData({
+        id: album.id,
         slug: album.slug,
         title: album.title,
         couple_names: album.couple_names,
         location: album.location,
-      },
+        event_date: album.event_date,
+        cover_image: album.cover_image,
+        allow_downloads: album.allow_downloads,
+        google_drive_folder_id: album.google_drive_folder_id,
+        drive_embed_url: embedUrl,
+        drive_browse_url: browseUrl,
+        photos: album.photos || [],
+      }),
     });
 
     response.cookies.set({

@@ -15,6 +15,7 @@ import {
   Sparkles,
   ShieldCheck,
   FolderArchive,
+  ExternalLink,
 } from "lucide-react";
 
 export default function GalleryClient({ initialSlug }: { initialSlug: string }) {
@@ -25,6 +26,8 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
   const [pin, setPin] = useState("");
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [pinError, setPinError] = useState("");
+  const [isPinModalOpen, setIsPinModalOpen] = useState(false);
+
   
   // AI Face Finder & Guest Filter State
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
@@ -137,7 +140,14 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
     const indexedPhotos = photos.filter((photo) => getStoredDescriptors(photo.face_descriptors).length > 0);
 
     if (indexedPhotos.length === 0) {
-      throw new Error("This collection is not indexed for face search yet. Please ask the studio to prepare Guest Photos for this album.");
+      if (album?.guest_drive_browse_url || album?.guest_google_drive_folder_id) {
+        setFaceSearchError(
+          "Facial indexing is being prepared for this album. In the meantime, you can browse and download all celebration photos directly from the couple's Guest Drive!"
+        );
+        return;
+      }
+      setFaceSearchError("This collection is not indexed for face search yet. Please ask the studio to prepare Guest Photos for this album.");
+      return;
     }
 
     // Face-api distance: lower is a stronger match. 0.52 gives a cautious result for wedding-event photos.
@@ -146,6 +156,13 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
         (descriptor) => faceapi.euclideanDistance(guestDescriptor, descriptor) <= 0.52,
       ),
     );
+
+    if (matches.length === 0) {
+      setFaceSearchError(
+        "No matching photos were found for your selfie in this album. You can also view the complete gallery or open the Guest Drive collection below!"
+      );
+      return;
+    }
 
     setGuestMatchedPhotos(matches);
     setIsAiModalOpen(false);
@@ -189,8 +206,8 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
     <main className="min-h-screen bg-[#070708] text-[#d6d6d8]">
       <Navbar studioName="Paneventz" />
 
-      {/* 1. Client PIN Gate */}
-      {!isUnlocked && album?.pin_code ? (
+      {/* 1. Strictly Private Album PIN Gate */}
+      {!isUnlocked && album?.has_pin && album?.is_public === false ? (
         <section className="pt-40 pb-28 px-6 flex flex-col items-center justify-center min-h-[85vh]">
           <div className="w-full max-w-md bg-[#111113] border border-white/10 rounded-3xl p-8 sm:p-10 text-center shadow-2xl relative overflow-hidden">
             <div className="w-16 h-16 rounded-full bg-[#c4a472]/10 border border-[#c4a472]/30 flex items-center justify-center text-[#c4a472] mx-auto mb-6">
@@ -309,14 +326,33 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
                 <ScanFace size={16} /> Find My Photos (AI)
               </button>
 
+              {/* Guest Google Drive Folder Access */}
+              {(album?.guest_drive_browse_url || album?.guest_google_drive_folder_id) && (
+                <a
+                  href={album.guest_drive_browse_url || album.guest_google_drive_folder_id}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-6 py-2.5 rounded-xl text-xs uppercase tracking-wider font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 flex items-center gap-2 transition-all shadow-md shadow-emerald-500/10"
+                >
+                  <FolderArchive size={16} /> Guest Celebration Drive ↗
+                </a>
+              )}
+
               {/* Client Password-Protected Master Archive Download */}
               {album?.allow_downloads && (
-                <a
-                  href={`/api/gallery/${slug}/download?type=client_master`}
-                  className="px-6 py-2.5 rounded-xl text-xs uppercase tracking-wider font-semibold bg-white/10 hover:bg-white/15 border border-white/20 text-white flex items-center gap-2 transition-all"
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (isUnlocked || !album?.has_pin) {
+                      window.location.href = `/api/gallery/${slug}/download?type=client_master`;
+                    } else {
+                      setIsPinModalOpen(true);
+                    }
+                  }}
+                  className="px-6 py-2.5 rounded-xl text-xs uppercase tracking-wider font-semibold bg-white/10 hover:bg-white/15 border border-white/20 text-white flex items-center gap-2 transition-all cursor-pointer"
                 >
                   <FolderArchive size={16} className="text-[#c4a472]" /> Download Master 4K Archive
-                </a>
+                </button>
               )}
             </div>
           </section>
@@ -407,9 +443,21 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
             </p>
 
             {faceSearchError && (
-              <p className="mb-5 rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-xs leading-relaxed text-red-200">
-                {faceSearchError}
-              </p>
+              <div className="mb-5 rounded-2xl border border-red-400/30 bg-red-400/10 p-4 text-xs leading-relaxed text-red-200">
+                <p>{faceSearchError}</p>
+                {(album?.guest_drive_browse_url || album?.guest_google_drive_folder_id) && (
+                  <div className="mt-3 pt-3 border-t border-red-400/20">
+                    <a
+                      href={album.guest_drive_browse_url || album.guest_google_drive_folder_id}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-bold text-xs transition-colors"
+                    >
+                      <FolderArchive size={14} /> Open Guest Celebration Drive <ExternalLink size={12} />
+                    </a>
+                  </div>
+                )}
+              </div>
             )}
 
             {cameraActive ? (
@@ -486,6 +534,46 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
                 <Download size={14} /> Download 4K Image
               </a>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 5. Master Passcode Verification Modal */}
+      {isPinModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[#121214] border border-[#c4a472]/40 rounded-3xl p-8 max-w-md w-full text-center relative shadow-2xl">
+            <button
+              onClick={() => setIsPinModalOpen(false)}
+              className="absolute top-6 right-6 text-zinc-400 hover:text-white"
+            >
+              <X size={20} />
+            </button>
+            <div className="w-14 h-14 rounded-full bg-[#c4a472]/15 text-[#c4a472] flex items-center justify-center mx-auto mb-4">
+              <Lock size={24} />
+            </div>
+            <h3 className="font-serif text-2xl text-white font-light mb-2">
+              Unlock Master 4K Archive
+            </h3>
+            <p className="text-xs text-zinc-400 mb-6">
+              Enter the private client passcode provided by Paneventz Studio to access and download the master 4K archive.
+            </p>
+            <form onSubmit={handleVerifyPin} className="space-y-4">
+              <input
+                type="password"
+                required
+                placeholder="Enter Passcode"
+                value={pin}
+                onChange={(e) => setPin(e.target.value)}
+                className="w-full bg-[#18181b] border border-white/15 rounded-xl px-4 py-3.5 text-center text-lg tracking-[0.3em] text-white focus:outline-none focus:border-[#c4a472]"
+              />
+              {pinError && <p className="text-xs text-red-400">{pinError}</p>}
+              <button
+                type="submit"
+                className="w-full py-3.5 rounded-xl text-xs uppercase tracking-wider bg-[#c4a472] text-black font-bold hover:bg-[#b09060] transition-colors"
+              >
+                Verify &amp; Unlock Archive &rarr;
+              </button>
+            </form>
           </div>
         </div>
       )}

@@ -37,3 +37,29 @@ export function extractDriveId(urlOrId: string | null | undefined): { id: string
 export function getDirectDriveDownloadUrl(driveId: string): string {
   return `https://drive.google.com/uc?export=download&id=${driveId}`;
 }
+
+export function getDriveEmbedUrl(urlOrId: string | null | undefined): string | null {
+  const info = extractDriveId(urlOrId);
+  if (!info?.id) return null;
+  if (info.type === "folder") {
+    return `https://drive.google.com/embeddedfolderview?id=${info.id}#grid`;
+  }
+  return `https://drive.google.com/file/d/${info.id}/preview`;
+}
+
+export function getDriveBrowseUrl(urlOrId: string | null | undefined): string | null {
+  if (!urlOrId) return null;
+  const str = urlOrId.trim();
+  if (str.startsWith("http")) return str;
+  const info = extractDriveId(str);
+  if (!info?.id) return null;
+  if (info.type === "folder") {
+    return `https://drive.google.com/drive/folders/${info.id}`;
+  }
+  return `https://drive.google.com/file/d/${info.id}/view`;
+}
+
+export function getDriveThumbnailUrl(driveId: string): string {
+  return `https://drive.google.com/thumbnail?id=${driveId}&sz=w1600`;
+}
+
