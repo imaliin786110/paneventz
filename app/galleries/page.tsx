@@ -208,6 +208,10 @@ export default async function GalleriesIndexPage({
                     const coverInfo = extractDriveId(cover);
                     const firstPhoto = album.photos?.[0];
                     if (cover && /drive\.google\.com/i.test(cover) && coverInfo?.type === "file") return getDriveThumbnailUrl(coverInfo.id);
+                    // Prefer the thumbnail selected in the admin panel when
+                    // it is a local/uploaded image. Only Drive folder links
+                    // need the first synced photo fallback below.
+                    if (cover && !/drive\.google\.com/i.test(cover)) return formatMediaUrl(cover, "/images/1.jpg");
                     if (firstPhoto?.thumbnail_url || firstPhoto?.photo_url) {
                       const source = firstPhoto.thumbnail_url || firstPhoto.photo_url;
                       const info = extractDriveId(source);
