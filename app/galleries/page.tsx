@@ -162,6 +162,9 @@ export default async function GalleriesIndexPage({
   // records have no uploaded cover yet. These are presentation-only labels;
   // real albums continue to use the admin-managed values above.
   const showcaseAlbums = displayAlbums.map((album: any, index: number) => {
+    if (index === 0) {
+      return { ...album, location: "Mumbai" };
+    }
     if (album.slug === "riya-rohan-test" && String(album.cover_image || "").startsWith("images/")) {
       return {
         ...album,
