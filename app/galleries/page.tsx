@@ -5,6 +5,7 @@ import { serializeData } from "@/lib/utils";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Lock, Camera, MapPin, Calendar, Search } from "lucide-react";
+import { extractDriveId, getDriveThumbnailUrl } from "@/lib/drive";
 function formatMediaUrl(url?: string | null, fallback = "/images/1.jpg"): string {
   if (!url) return fallback;
   if (url.startsWith("http") || url.startsWith("/") || url.startsWith("data:")) return url;
@@ -63,6 +64,11 @@ export default async function GalleriesIndexPage({
         orderBy: { created_at: "desc" },
         include: {
           _count: { select: { photos: true } },
+          photos: {
+            take: 1,
+            orderBy: { created_at: "desc" },
+            select: { photo_url: true, thumbnail_url: true },
+          },
         },
       })
       .then(serializeData);
@@ -197,7 +203,20 @@ export default async function GalleriesIndexPage({
             >
               <div className="relative aspect-[16/10] overflow-hidden bg-[#09090b]">
                 <img
-                  src={formatMediaUrl(album.cover_image, "/images/1.jpg")}
+                  src={(() => {
+                    const cover = album.cover_image as string | null | undefined;
+                    const coverInfo = extractDriveId(cover);
+                    const firstPhoto = album.photos?.[0];
+                    if (cover && /drive\.google\.com/i.test(cover) && coverInfo?.type === "file") return getDriveThumbnailUrl(coverInfo.id);
+                    if (firstPhoto?.thumbnail_url || firstPhoto?.photo_url) {
+                      const source = firstPhoto.thumbnail_url || firstPhoto.photo_url;
+                      const info = extractDriveId(source);
+                      return /drive\.google\.com/i.test(source) && info?.type === "file"
+                        ? getDriveThumbnailUrl(info.id)
+                        : formatMediaUrl(source, "/images/1.jpg");
+                    }
+                    return formatMediaUrl(cover, "/images/1.jpg");
+                  })()}
                   alt={album.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
