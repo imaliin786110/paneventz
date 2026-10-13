@@ -167,8 +167,9 @@ export default async function GalleriesIndexPage({
         ...album,
         couple_names: "Aariz & Sana",
         title: "Aariz & Sana — Muslim Wedding Celebration",
-        location: album.location || "Jaipur, Rajasthan",
+        location: "Mumbai",
         cover_image: "/images/3.jpg",
+        _count: { ...(album._count || {}), photos: 425 },
       };
     }
     if (album.slug === "aditi-kabir" && String(album.cover_image || "").includes("hero")) {
@@ -176,8 +177,9 @@ export default async function GalleriesIndexPage({
         ...album,
         couple_names: "Rohan & Meera",
         title: "Rohan & Meera — Hindi Wedding Story",
-        location: album.location || "Udaipur, Rajasthan",
+        location: "Mumbai",
         cover_image: "/images/hero.webp",
+        _count: { ...(album._count || {}), photos: 625 },
       };
     }
     return album;
