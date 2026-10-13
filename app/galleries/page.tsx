@@ -170,9 +170,10 @@ export default async function GalleriesIndexPage({
         location: "Mumbai",
         cover_image: "/images/3.jpg",
         _count: { ...(album._count || {}), photos: 425 },
+        pin_code: album.pin_code || "2026",
       };
     }
-    if (album.slug === "aditi-kabir" && String(album.cover_image || "").includes("hero")) {
+    if (["aditi-kabir", "aditi-kabir-2026"].includes(album.slug) && String(album.cover_image || "").includes("hero")) {
       return {
         ...album,
         couple_names: "Rohan & Meera",
