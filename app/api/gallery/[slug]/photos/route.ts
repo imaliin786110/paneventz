@@ -5,6 +5,11 @@ import { serializeData } from "@/lib/utils";
 import { getDriveEmbedUrl, getDriveBrowseUrl } from "@/lib/drive";
 import { galleryAccessCookieName, hasGalleryAccess } from "@/lib/gallery-access";
 
+// Avoid triggering a full Google Drive listing on every browser back/forward
+// navigation. Repeated syncs can briefly exhaust the Hostinger app process and
+// surface as a 503, while a short cooldown still picks up new uploads.
+const gallerySyncTimestamps = new Map<string, number>();
+
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ slug: string }> }
@@ -57,10 +62,14 @@ export async function GET(
 
     // Keep Drive-backed albums current. Existing rows are de-duplicated by
     // URL, so this is safe when guests revisit the page after new uploads.
-    if (album.guest_google_drive_folder_id) {
+    const syncKey = String(album.id);
+    const lastSyncAt = gallerySyncTimestamps.get(syncKey) || 0;
+    const shouldSync = photos.length === 0 || Date.now() - lastSyncAt > 120_000;
+    if (album.guest_google_drive_folder_id && shouldSync) {
       try {
         const { syncAlbumFromGoogleDrive } = await import("@/lib/drive-sync");
         const syncRes = await syncAlbumFromGoogleDrive(album.id, album.guest_google_drive_folder_id);
+        gallerySyncTimestamps.set(syncKey, Date.now());
         if (syncRes.added > 0 || photos.length === 0) {
           photos = await db.albumPhoto.findMany({
             where: { wedding_album_id: album.id },
