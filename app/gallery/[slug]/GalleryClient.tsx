@@ -23,6 +23,11 @@ import {
   Check,
 } from "lucide-react";
 
+// A tighter threshold prevents visually similar guests from leaking into a
+// person's private result set. The previous 0.54 value was too permissive for
+// group photos and low-resolution Drive thumbnails.
+const FACE_MATCH_THRESHOLD = 0.5;
+
 export default function GalleryClient({ initialSlug }: { initialSlug: string }) {
   const [slug] = useState<string>(initialSlug);
   const [album, setAlbum] = useState<any>(null);
@@ -215,7 +220,7 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
             .detectAllFaces(scanCanvas, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
             .withFaceLandmarks()
             .withFaceDescriptors();
-          if (detections.some((d) => faceapi.euclideanDistance(guestDescriptor, d.descriptor) <= 0.54)) {
+          if (detections.some((d) => faceapi.euclideanDistance(guestDescriptor, d.descriptor) <= FACE_MATCH_THRESHOLD)) {
             dynamicallyMatched.push(photo);
           }
         } catch {
@@ -242,7 +247,7 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
 
       const indexedMatches = indexedPhotos.filter((photo) =>
         getStoredDescriptors(photo.face_descriptors).some((descriptor) =>
-          faceapi.euclideanDistance(guestDescriptor, descriptor) <= 0.54,
+          faceapi.euclideanDistance(guestDescriptor, descriptor) <= FACE_MATCH_THRESHOLD,
         ),
       );
       const matches = [...indexedMatches, ...dynamicallyMatched];
@@ -269,7 +274,7 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
     // Fast vector euclidean distance matching in memory (runs in < 5ms)
     const matches = indexedPhotos.filter((photo) =>
       getStoredDescriptors(photo.face_descriptors).some(
-        (descriptor) => faceapi.euclideanDistance(guestDescriptor, descriptor) <= 0.54,
+        (descriptor) => faceapi.euclideanDistance(guestDescriptor, descriptor) <= FACE_MATCH_THRESHOLD,
       ),
     );
 
