@@ -23,10 +23,10 @@ import {
   Check,
 } from "lucide-react";
 
-// A tighter threshold prevents visually similar guests from leaking into a
-// person's private result set. The previous 0.54 value was too permissive for
-// group photos and low-resolution Drive thumbnails.
-const FACE_MATCH_THRESHOLD = 0.5;
+// Keep guest results private: only a close face-vector match is accepted.
+// This is intentionally stricter than the generic face-api recommendation so
+// similar-looking guests in group photos are not returned accidentally.
+const FACE_MATCH_THRESHOLD = 0.44;
 
 export default function GalleryClient({ initialSlug }: { initialSlug: string }) {
   const [slug] = useState<string>(initialSlug);
