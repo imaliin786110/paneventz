@@ -297,8 +297,6 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
     setFaceSearchError("");
 
     try {
-      await loadFaceModels();
-
       const video = videoRef.current;
       if (video.readyState < 2) {
         await new Promise<void>((resolve) => {
@@ -336,6 +334,10 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
       // expensive album scan can continue in the background without making
       // the guest's face visibly wobble like a video during processing.
       stopCamera();
+
+      // Never delay the shutter while models load. The still frame is already
+      // frozen; AI inference can safely start after capture.
+      await loadFaceModels();
 
       // Laptop webcams are often only VGA quality. Start with the normal
       // confidence, then retry once at a safer threshold so a clear but
