@@ -351,10 +351,10 @@ export default function AdminAlbumsPage() {
 
               {/* Cover Image Uploader */}
               <MediaUploader
-                label="Album Cover Photo"
+                label="Album Thumbnail / Cover Photo"
                 value={coverImage}
                 onChange={(url) => setCoverImage(url)}
-                helperText="Upload a high-res cover photo for the wedding heirloom portal."
+                helperText="This thumbnail appears in Guest Photos and at the top of Download Story. Upload an image or paste a Drive image link, then save configuration."
               />
 
               {/* Toggles */}

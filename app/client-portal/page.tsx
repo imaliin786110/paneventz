@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { extractDriveId, getDriveThumbnailUrl } from "@/lib/drive";
 import {
   Lock,
   KeyRound,
@@ -160,6 +161,19 @@ export default function ClientPortalPage() {
   const currentPreviewPhoto =
     previewIndex !== null && albumData?.photos ? albumData.photos[previewIndex] : null;
 
+  const coverPreview = (() => {
+    const cover = String(albumData?.cover_image || "");
+    const coverInfo = extractDriveId(cover);
+    if (/drive\.google\.com/i.test(cover) && coverInfo?.type === "file") {
+      return getDriveThumbnailUrl(coverInfo.id);
+    }
+    if (cover.startsWith("data:") || cover.startsWith("http") || cover.startsWith("/")) {
+      return cover;
+    }
+    const first = albumData?.photos?.[0];
+    return first?.thumbnail_url || first?.photo_url || "/images/1.jpg";
+  })();
+
   return (
     <main className="min-h-screen bg-[#0c0c0d] text-[#d6d6d8]">
       <Navbar studioName="Paneventz" />
@@ -172,6 +186,17 @@ export default function ClientPortalPage() {
             <div className="absolute top-0 right-0 w-80 h-80 bg-[radial-gradient(circle_at_top_right,rgba(196,164,114,0.15),transparent_70%)] pointer-events-none" />
 
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+              <div className="w-full md:w-44 h-32 sm:h-40 md:h-32 rounded-2xl overflow-hidden border border-[#c4a472]/30 bg-black/40 shrink-0">
+                <img
+                  src={coverPreview}
+                  alt="Wedding album thumbnail"
+                  onError={(event) => {
+                    const fallback = albumData?.photos?.[0]?.thumbnail_url || albumData?.photos?.[0]?.photo_url;
+                    if (fallback && event.currentTarget.src !== fallback) event.currentTarget.src = fallback;
+                  }}
+                  className="w-full h-full object-cover"
+                />
+              </div>
               <div>
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#c4a472]/15 border border-[#c4a472]/30 text-[#c4a472] text-[10px] font-bold uppercase tracking-wider mb-3">
                   <CheckCircle2 size={13} /> VIP CLIENT ARCHIVE UNLOCKED
