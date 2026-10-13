@@ -67,13 +67,31 @@ export default async function GalleriesIndexPage({
           photos: {
             take: 1,
             orderBy: { created_at: "desc" },
-            select: { photo_url: true, thumbnail_url: true },
+            select: { file_name: true, photo_url: true, thumbnail_url: true },
           },
         },
       })
       .then(serializeData);
     if (Array.isArray(dbAlbums)) {
-      albums = dbAlbums;
+      // Admin thumbnails are uploaded with their original filename. Resolve
+      // that filename against the durable synced album media so a deployment
+      // cannot leave the public card with a broken local `/storage` image.
+      albums = await Promise.all(
+        dbAlbums.map(async (album: any) => {
+          const cover = String(album.cover_image || "");
+          if (!cover.startsWith("/storage/") || !album.id) return album;
+          const stem = cover.split("/").pop()?.split("_")[0];
+          if (!stem) return album;
+          const coverPhoto = await db.albumPhoto.findFirst({
+            where: {
+              wedding_album_id: BigInt(album.id),
+              file_name: { startsWith: stem },
+            },
+            select: { file_name: true, photo_url: true, thumbnail_url: true },
+          }).then(serializeData).catch(() => null);
+          return coverPhoto ? { ...album, coverPhoto } : album;
+        }),
+      );
     }
   } catch (error) {
     console.warn("Albums with count fetch error:", error);
@@ -211,7 +229,27 @@ export default async function GalleriesIndexPage({
                     // Prefer the thumbnail selected in the admin panel when
                     // it is a local/uploaded image. Only Drive folder links
                     // need the first synced photo fallback below.
-                    if (cover && !/drive\.google\.com/i.test(cover)) return formatMediaUrl(cover, "/images/1.jpg");
+                    if (cover && !/drive\.google\.com/i.test(cover)) {
+                      const coverFile = cover.split("/").pop()?.split("_")[0]?.toLowerCase();
+                      const matchingPhoto = album.coverPhoto || (coverFile
+                        ? album.photos?.find((photo: any) => String(photo.file_name || "").toLowerCase().startsWith(coverFile))
+                        : null);
+                      const matchingInfo = extractDriveId(matchingPhoto?.thumbnail_url || matchingPhoto?.photo_url);
+                      if (matchingPhoto && matchingInfo?.type === "file" && /drive\.google\.com/i.test(matchingPhoto.thumbnail_url || matchingPhoto.photo_url)) {
+                        return getDriveThumbnailUrl(matchingInfo.id);
+                      }
+                      // Local admin uploads are deployment-local. If the
+                      // original file is gone, use the synced Drive photo
+                      // rather than rendering a broken image icon.
+                      if (cover.startsWith("/storage/") && firstPhoto?.photo_url) {
+                        const firstSource = firstPhoto.thumbnail_url || firstPhoto.photo_url;
+                        const firstInfo = extractDriveId(firstSource);
+                        if (/drive\.google\.com/i.test(firstSource) && firstInfo?.type === "file") {
+                          return getDriveThumbnailUrl(firstInfo.id);
+                        }
+                      }
+                      return formatMediaUrl(cover, "/images/1.jpg");
+                    }
                     if (firstPhoto?.thumbnail_url || firstPhoto?.photo_url) {
                       const source = firstPhoto.thumbnail_url || firstPhoto.photo_url;
                       const info = extractDriveId(source);
