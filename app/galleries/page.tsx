@@ -214,7 +214,7 @@ export default async function GalleriesIndexPage({
 
       <section className="pb-28 px-6 lg:px-12 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {displayAlbums.map((album: any) => (
+          {displayAlbums.map((album: any, albumIndex: number) => (
             <div
               key={album.id}
               className="group bg-[#121214] border border-white/5 rounded-3xl overflow-hidden flex flex-col hover:border-[#00f0ff]/40 transition-all duration-300 shadow-2xl"
@@ -248,19 +248,23 @@ export default async function GalleriesIndexPage({
                           return getDriveThumbnailUrl(firstInfo.id);
                         }
                       }
-                      return formatMediaUrl(cover, "/images/1.jpg");
+                      return cover.startsWith("/storage/")
+                        ? ["/images/1.jpg", "/images/2.jpg", "/images/3.jpg"][albumIndex % 3]
+                        : formatMediaUrl(cover, "/images/1.jpg");
                     }
                     if (firstPhoto?.thumbnail_url || firstPhoto?.photo_url) {
                       const source = firstPhoto.thumbnail_url || firstPhoto.photo_url;
                       const info = extractDriveId(source);
                       return /drive\.google\.com/i.test(source) && info?.type === "file"
                         ? getDriveThumbnailUrl(info.id)
+                        : String(source).startsWith("/storage/")
+                          ? ["/images/1.jpg", "/images/2.jpg", "/images/3.jpg"][albumIndex % 3]
                         : formatMediaUrl(source, "/images/1.jpg");
                     }
                     return formatMediaUrl(cover, "/images/1.jpg");
                   })()}
                   alt={album.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  className="w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-700"
                 />
 
                 {album.pin_code && (
