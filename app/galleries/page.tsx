@@ -179,7 +179,7 @@ export default async function GalleriesIndexPage({
         title: "Rohan & Meera — Hindi Wedding Story",
         location: "Mumbai",
         cover_image: "/images/hero.webp",
-        _count: { ...(album._count || {}), photos: 625 },
+        _count: { ...(album._count || {}), photos: 650 },
       };
     }
     return album;
