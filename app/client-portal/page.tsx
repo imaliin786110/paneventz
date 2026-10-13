@@ -37,6 +37,13 @@ export default function ClientPortalPage() {
   } | null>(null);
   const cancelBatchRef = useRef<boolean>(false);
 
+  const sortPhotosSerial = (photos: any[] = []) => [...photos].sort((a, b) => {
+    const aName = String(a.file_name || "");
+    const bName = String(b.file_name || "");
+    const byName = aName.localeCompare(bName, undefined, { numeric: true, sensitivity: "base" });
+    return byName || String(a.id).localeCompare(String(b.id), undefined, { numeric: true });
+  });
+
   // Keyboard navigation for Big Screen Lightbox
   useEffect(() => {
     if (previewIndex === null || !albumData?.photos?.length) return;
@@ -68,7 +75,7 @@ export default function ClientPortalPage() {
 
       const data = await res.json();
       if (res.ok && data.success) {
-        setAlbumData(data.album);
+        setAlbumData({ ...data.album, photos: sortPhotosSerial(data.album?.photos) });
         setStatus("unlocked");
       } else {
         setStatus("error");
