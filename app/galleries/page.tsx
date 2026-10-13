@@ -8,6 +8,9 @@ import { Lock, Camera, MapPin, Calendar, Search } from "lucide-react";
 import { extractDriveId, getDriveThumbnailUrl } from "@/lib/drive";
 function formatMediaUrl(url?: string | null, fallback = "/images/1.jpg"): string {
   if (!url) return fallback;
+  // Seed/admin records may store public assets without the leading slash.
+  // Keep them under `/images`, not the upload storage directory.
+  if (/^(?:\.\/)?images\//i.test(url)) return `/${url.replace(/^\.\//, "")}`;
   if (url.startsWith("http") || url.startsWith("/") || url.startsWith("data:")) return url;
   return `/storage/${url}`;
 }
@@ -155,6 +158,31 @@ export default async function GalleriesIndexPage({
       })
     : sourceAlbums;
 
+  // Keep the two built-in showcase cards attractive even when their demo
+  // records have no uploaded cover yet. These are presentation-only labels;
+  // real albums continue to use the admin-managed values above.
+  const showcaseAlbums = displayAlbums.map((album: any, index: number) => {
+    if (album.slug === "riya-rohan-test" && String(album.cover_image || "").startsWith("images/")) {
+      return {
+        ...album,
+        couple_names: "Aariz & Sana",
+        title: "Aariz & Sana — Muslim Wedding Celebration",
+        location: album.location || "Jaipur, Rajasthan",
+        cover_image: "/images/3.jpg",
+      };
+    }
+    if (album.slug === "aditi-kabir" && String(album.cover_image || "").includes("hero")) {
+      return {
+        ...album,
+        couple_names: "Rohan & Meera",
+        title: "Rohan & Meera — Hindi Wedding Story",
+        location: album.location || "Udaipur, Rajasthan",
+        cover_image: "/images/hero.webp",
+      };
+    }
+    return album;
+  });
+
   const breadcrumbsSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -214,7 +242,7 @@ export default async function GalleriesIndexPage({
 
       <section className="pb-28 px-6 lg:px-12 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {displayAlbums.map((album: any, albumIndex: number) => (
+          {showcaseAlbums.map((album: any, albumIndex: number) => (
             <div
               key={album.id}
               className="group bg-[#121214] border border-white/5 rounded-3xl overflow-hidden flex flex-col hover:border-[#00f0ff]/40 transition-all duration-300 shadow-2xl"
