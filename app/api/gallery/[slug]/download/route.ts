@@ -64,7 +64,9 @@ export async function GET(
       const rawName = (photo.file_name || `Paneventz_${photo.id}.jpg`).replace(/[^a-zA-Z0-9_.-]/g, "_");
       // Guest downloads are image attachments, even when Drive supplied a
       // generic filename or a thumbnail URL without an extension.
-      const cleanName = /\.(jpe?g|png|webp|avif)$/i.test(rawName) ? rawName : `${rawName}.jpg`;
+      const cleanName = /\.(jpe?g|png|webp|avif|mp4|mov|webm|m4v)$/i.test(rawName)
+        ? rawName
+        : `${rawName}${photo.is_video ? ".mp4" : ".jpg"}`;
 
       // If photo has a remote URL (including a Drive thumbnail), fetch it on
       // the server and return it as an attachment so Drive is never opened.
@@ -113,7 +115,12 @@ export async function GET(
         const fileBuffer = await fs.readFile(localPath);
 
         const ext = path.extname(cleanName).toLowerCase();
-        const contentType = ext === ".png" ? "image/png" : ext === ".webp" ? "image/webp" : "image/jpeg";
+        const contentType = ext === ".png" ? "image/png"
+          : ext === ".webp" ? "image/webp"
+          : ext === ".mp4" ? "video/mp4"
+          : ext === ".mov" ? "video/quicktime"
+          : ext === ".webm" ? "video/webm"
+          : "image/jpeg";
 
         return new Response(fileBuffer, {
           headers: {

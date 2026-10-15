@@ -232,6 +232,7 @@ model WeddingAlbum {
   updated_at                   DateTime?
   enable_face_ai               Boolean      @default(false)
   guest_google_drive_folder_id String?
+  client_video_google_drive_folder_id String?
   photos                       AlbumPhoto[]
 
   @@map("wedding_albums")

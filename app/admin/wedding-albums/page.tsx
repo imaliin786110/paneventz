@@ -32,6 +32,7 @@ export default function AdminAlbumsPage() {
   const [location, setLocation] = useState("");
   const [pinCode, setPinCode] = useState("");
   const [googleDriveFolderId, setGoogleDriveFolderId] = useState("");
+  const [clientVideoGoogleDriveFolderId, setClientVideoGoogleDriveFolderId] = useState("");
   const [guestGoogleDriveFolderId, setGuestGoogleDriveFolderId] = useState("");
   const [enableFaceAi, setEnableFaceAi] = useState(true);
   const [allowDownloads, setAllowDownloads] = useState(false);
@@ -64,6 +65,7 @@ export default function AdminAlbumsPage() {
     setLocation("");
     setPinCode("");
     setGoogleDriveFolderId("");
+    setClientVideoGoogleDriveFolderId("");
     setGuestGoogleDriveFolderId("");
     setEnableFaceAi(true);
     setAllowDownloads(false);
@@ -79,6 +81,7 @@ export default function AdminAlbumsPage() {
     setLocation(album.location || "");
     setPinCode(album.pin_code || "");
     setGoogleDriveFolderId(album.google_drive_folder_id || "");
+    setClientVideoGoogleDriveFolderId(album.client_video_google_drive_folder_id || "");
     setGuestGoogleDriveFolderId(album.guest_google_drive_folder_id || "");
     setEnableFaceAi(Boolean(album.enable_face_ai));
     setAllowDownloads(Boolean(album.allow_downloads));
@@ -101,6 +104,7 @@ export default function AdminAlbumsPage() {
           location,
           pin_code: pinCode,
           google_drive_folder_id: googleDriveFolderId,
+          client_video_google_drive_folder_id: clientVideoGoogleDriveFolderId,
           guest_google_drive_folder_id: guestGoogleDriveFolderId,
           enable_face_ai: enableFaceAi,
           allow_downloads: allowDownloads,
@@ -188,6 +192,13 @@ export default function AdminAlbumsPage() {
                     <span className="text-zinc-400 font-semibold block mb-0.5">Client Master Drive Link:</span>
                     <span className="text-zinc-300 truncate block">
                       {album.google_drive_folder_id || "Not configured yet"}
+                    </span>
+                  </div>
+
+                  <div className="bg-[#18181b] p-3 rounded-xl border border-white/5">
+                    <span className="text-zinc-400 font-semibold block mb-0.5">Client Video Drive Link:</span>
+                    <span className="text-zinc-300 truncate block">
+                      {album.client_video_google_drive_folder_id || "Not configured yet"}
                     </span>
                   </div>
 
@@ -329,6 +340,23 @@ export default function AdminAlbumsPage() {
                 />
                 <p className="text-[10px] text-zinc-500 mt-1">
                   Raw Google Drive link is NEVER shown to users. Downloads will be proxied via paneventz.in.
+                </p>
+              </div>
+
+              {/* Guest Google Drive Link */}
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1 flex items-center gap-1">
+                  <FolderSync size={12} className="text-[#c4a472]" /> Client Video Google Drive Link
+                </label>
+                <input
+                  type="text"
+                  value={clientVideoGoogleDriveFolderId}
+                  onChange={(e) => setClientVideoGoogleDriveFolderId(e.target.value)}
+                  placeholder="https://drive.google.com/drive/folders/... (videos only)"
+                  className="w-full bg-[#18181b] border border-[#c4a472]/40 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-[#c4a472]"
+                />
+                <p className="text-[10px] text-zinc-500 mt-1">
+                  Videos are indexed into the private portal and served through paneventz.in. The Drive link is never shown to clients.
                 </p>
               </div>
 

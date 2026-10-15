@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { serializeData } from "@/lib/utils";
-import { getDriveEmbedUrl, getDriveBrowseUrl } from "@/lib/drive";
 import { galleryAccessCookieName, galleryAccessToken } from "@/lib/gallery-access";
 
 export async function POST(req: Request) {
@@ -27,11 +26,18 @@ export async function POST(req: Request) {
     let photos = album.photos || [];
 
     // Keep the customer photo grid current when new files are added to Drive.
-    if (album.google_drive_folder_id) {
+    const syncFolders = [album.google_drive_folder_id, album.client_video_google_drive_folder_id].filter(
+      (folder): folder is string => Boolean(folder),
+    );
+    if (syncFolders.length) {
       try {
         const { syncAlbumFromGoogleDrive } = await import("@/lib/drive-sync");
-        const syncRes = await syncAlbumFromGoogleDrive(album.id, album.google_drive_folder_id);
-        if (syncRes.added > 0 || photos.length === 0) {
+        let added = 0;
+        for (const folder of syncFolders) {
+          const syncRes = await syncAlbumFromGoogleDrive(album.id, folder);
+          added += syncRes.added;
+        }
+        if (added > 0 || photos.length === 0) {
           photos = await db.albumPhoto.findMany({
             where: { wedding_album_id: album.id },
             orderBy: { created_at: "desc" },
@@ -41,9 +47,6 @@ export async function POST(req: Request) {
         console.warn("Backend Drive sync attempt warning:", syncErr);
       }
     }
-
-    const embedUrl = getDriveEmbedUrl(album.google_drive_folder_id);
-    const browseUrl = getDriveBrowseUrl(album.google_drive_folder_id);
 
     const response = NextResponse.json({
       success: true,
@@ -56,9 +59,7 @@ export async function POST(req: Request) {
         event_date: album.event_date,
         cover_image: album.cover_image,
         allow_downloads: album.allow_downloads,
-        google_drive_folder_id: album.google_drive_folder_id,
-        drive_embed_url: embedUrl,
-        drive_browse_url: browseUrl,
+        // Never expose raw Google Drive identifiers or browse URLs to clients.
         photos: photos,
       }),
     });

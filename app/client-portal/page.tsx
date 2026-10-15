@@ -29,6 +29,7 @@ export default function ClientPortalPage() {
   const [status, setStatus] = useState<"idle" | "loading" | "error" | "unlocked">("idle");
   const [albumData, setAlbumData] = useState<any>(null);
   const [previewIndex, setPreviewIndex] = useState<number | null>(null);
+  const [activeMediaTab, setActiveMediaTab] = useState<"photos" | "videos">("photos");
   const [selectedPhotoIds, setSelectedPhotoIds] = useState<(string | number)[]>([]);
   const [downloadProgress, setDownloadProgress] = useState<{
     active: boolean;
@@ -45,15 +46,19 @@ export default function ClientPortalPage() {
     return byName || String(a.id).localeCompare(String(b.id), undefined, { numeric: true });
   });
 
+  const visibleMedia = (albumData?.photos || []).filter((photo: any) =>
+    activeMediaTab === "videos" ? Boolean(photo.is_video) : !photo.is_video,
+  );
+
   // Keyboard navigation for Big Screen Lightbox
   useEffect(() => {
-    if (previewIndex === null || !albumData?.photos?.length) return;
+    if (previewIndex === null || !visibleMedia.length) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowLeft") {
-        setPreviewIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : albumData.photos.length - 1));
+        setPreviewIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : visibleMedia.length - 1));
       } else if (e.key === "ArrowRight") {
-        setPreviewIndex((prev) => (prev !== null && prev < albumData.photos.length - 1 ? prev + 1 : 0));
+        setPreviewIndex((prev) => (prev !== null && prev < visibleMedia.length - 1 ? prev + 1 : 0));
       } else if (e.key === "Escape") {
         setPreviewIndex(null);
       }
@@ -61,7 +66,7 @@ export default function ClientPortalPage() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [previewIndex, albumData]);
+  }, [previewIndex, visibleMedia.length]);
 
   const handleUnlock = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,6 +98,7 @@ export default function ClientPortalPage() {
     setPin("");
     setPreviewIndex(null);
     setSelectedPhotoIds([]);
+    setActiveMediaTab("photos");
   };
 
   // Selection toggle helpers
@@ -104,8 +110,7 @@ export default function ClientPortalPage() {
   };
 
   const selectAllPhotos = () => {
-    if (!albumData?.photos) return;
-    setSelectedPhotoIds(albumData.photos.map((p: any) => p.id));
+    setSelectedPhotoIds(visibleMedia.map((p: any) => p.id));
   };
 
   const deselectAllPhotos = () => {
@@ -150,7 +155,7 @@ export default function ClientPortalPage() {
     setDownloadProgress(null);
   };
 
-  const handleDownloadAll = () => handleBatchDownload(albumData?.photos);
+  const handleDownloadAll = () => handleBatchDownload(visibleMedia);
 
   const handleDownloadSelected = () => {
     if (!albumData?.photos || selectedPhotoIds.length === 0) return;
@@ -159,7 +164,10 @@ export default function ClientPortalPage() {
   };
 
   const currentPreviewPhoto =
-    previewIndex !== null && albumData?.photos ? albumData.photos[previewIndex] : null;
+    previewIndex !== null ? visibleMedia[previewIndex] : null;
+
+  const mediaProxyUrl = (photo: any, size: "scan" | "original" = "original") =>
+    `/api/gallery/${albumData?.slug}/media?photoId=${photo.id}&size=${size}`;
 
   const coverPreview = (() => {
     const cover = String(albumData?.cover_image || "");
@@ -216,7 +224,7 @@ export default function ClientPortalPage() {
                   onClick={handleDownloadAll}
                   className="px-6 py-3 rounded-full text-xs uppercase tracking-widest bg-gradient-to-r from-[#d8b886] via-[#c4a472] to-[#b38a4c] text-[#0c0c0d] font-bold hover:scale-105 active:scale-95 transition-all shadow-lg shadow-[#c4a472]/30 flex items-center gap-2"
                 >
-                  <Download size={15} /> Download All ({albumData.photos?.length || 0} Photos)
+                    <Download size={15} /> Download All ({albumData.photos?.length || 0} Media)
                 </button>
 
                 <Link
@@ -240,39 +248,52 @@ export default function ClientPortalPage() {
           {/* 1. Photo Gallery Grid in Our Website Panel (PRIMARY SHOWCASE) */}
           {albumData.photos && albumData.photos.length > 0 ? (
             <div className="mb-14">
+              <div className="flex flex-wrap gap-2 mb-6">
+                {(["photos", "videos"] as const).map((tab) => {
+                  const count = albumData.photos.filter((p: any) => tab === "videos" ? p.is_video : !p.is_video).length;
+                  return (
+                    <button
+                      key={tab}
+                      type="button"
+                      onClick={() => { setActiveMediaTab(tab); setPreviewIndex(null); setSelectedPhotoIds([]); }}
+                      className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider border transition-colors ${activeMediaTab === tab ? "bg-[#c4a472] text-black border-[#c4a472]" : "bg-white/5 text-zinc-300 border-white/10 hover:bg-white/10"}`}
+                    >
+                      {tab === "photos" ? "Photos" : "Videos"} ({count})
+                    </button>
+                  );
+                })}
+              </div>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div>
                   <h2 className="font-serif text-2xl sm:text-3xl text-white font-light">
-                    Your Wedding Heirlooms
+                    {activeMediaTab === "videos" ? "Your Wedding Films" : "Your Wedding Heirlooms"}
                   </h2>
                   <p className="text-xs text-zinc-400 mt-1">
-                    Select photos using the circles, or click to preview in big screen ({albumData.photos.length} High-Resolution Photographs)
+                    Select {activeMediaTab} using the circles, or click to preview ({visibleMedia.length} {activeMediaTab === "videos" ? "films" : "high-resolution photographs"})
                   </p>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
                   <button
                     type="button"
-                    onClick={selectedPhotoIds.length === albumData.photos.length ? deselectAllPhotos : selectAllPhotos}
+                    onClick={selectedPhotoIds.length === visibleMedia.length ? deselectAllPhotos : selectAllPhotos}
                     className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 text-xs font-semibold uppercase tracking-wider border border-white/10 transition-colors"
                   >
-                    {selectedPhotoIds.length === albumData.photos.length ? "Deselect All" : "Select All"}
+                    {selectedPhotoIds.length === visibleMedia.length ? "Deselect All" : "Select All"}
                   </button>
                   <button
                     type="button"
                     onClick={handleDownloadAll}
                     className="px-4 py-2 rounded-xl bg-[#c4a472] text-black text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-md hover:opacity-90 transition-opacity"
                   >
-                    <Download size={13} /> Download All Photos
+                    <Download size={13} /> Download All {activeMediaTab === "videos" ? "Videos" : "Photos"}
                   </button>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
-                {albumData.photos.map((photo: any, idx: number) => {
-                  const mediaUrl = photo.photo_url?.startsWith("http") || photo.photo_url?.startsWith("/")
-                    ? photo.photo_url
-                    : `/${photo.photo_url}`;
+                {visibleMedia.map((photo: any, idx: number) => {
+                  const mediaUrl = mediaProxyUrl(photo);
                   const isSelected = selectedPhotoIds.includes(photo.id);
 
                   return (
@@ -285,12 +306,11 @@ export default function ClientPortalPage() {
                       }`}
                       onClick={() => setPreviewIndex(idx)}
                     >
-                      <img
-                        src={photo.thumbnail_url || mediaUrl}
-                        alt={photo.file_name || `Photo ${idx + 1}`}
-                        loading="lazy"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
+                      {photo.is_video ? (
+                        <video src={mediaUrl} poster={mediaProxyUrl(photo, "scan")} preload="metadata" controls className="w-full h-full object-cover" onClick={(e) => e.stopPropagation()} />
+                      ) : (
+                        <img src={mediaProxyUrl(photo, "scan")} alt={photo.file_name || `Photo ${idx + 1}`} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      )}
 
                       {/* Select / Deselect Checkbox Button */}
                       <button
@@ -366,7 +386,7 @@ export default function ClientPortalPage() {
               <div className="absolute top-4 inset-x-4 sm:inset-x-8 flex items-center justify-between z-20">
                 <div className="flex items-center gap-3 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 text-xs text-zinc-300">
                   <span className="font-bold text-[#c4a472]">
-                    Photo {previewIndex + 1} of {albumData.photos.length}
+                    {activeMediaTab === "videos" ? "Video" : "Photo"} {previewIndex + 1} of {visibleMedia.length}
                   </span>
                   <span className="text-zinc-500">|</span>
                   <span className="truncate max-w-[160px] sm:max-w-xs text-zinc-400">
@@ -418,12 +438,12 @@ export default function ClientPortalPage() {
               </div>
 
               {/* Previous Button */}
-              {albumData.photos.length > 1 && (
+              {visibleMedia.length > 1 && (
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setPreviewIndex(previewIndex > 0 ? previewIndex - 1 : albumData.photos.length - 1);
+                    setPreviewIndex(previewIndex > 0 ? previewIndex - 1 : visibleMedia.length - 1);
                   }}
                   className="absolute left-3 sm:left-6 z-20 p-3 sm:p-4 rounded-full bg-black/60 hover:bg-[#c4a472] text-white hover:text-black border border-white/10 transition-all shadow-2xl"
                   title="Previous Photo (Left Arrow)"
@@ -437,15 +457,11 @@ export default function ClientPortalPage() {
                 className="max-w-6xl max-h-[82vh] flex flex-col items-center justify-center relative select-none"
                 onClick={(e) => e.stopPropagation()}
               >
-                <img
-                  src={
-                    currentPreviewPhoto.photo_url?.startsWith("http") || currentPreviewPhoto.photo_url?.startsWith("/")
-                      ? currentPreviewPhoto.photo_url
-                      : `/${currentPreviewPhoto.photo_url}`
-                  }
-                  alt={currentPreviewPhoto.file_name || "Big Screen Preview"}
-                  className="max-h-[75vh] sm:max-h-[80vh] w-auto max-w-full object-contain rounded-2xl shadow-2xl"
-                />
+                {currentPreviewPhoto.is_video ? (
+                  <video src={mediaProxyUrl(currentPreviewPhoto)} controls autoPlay className="max-h-[75vh] sm:max-h-[80vh] w-auto max-w-full rounded-2xl shadow-2xl" />
+                ) : (
+                  <img src={mediaProxyUrl(currentPreviewPhoto)} alt={currentPreviewPhoto.file_name || "Big Screen Preview"} className="max-h-[75vh] sm:max-h-[80vh] w-auto max-w-full object-contain rounded-2xl shadow-2xl" />
+                )}
 
                 {/* Bottom Navigation & Download Bar */}
                 <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
@@ -469,12 +485,12 @@ export default function ClientPortalPage() {
               </div>
 
               {/* Next Button */}
-              {albumData.photos.length > 1 && (
+              {visibleMedia.length > 1 && (
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setPreviewIndex(previewIndex < albumData.photos.length - 1 ? previewIndex + 1 : 0);
+                    setPreviewIndex(previewIndex < visibleMedia.length - 1 ? previewIndex + 1 : 0);
                   }}
                   className="absolute right-3 sm:right-6 z-20 p-3 sm:p-4 rounded-full bg-black/60 hover:bg-[#c4a472] text-white hover:text-black border border-white/10 transition-all shadow-2xl"
                   title="Next Photo (Right Arrow)"
