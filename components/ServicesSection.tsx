@@ -51,7 +51,7 @@ export default function ServicesSection({ services }: { services: any[] }) {
                 )}
                 <div className="mb-8">
                   <span className="text-xs text-[#a1a1aa] uppercase tracking-wider block mb-1">
-                    Investment Starting From
+                    Starting from
                   </span>
                   <span className="font-serif text-4xl text-[#f5f5f7] font-light bg-gradient-to-b from-[#fff6e5] to-[#c4a472] bg-clip-text text-transparent">
                     {formatIndianCurrency(srv.price_from)}

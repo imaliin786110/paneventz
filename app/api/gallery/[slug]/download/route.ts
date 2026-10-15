@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { db } from "@/lib/db";
 import { extractDriveId } from "@/lib/drive";
-import { galleryAccessCookieName, hasGalleryAccess } from "@/lib/gallery-access";
+import { faceAccessCookieName, galleryAccessCookieName, hasFaceAccess, hasGalleryAccess } from "@/lib/gallery-access";
 
 export async function GET(
   req: Request,
@@ -29,6 +29,10 @@ export async function GET(
       album.pin_code,
       cookieStore.get(galleryAccessCookieName(slug))?.value,
     );
+    const hasFaceMatchAccess = hasFaceAccess(
+      slug,
+      cookieStore.get(faceAccessCookieName(slug))?.value,
+    );
 
     // 1. Client Master Download
     if (downloadType === "client_master") {
@@ -53,11 +57,14 @@ export async function GET(
       }
 
       // Require unlock only if album is private and not unlocked
-      if (!album.is_public && album.pin_code && !isUnlocked) {
+      if (!album.is_public && album.pin_code && !isUnlocked && !(album.enable_face_ai && hasFaceMatchAccess)) {
         return NextResponse.json({ error: "Unlock this private gallery before downloading media." }, { status: 401 });
       }
 
-      const cleanName = (photo.file_name || `Paneventz_${photo.id}.jpg`).replace(/[^a-zA-Z0-9_.-]/g, "_");
+      const rawName = (photo.file_name || `Paneventz_${photo.id}.jpg`).replace(/[^a-zA-Z0-9_.-]/g, "_");
+      // Guest downloads are image attachments, even when Drive supplied a
+      // generic filename or a thumbnail URL without an extension.
+      const cleanName = /\.(jpe?g|png|webp|avif)$/i.test(rawName) ? rawName : `${rawName}.jpg`;
 
       // If photo has a remote URL (including a Drive thumbnail), fetch it on
       // the server and return it as an attachment so Drive is never opened.
@@ -67,25 +74,34 @@ export async function GET(
           const sourceUrl = driveInfo?.id
             ? `https://drive.google.com/uc?export=download&id=${driveInfo.id}`
             : photo.photo_url;
-          let photoRes = await fetch(sourceUrl, { redirect: "follow" });
-          const firstType = photoRes.headers.get("content-type") || "";
-          // Large Drive files can answer the `uc` URL with a confirmation HTML
-          // page. Fall back to the thumbnail rather than downloading HTML.
-          if ((!photoRes.ok || !photoRes.body || (!firstType.startsWith("image/") && !firstType.startsWith("video/"))) && driveInfo?.id) {
-            photoRes = await fetch(`https://drive.google.com/thumbnail?id=${driveInfo.id}&sz=w4096`, { redirect: "follow" });
-          }
-          if (photoRes.ok && photoRes.body) {
-            return new Response(photoRes.body, {
-              headers: {
-                "Content-Disposition": `attachment; filename="${cleanName}"`,
-                "Content-Type": photoRes.headers.get("content-type") || "image/jpeg",
-              },
-            });
+          const candidates = [
+            sourceUrl,
+            ...(driveInfo?.id ? [`https://drive.google.com/thumbnail?id=${driveInfo.id}&sz=w4096`] : []),
+          ];
+          for (const candidate of candidates) {
+            try {
+              const photoRes = await fetch(candidate, { redirect: "follow", signal: AbortSignal.timeout(30_000) });
+              const contentType = photoRes.headers.get("content-type") || "";
+              // Drive may return an HTML confirmation page for large files.
+              // Only stream actual media so a customer never downloads JSON or
+              // an HTML Drive page with a .jpg filename.
+              if (photoRes.ok && photoRes.body && (contentType.startsWith("image/") || contentType.startsWith("video/"))) {
+                return new Response(photoRes.body, {
+                  headers: {
+                    "Content-Disposition": `attachment; filename="${cleanName}"`,
+                    "Content-Type": contentType || "image/jpeg",
+                    "Cache-Control": "private, no-store",
+                  },
+                });
+              }
+            } catch {
+              // Try the next Drive representation (thumbnail fallback).
+            }
           }
         } catch (fetchErr) {
           console.warn("Failed fetching remote photo for download stream:", fetchErr);
         }
-        return NextResponse.redirect(photo.photo_url);
+        return NextResponse.json({ error: "The original image is temporarily unavailable. Please try again." }, { status: 502 });
       }
 
       // If photo is stored locally in /public
@@ -107,7 +123,7 @@ export async function GET(
         });
       } catch (readErr) {
         console.warn("Local photo file read failed, falling back to redirect:", readErr);
-        return NextResponse.redirect(new URL(photo.photo_url, req.url));
+        return NextResponse.json({ error: "The image is temporarily unavailable. Please try again." }, { status: 404 });
       }
     }
 

@@ -181,6 +181,14 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
       .map((candidate) => new Float32Array(candidate));
   };
 
+  const grantFaceAccess = async () => {
+    const response = await fetch(`/api/gallery/${encodeURIComponent(slug)}/face-access`, {
+      method: "POST",
+      credentials: "include",
+    });
+    if (!response.ok) throw new Error("Face match completed, but secure photo access could not be opened. Please try again.");
+  };
+
   const matchGuestDescriptor = async (guestDescriptor: Float32Array) => {
     const indexedPhotos = photos.filter((photo) => getStoredDescriptors(photo.face_descriptors).length > 0);
     const unindexedPhotos = photos.filter((photo) => !photo.is_video && getStoredDescriptors(photo.face_descriptors).length === 0);
@@ -253,6 +261,7 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
       const matches = [...indexedMatches, ...dynamicallyMatched];
 
       if (matches.length > 0) {
+        await grantFaceAccess();
         setGuestMatchedPhotos(matches);
         setIsAiModalOpen(false);
         stopCamera();
@@ -285,6 +294,7 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
       return;
     }
 
+    await grantFaceAccess();
     setGuestMatchedPhotos(matches);
     setIsAiModalOpen(false);
     stopCamera();
@@ -375,7 +385,9 @@ export default function GalleryClient({ initialSlug }: { initialSlug: string }) 
 
   // Guest AI albums remain locked to the selfie flow until a match is found.
   // This prevents guests from browsing the complete celebration gallery.
-  const requiresFaceMatch = Boolean(album?.enable_face_ai);
+  // Keep the protected AI entry state during the initial fetch as well, so a
+  // guest never sees the full-media tabs flash before the album arrives.
+  const requiresFaceMatch = album ? album.enable_face_ai !== false : true;
   const canShowGuestMedia = !requiresFaceMatch || Boolean(guestMatchedPhotos);
 
   // Keyboard navigation for Big Screen Lightbox

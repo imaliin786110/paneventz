@@ -120,7 +120,7 @@ export default async function ServicesPage() {
                 )}
                 <div className="mb-8">
                   <span className="text-xs text-[#71717a] uppercase tracking-wider block mb-1">
-                    Investment Starting From
+                    Starting from
                   </span>
                   <span className="font-serif text-4xl text-[#f5f5f7] font-light">
                     {formatIndianCurrency(srv.price_from)}
