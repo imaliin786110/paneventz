@@ -4,6 +4,9 @@ import { Check } from "lucide-react";
 import { formatIndianCurrency } from "@/lib/utils";
 
 export default function ServicesSection({ services }: { services: any[] }) {
+  // Pricing is intentionally hidden from the homepage; packages remain manageable in Admin.
+  return null;
+
   if (!services || services.length === 0) return null;
 
   return (
