@@ -35,6 +35,31 @@ export async function fetchDriveFolderFiles(folderUrlOrId: string): Promise<Sync
   // Method 1: Google Drive API v3
   if (apiKey) {
     try {
+      // Admin links may point to one Drive video file rather than a folder.
+      // Resolve that file directly before attempting the folder listing query.
+      if (driveInfo.type === "file") {
+        const res = await fetch(
+          `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(folderId)}?fields=id,name,mimeType,thumbnailLink&key=${encodeURIComponent(apiKey)}`,
+          { headers: { Accept: "application/json" } },
+        );
+        const item = await res.json();
+        const isVideo = String(item.mimeType || "").includes("video") || /\.(mp4|webm|mov|m4v|avi|mkv)$/i.test(item.name || "");
+        const isImage = String(item.mimeType || "").includes("image") || /\.(jpe?g|png|webp|avif)$/i.test(item.name || "");
+        if (res.ok && item.id && (isImage || isVideo)) {
+          files.push({
+            id: item.id,
+            name: item.name || `Drive_${item.id}${isVideo ? ".mp4" : ".jpg"}`,
+            photoUrl: `https://drive.google.com/thumbnail?id=${item.id}&sz=w2048`,
+            thumbnailUrl: `https://drive.google.com/thumbnail?id=${item.id}&sz=w600`,
+            isVideo,
+          });
+        }
+      }
+
+      if (driveInfo.type === "file") {
+        return files;
+      }
+
       let pageToken = "";
       let pageCount = 0;
 
