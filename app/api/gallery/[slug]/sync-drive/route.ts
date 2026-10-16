@@ -22,9 +22,14 @@ export async function POST(
     }
 
     const driveFolders = type === "master"
-      ? [album.google_drive_folder_id, album.client_video_google_drive_folder_id]
-      : [album.guest_google_drive_folder_id || album.google_drive_folder_id];
-    const configuredFolders = driveFolders.filter((folder): folder is string => Boolean(folder));
+      ? [
+          album.google_drive_folder_id ? { url: album.google_drive_folder_id, hint: "image" as const } : null,
+          album.client_video_google_drive_folder_id ? { url: album.client_video_google_drive_folder_id, hint: "video" as const } : null,
+        ]
+      : [{ url: album.guest_google_drive_folder_id || album.google_drive_folder_id, hint: "image" as const }];
+    const configuredFolders = driveFolders.filter(
+      (folder): folder is { url: string; hint: "video" | "image" } => Boolean(folder?.url),
+    );
 
     if (!configuredFolders.length) {
       return NextResponse.json({ error: "No Google Drive folder configured for this album" }, { status: 400 });
@@ -32,7 +37,7 @@ export async function POST(
 
     let added = 0;
     for (const driveFolder of configuredFolders) {
-      const result = await syncAlbumFromGoogleDrive(album.id, driveFolder);
+      const result = await syncAlbumFromGoogleDrive(album.id, driveFolder.url, driveFolder.hint);
       added += result.added;
     }
 

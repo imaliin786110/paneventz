@@ -26,15 +26,16 @@ export async function POST(req: Request) {
     let photos = album.photos || [];
 
     // Keep the customer photo grid current when new files are added to Drive.
-    const syncFolders = [album.google_drive_folder_id, album.client_video_google_drive_folder_id].filter(
-      (folder): folder is string => Boolean(folder),
-    );
+    const syncFolders = [
+      album.google_drive_folder_id ? { url: album.google_drive_folder_id, hint: "image" as const } : null,
+      album.client_video_google_drive_folder_id ? { url: album.client_video_google_drive_folder_id, hint: "video" as const } : null,
+    ].filter((folder): folder is { url: string; hint: "video" | "image" } => Boolean(folder));
     if (syncFolders.length) {
       try {
         const { syncAlbumFromGoogleDrive } = await import("@/lib/drive-sync");
         let added = 0;
         for (const folder of syncFolders) {
-          const syncRes = await syncAlbumFromGoogleDrive(album.id, folder);
+          const syncRes = await syncAlbumFromGoogleDrive(album.id, folder.url, folder.hint);
           added += syncRes.added;
         }
         if (added > 0 || photos.length === 0) {

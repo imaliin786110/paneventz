@@ -14,7 +14,7 @@ export interface SyncedDriveFile {
  * Fetch list of files from a Google Drive folder.
  * Uses Google Drive API key if available, or extracts from public folder endpoints.
  */
-export async function fetchDriveFolderFiles(folderUrlOrId: string): Promise<SyncedDriveFile[]> {
+export async function fetchDriveFolderFiles(folderUrlOrId: string, fileTypeHint?: "video" | "image"): Promise<SyncedDriveFile[]> {
   const driveInfo = extractDriveId(folderUrlOrId);
   if (!driveInfo?.id) return [];
   const folderId = driveInfo.id;
@@ -56,7 +56,7 @@ export async function fetchDriveFolderFiles(folderUrlOrId: string): Promise<Sync
         }
       }
 
-      if (driveInfo.type === "file") {
+      if (driveInfo.type === "file" && files.length > 0) {
         return files;
       }
 
@@ -147,13 +147,25 @@ export async function fetchDriveFolderFiles(folderUrlOrId: string): Promise<Sync
     }
   }
 
+  // A public single-file link can still be indexed without a Drive API key.
+  // The admin field tells us whether this link belongs to the video or photo stream.
+  if (driveInfo.type === "file" && fileTypeHint) {
+    files.push({
+      id: driveInfo.id,
+      name: `Drive_${driveInfo.id}${fileTypeHint === "video" ? ".mp4" : ".jpg"}`,
+      photoUrl: `https://drive.google.com/thumbnail?id=${driveInfo.id}&sz=w2048`,
+      thumbnailUrl: `https://drive.google.com/thumbnail?id=${driveInfo.id}&sz=w600`,
+      isVideo: fileTypeHint === "video",
+    });
+  }
+
   return files;
 }
 
 /**
  * Syncs Google Drive folder files directly into the wedding album database.
  */
-export async function syncAlbumFromGoogleDrive(albumId: bigint | string, driveFolderUrlOrId: string) {
+export async function syncAlbumFromGoogleDrive(albumId: bigint | string, driveFolderUrlOrId: string, fileTypeHint?: "video" | "image") {
   const albumBigIntId = typeof albumId === "string" ? BigInt(albumId) : albumId;
   const album = await db.weddingAlbum.findUnique({
     where: { id: albumBigIntId },
@@ -162,7 +174,7 @@ export async function syncAlbumFromGoogleDrive(albumId: bigint | string, driveFo
 
   if (!album) return { success: false, error: "Album not found", added: 0 };
 
-  const driveFiles = await fetchDriveFolderFiles(driveFolderUrlOrId);
+  const driveFiles = await fetchDriveFolderFiles(driveFolderUrlOrId, fileTypeHint);
   if (!driveFiles.length) {
     return { success: true, added: 0, total: album.photos.length, message: "No new files returned from Drive folder." };
   }
